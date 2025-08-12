@@ -3,11 +3,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-interface SignInButtonProps {
-  className?: string;
-}
-
-export function SignInButton({ className }: SignInButtonProps) {
+export function SignInButton({ className }) {
   return (
     <Button asChild className={className}>
       <Link href="/login">Sign In</Link>

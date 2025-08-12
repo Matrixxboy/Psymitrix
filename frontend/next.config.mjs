@@ -1,50 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
+  reactStrictMode: true,
+  swcMinify: true,
   experimental: {
-    appDir: true,
-    suppressHydrationWarning: true,
-    skipTypeChecking: true,
-    skipMiddlewareUrlNormalize: true,
     missingSuspenseWithCSRBailout: false,
   },
-
-  reactStrictMode: false,
-
-  // Disable image optimization warnings
-  images: {
-    unoptimized: true,
-  },
-
-  // Ignore specific page extensions
-  pageExtensions: ["tsx", "ts", "jsx", "js"].filter(
-    (ext) => !ext.includes("spec")
-  ),
-
-  // Configure webpack
-  webpack: (config, { isServer, dev }) => {
-    // Ignore specific modules that might cause issues
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      sharp$: false,
-      canvas$: false,
-    };
-
+  pageExtensions: ['js', 'jsx', 'mdx'],
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, path: false };
     return config;
   },
-
-  // Suppress specific console warnings
-  onDemandEntries: {
-    // Reduce console noise
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
+  transpilePackages: [
+    "@radix-ui/react-toast",
+    "@radix-ui/react-tooltip",
+  ],
 };
 
 export default nextConfig;
