@@ -69,24 +69,24 @@ export function Header() {
                 <>
                   <Button
                     asChild
-                    className="hidden md:flex gap-2 bg-primary/90 hover:bg-primary"
+                    className="hidden md:flex gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200"
                   >
                     <Link href="/dashboard">
-                      <MessageCircle className="w-4 h-4 mr-1" />
-                      Start Chat
+                      <MessageCircle className="w-4 h-4" />
+                      Dashboard
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
                     onClick={logout}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="border-border/50 hover:border-border hover:bg-muted/50 transition-all duration-200"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign out
                   </Button>
                 </>
               ) : (
-                <SignInButton />
+                <SignInButton className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200" />
               )}
 
               <Button
