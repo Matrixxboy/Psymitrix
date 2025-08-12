@@ -174,6 +174,7 @@ export default function TherapyPage() {
         console.error("Failed to initialize chat:", error);
         setMessages([
           {
+            id: `error-${Date.now()}`,
             role: "assistant",
             content:
               "I apologize, but I'm having trouble loading the chat session. Please try refreshing the page.",
