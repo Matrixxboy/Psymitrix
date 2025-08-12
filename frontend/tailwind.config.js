@@ -49,6 +49,12 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // Custom calm colors
+        "pastel-blue": "#A8DADC",
+        "mint-green": "#B7E4C7",
+        "light-tea": "#70C1B3",
+        "off-white": "#F0F4F8",
+        "soft-gray": "#CED4DA",
       },
       borderRadius: {
         lg: "var(--radius)",
