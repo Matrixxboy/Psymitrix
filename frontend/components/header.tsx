@@ -27,21 +27,23 @@ export function Header() {
   ];
 
   return (
-    <div className="w-full fixed top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="absolute inset-0 border-b border-primary/10" />
-      <header className="relative max-w-6xl mx-auto px-4">
+    <div className="w-full fixed top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/20">
+      <header className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="flex items-center space-x-2 transition-opacity hover:opacity-80"
+            className="flex items-center space-x-3 transition-all duration-200 hover:scale-105"
           >
-            <AudioWaveform className="h-7 w-7 text-primary animate-pulse-gentle" />
+            <div className="relative">
+              <AudioWaveform className="h-8 w-8 text-primary" />
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-md animate-pulse" />
+            </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-lg bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Aura3.0
+              <span className="font-bold text-lg bg-gradient-to-r from-primary via-primary/90 to-secondary bg-clip-text text-transparent">
+                Aura
               </span>
-              <span className="text-xs dark:text-muted-foreground">
-                Your mental health Companion{" "}
+              <span className="text-xs text-muted-foreground/80 font-medium">
+                Mental Health Companion
               </span>
             </div>
           </Link>
