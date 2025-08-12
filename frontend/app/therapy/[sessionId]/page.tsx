@@ -116,10 +116,10 @@ export default function TherapyPage() {
 
       // Update sessions list immediately
       const newSession: ChatSession = {
-        sessionId: newSessionId,
-        messages: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        id: newSessionId,
+        title: "New Session",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       // Update all state in one go
@@ -157,7 +157,7 @@ export default function TherapyPage() {
             if (Array.isArray(history)) {
               const formattedHistory = history.map((msg) => ({
                 ...msg,
-                timestamp: new Date(msg.timestamp),
+                timestamp: msg.timestamp || new Date().toISOString(),
               }));
               console.log("Formatted history:", formattedHistory);
               setMessages(formattedHistory);
@@ -174,10 +174,11 @@ export default function TherapyPage() {
         console.error("Failed to initialize chat:", error);
         setMessages([
           {
+            id: `error-${Date.now()}`,
             role: "assistant",
             content:
               "I apologize, but I'm having trouble loading the chat session. Please try refreshing the page.",
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(),
           },
         ]);
       } finally {
@@ -241,9 +242,10 @@ export default function TherapyPage() {
     try {
       // Add user message
       const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
         role: "user",
         content: currentMessage,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, userMessage]);
 
@@ -267,12 +269,13 @@ export default function TherapyPage() {
 
       // Add AI response with metadata
       const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
         role: "assistant",
         content:
           aiResponse.response ||
           aiResponse.message ||
           "I'm here to support you. Could you tell me more about what's on your mind?",
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         metadata: {
           analysis: aiResponse.analysis || {
             emotionalState: "neutral",
@@ -301,10 +304,11 @@ export default function TherapyPage() {
       setMessages((prev) => [
         ...prev,
         {
+          id: `error-${Date.now()}`,
           role: "assistant",
           content:
             "I apologize, but I'm having trouble connecting right now. Please try again in a moment.",
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
       ]);
       setIsTyping(false);

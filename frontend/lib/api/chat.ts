@@ -1,7 +1,26 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Type definitions
+export interface ChatMessage {
+  id: string;
+  content: string;
+  role: 'user' | 'assistant';
+  timestamp: string;
+  session_id?: string;
+  metadata?: any;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count?: number;
+  last_message?: string;
+}
+
 // Helper function to get auth headers
-const getAuthHeaders = () => {
+const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem("token");
   return {
     "Content-Type": "application/json",
@@ -9,7 +28,7 @@ const getAuthHeaders = () => {
   };
 };
 
-export const sendChatMessage = async (message, sessionId = null) => {
+export const sendChatMessage = async (message: string, sessionId: string | null = null) => {
   try {
     console.log("Sending message:", message);
     const response = await fetch(`${API_BASE_URL}/chat/`, {
@@ -36,7 +55,7 @@ export const sendChatMessage = async (message, sessionId = null) => {
   }
 };
 
-export const getChatSessions = async () => {
+export const getChatSessions = async (): Promise<ChatSession[]> => {
   try {
     console.log("Fetching chat sessions...");
     const response = await fetch(`${API_BASE_URL}/chat/sessions`, {
@@ -58,7 +77,7 @@ export const getChatSessions = async () => {
   }
 };
 
-export const getChatHistory = async (sessionId) => {
+export const getChatHistory = async (sessionId: string): Promise<ChatMessage[]> => {
   try {
     console.log(`Fetching chat history for session ${sessionId}`);
     const response = await fetch(`${API_BASE_URL}/chat/sessions/${sessionId}`, {
@@ -80,7 +99,7 @@ export const getChatHistory = async (sessionId) => {
   }
 };
 
-export const deleteChatSession = async (sessionId) => {
+export const deleteChatSession = async (sessionId: string) => {
   try {
     console.log(`Deleting chat session ${sessionId}`);
     const response = await fetch(`${API_BASE_URL}/chat/sessions/${sessionId}`, {
@@ -104,7 +123,7 @@ export const deleteChatSession = async (sessionId) => {
 };
 
 // Legacy exports for compatibility
-export const createChatSession = async () => {
+export const createChatSession = async (): Promise<string> => {
   // The new backend creates sessions automatically when sending the first message
   // Return a placeholder that will be replaced by the actual session ID
   return "new-session";
