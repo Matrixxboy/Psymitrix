@@ -358,8 +358,6 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Add custom animations to globals.css */}
     </div>
   );
 }
