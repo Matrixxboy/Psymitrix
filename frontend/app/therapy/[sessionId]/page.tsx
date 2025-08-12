@@ -268,6 +268,7 @@ export default function TherapyPage() {
 
       // Add AI response with metadata
       const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
         role: "assistant",
         content:
           aiResponse.response ||
