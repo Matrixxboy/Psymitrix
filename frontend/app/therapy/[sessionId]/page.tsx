@@ -116,10 +116,10 @@ export default function TherapyPage() {
 
       // Update sessions list immediately
       const newSession: ChatSession = {
-        sessionId: newSessionId,
-        messages: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        id: newSessionId,
+        title: "New Session",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       // Update all state in one go
