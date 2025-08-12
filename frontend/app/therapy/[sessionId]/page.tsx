@@ -273,7 +273,7 @@ export default function TherapyPage() {
           aiResponse.response ||
           aiResponse.message ||
           "I'm here to support you. Could you tell me more about what's on your mind?",
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         metadata: {
           analysis: aiResponse.analysis || {
             emotionalState: "neutral",
