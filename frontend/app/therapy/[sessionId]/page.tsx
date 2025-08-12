@@ -241,9 +241,10 @@ export default function TherapyPage() {
     try {
       // Add user message
       const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
         role: "user",
         content: currentMessage,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, userMessage]);
 
