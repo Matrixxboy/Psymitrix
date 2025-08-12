@@ -303,6 +303,7 @@ export default function TherapyPage() {
       setMessages((prev) => [
         ...prev,
         {
+          id: `error-${Date.now()}`,
           role: "assistant",
           content:
             "I apologize, but I'm having trouble connecting right now. Please try again in a moment.",
