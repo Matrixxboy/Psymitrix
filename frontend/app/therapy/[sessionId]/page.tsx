@@ -157,7 +157,7 @@ export default function TherapyPage() {
             if (Array.isArray(history)) {
               const formattedHistory = history.map((msg) => ({
                 ...msg,
-                timestamp: new Date(msg.timestamp),
+                timestamp: msg.timestamp || new Date().toISOString(),
               }));
               console.log("Formatted history:", formattedHistory);
               setMessages(formattedHistory);
