@@ -4,75 +4,75 @@
 
 @layer base {
   :root {
-    /* Calming light theme colors */
-    --background: 180 20% 99%;
+    /* Calm color palette */
+    --background: 200 67% 97%; /* Off White #F0F4F8 */
     --foreground: 200 8% 24%;
 
-    --card: 180 20% 99%;
+    --card: 200 67% 97%; /* Off White #F0F4F8 */
     --card-foreground: 200 8% 24%;
 
-    --popover: 180 20% 99%;
+    --popover: 200 67% 97%; /* Off White #F0F4F8 */
     --popover-foreground: 200 8% 24%;
 
-    /* Soft sage green as primary */
-    --primary: 150 30% 60%;
-    --primary-foreground: 150 40% 16%;
+    /* Light Tea as primary */
+    --primary: 171 41% 60%; /* Light Tea #70C1B3 */
+    --primary-foreground: 200 67% 97%;
 
-    /* Gentle lavender as secondary */
-    --secondary: 250 20% 96%;
-    --secondary-foreground: 250 10% 30%;
+    /* Mint Green as secondary */
+    --secondary: 140 52% 81%; /* Mint Green #B7E4C7 */
+    --secondary-foreground: 200 8% 24%;
 
-    /* Muted tones */
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 45%;
+    /* Soft Gray as muted */
+    --muted: 210 14% 83%; /* Soft Gray #CED4DA */
+    --muted-foreground: 200 8% 40%;
 
-    /* Soft accent */
-    --accent: 180 25% 95%;
+    /* Pastel Blue as accent */
+    --accent: 183 47% 75%; /* Pastel Blue #A8DADC */
     --accent-foreground: 200 8% 24%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 200 67% 97%;
 
-    --border: 200 10% 90%;
-    --input: 200 10% 90%;
-    --ring: 150 30% 60%;
+    --border: 210 14% 83%; /* Soft Gray #CED4DA */
+    --input: 210 14% 83%; /* Soft Gray #CED4DA */
+    --ring: 171 41% 60%; /* Light Tea #70C1B3 */
 
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Soothing dark theme colors */
-    --background: 200 50% 3%;
-    --foreground: 210 20% 98%;
+    /* Dark theme with calm colors */
+    --background: 200 30% 8%;
+    --foreground: 200 67% 97%;
 
-    --card: 200 50% 3%;
-    --card-foreground: 210 20% 98%;
+    --card: 200 30% 10%;
+    --card-foreground: 200 67% 97%;
 
-    --popover: 200 50% 3%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 200 30% 10%;
+    --popover-foreground: 200 67% 97%;
 
-    /* Soft sage in dark mode */
-    --primary: 150 30% 70%;
-    --primary-foreground: 150 40% 16%;
+    /* Light Tea darkened */
+    --primary: 171 41% 50%; /* Darker Light Tea */
+    --primary-foreground: 200 67% 97%;
 
-    /* Gentle purple in dark mode */
-    --secondary: 250 20% 20%;
-    --secondary-foreground: 210 20% 98%;
+    /* Mint Green darkened */
+    --secondary: 140 52% 25%; /* Darker Mint Green */
+    --secondary-foreground: 200 67% 97%;
 
-    /* Muted dark tones */
-    --muted: 200 50% 10%;
-    --muted-foreground: 210 20% 70%;
+    /* Soft Gray darkened */
+    --muted: 210 14% 20%;
+    --muted-foreground: 210 14% 70%;
 
-    /* Soft dark accent */
-    --accent: 200 50% 10%;
-    --accent-foreground: 210 20% 98%;
+    /* Pastel Blue darkened */
+    --accent: 183 47% 25%; /* Darker Pastel Blue */
+    --accent-foreground: 200 67% 97%;
 
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 200 67% 97%;
 
-    --border: 200 50% 10%;
-    --input: 200 50% 10%;
-    --ring: 150 30% 70%;
+    --border: 210 14% 20%;
+    --input: 210 14% 20%;
+    --ring: 171 41% 50%;
   }
 }
 
