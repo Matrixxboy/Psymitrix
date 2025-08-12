@@ -305,7 +305,7 @@ export default function TherapyPage() {
           role: "assistant",
           content:
             "I apologize, but I'm having trouble connecting right now. Please try again in a moment.",
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
       ]);
       setIsTyping(false);
