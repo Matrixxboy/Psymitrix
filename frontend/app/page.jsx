@@ -241,10 +241,8 @@ export default function Home() {
 
       {/* Enhanced Features Grid */}
       <section className="relative py-20 px-4 overflow-hidden">
-        {/* <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" /> */}
-
         <div className="max-w-6xl mx-auto">
-          <motion.div className="text-center mb-16 space-y-4 text-white ">
+          <motion.div className="text-center mb-16 space-y-4">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent dark:text-primary/90">
               How Aura Helps You
             </h2>

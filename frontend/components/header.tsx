@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Heart,
   Menu,
@@ -27,35 +28,37 @@ export function Header() {
   ];
 
   return (
-    <div className="w-full fixed top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="absolute inset-0 border-b border-primary/10" />
-      <header className="relative max-w-6xl mx-auto px-4">
+    <div className="w-full fixed top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/20">
+      <header className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link
             href="/"
-            className="flex items-center space-x-2 transition-opacity hover:opacity-80"
+            className="flex items-center space-x-3 transition-all duration-200 hover:scale-105"
           >
-            <AudioWaveform className="h-7 w-7 text-primary animate-pulse-gentle" />
+            <div className="relative">
+              <AudioWaveform className="h-8 w-8 text-primary" />
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-md animate-pulse" />
+            </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-lg bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Aura3.0
+              <span className="font-bold text-lg bg-gradient-to-r from-primary via-primary/90 to-secondary bg-clip-text text-transparent">
+                Aura
               </span>
-              <span className="text-xs dark:text-muted-foreground">
-                Your mental health Companion{" "}
+              <span className="text-xs text-muted-foreground/80 font-medium">
+                Mental Health Companion
               </span>
             </div>
           </Link>
 
           <div className="flex items-center gap-4">
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden md:flex items-center space-x-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
+                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/5 rounded-lg transition-all duration-200 relative group"
                 >
                   {item.label}
-                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
+                  <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full scale-0 group-hover:scale-100 transition-transform duration-200" />
                 </Link>
               ))}
             </nav>
@@ -67,24 +70,24 @@ export function Header() {
                 <>
                   <Button
                     asChild
-                    className="hidden md:flex gap-2 bg-primary/90 hover:bg-primary"
+                    className="hidden md:flex gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200"
                   >
                     <Link href="/dashboard">
-                      <MessageCircle className="w-4 h-4 mr-1" />
-                      Start Chat
+                      <MessageCircle className="w-4 h-4" />
+                      Dashboard
                     </Link>
                   </Button>
                   <Button
                     variant="outline"
                     onClick={logout}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="border-border/50 hover:border-border hover:bg-muted/50 transition-all duration-200"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign out
                   </Button>
                 </>
               ) : (
-                <SignInButton />
+                <SignInButton className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-200" />
               )}
 
               <Button
@@ -105,31 +108,53 @@ export function Header() {
 
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-primary/10">
-            <nav className="flex flex-col space-y-1 py-4">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden border-t border-border/20 bg-background/95 backdrop-blur"
+          >
+            <nav className="flex flex-col space-y-2 py-4 px-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/5 rounded-md transition-colors"
+                  className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-all duration-200 flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
               ))}
-              {isAuthenticated && (
-                <Button
-                  asChild
-                  className="mt-2 mx-4 gap-2 bg-primary/90 hover:bg-primary"
-                >
-                  <Link href="/dashboard">
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Start Chat</span>
-                  </Link>
-                </Button>
-              )}
+              <div className="px-2 pt-2 space-y-2">
+                {isAuthenticated ? (
+                  <>
+                    <Button
+                      asChild
+                      className="w-full gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                    >
+                      <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <MessageCircle className="w-4 h-4" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign out
+                    </Button>
+                  </>
+                ) : (
+                  <SignInButton className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary" />
+                )}
+              </div>
             </nav>
-          </div>
+          </motion.div>
         )}
       </header>
 
