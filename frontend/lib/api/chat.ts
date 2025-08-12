@@ -7,6 +7,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   timestamp: string;
   session_id?: string;
+  metadata?: any;
 }
 
 export interface ChatSession {
