@@ -107,31 +107,53 @@ export function Header() {
 
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-primary/10">
-            <nav className="flex flex-col space-y-1 py-4">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden border-t border-border/20 bg-background/95 backdrop-blur"
+          >
+            <nav className="flex flex-col space-y-2 py-4 px-2">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/5 rounded-md transition-colors"
+                  className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-primary/10 rounded-lg transition-all duration-200 flex items-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
               ))}
-              {isAuthenticated && (
-                <Button
-                  asChild
-                  className="mt-2 mx-4 gap-2 bg-primary/90 hover:bg-primary"
-                >
-                  <Link href="/dashboard">
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Start Chat</span>
-                  </Link>
-                </Button>
-              )}
+              <div className="px-2 pt-2 space-y-2">
+                {isAuthenticated ? (
+                  <>
+                    <Button
+                      asChild
+                      className="w-full gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                    >
+                      <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <MessageCircle className="w-4 h-4" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign out
+                    </Button>
+                  </>
+                ) : (
+                  <SignInButton className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary" />
+                )}
+              </div>
             </nav>
-          </div>
+          </motion.div>
         )}
       </header>
 
