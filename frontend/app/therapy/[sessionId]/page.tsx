@@ -177,7 +177,7 @@ export default function TherapyPage() {
             role: "assistant",
             content:
               "I apologize, but I'm having trouble loading the chat session. Please try refreshing the page.",
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(),
           },
         ]);
       } finally {
