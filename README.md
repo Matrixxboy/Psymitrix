@@ -617,16 +617,16 @@ copies or substantial portions of the Software.
 ### 👨‍💻 Project Maintainer
 
 **Utsav Lankapati**
-- 📧 Email: utsav@gmail.com
-- 💼 LinkedIn: [Connect with me](https://linkedin.com/in/utsav-lankapati)
-- 🐱 GitHub: [@utsav-lankapati](https://github.com/utsav-lankapati)
+- 📧 Email: matrix.utsav.lankapati@gmail.com
+- 💼 LinkedIn: [Connect with me](https://www.linkedin.com/in/utsav-lankapati-aa407b307/)
+- 🐱 GitHub: [@Matrixxboy](https://github.com/Matrixxboy/)
 
 ### 🔗 Project Links
 
-- 📊 **Project Repository**: [GitHub](https://github.com/your-username/psymitrix)
-- 🐛 **Issue Tracker**: [Report Issues](https://github.com/your-username/psymitrix/issues)
-- 💡 **Feature Requests**: [Request Features](https://github.com/your-username/psymitrix/issues/new)
-- 📖 **Documentation**: [Wiki](https://github.com/your-username/psymitrix/wiki)
+- 📊 **Project Repository**: [GitHub](https://github.com/Matrixxboy/psymitrix)
+- 🐛 **Issue Tracker**: [Report Issues](https://github.com/Matrixxboy/psymitrix/issues)
+- 💡 **Feature Requests**: [Request Features](https://github.com/Matrixxboy/psymitrix/issues/new)
+- 📖 **Documentation**: [Wiki](https://github.com/Matrixxboy/psymitrix/wiki)
 
 ---
 
