@@ -1,2 +1,2 @@
-export { default as RecentActivitySection } from './RecentActivitySection';
-export { default as TopSalesSection } from './TopSalesSection';
+export { default as RecentSessionsSection } from './RecentSessionsSection';
+export { default as MentalHealthMetricsSection } from './MentalHealthMetricsSection';
