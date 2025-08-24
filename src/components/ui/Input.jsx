@@ -10,7 +10,7 @@ const Input = ({
   className = '', 
   ...props 
 }) => {
-  const baseClasses = 'w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200';
+  const baseClasses = 'w-full px-3 py-3 sm:py-2 text-base sm:text-sm border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200';
   
   const stateClasses = error 
     ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 

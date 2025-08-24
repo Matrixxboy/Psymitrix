@@ -54,31 +54,31 @@ const RecentSessionsSection = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Recent Sessions
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {sessions.map((session) => (
-          <div key={session.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0 last:pb-0">
-            <div className="flex justify-between items-start mb-2">
+          <div key={session.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0 last:pb-0">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 space-y-2 sm:space-y-0">
               <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-1">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1 space-y-1 sm:space-y-0">
+                  <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
                     {session.type}
                   </p>
-                  <span className={`px-2 py-1 text-xs rounded-full ${getMoodColor(session.mood)}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full w-fit ${getMoodColor(session.mood)}`}>
                     {session.mood}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-1">
                   {session.summary}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">
                   Duration: {session.duration}
                 </p>
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 ml-4">
+              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 sm:ml-4">
                 {session.time}
               </span>
             </div>

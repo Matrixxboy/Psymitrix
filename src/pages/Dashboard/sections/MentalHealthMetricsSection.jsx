@@ -50,24 +50,24 @@ const MentalHealthMetricsSection = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Mental Health Metrics
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {mentalHealthData.map((item) => (
-          <div key={item.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0 last:pb-0">
+          <div key={item.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0 last:pb-0">
             <div className="flex justify-between items-start mb-2">
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
                   {item.metric}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   {item.description}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              <div className="text-right ml-4 flex-shrink-0">
+                <p className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
                   {item.value}
                 </p>
                 <span className={`text-sm font-medium ${getStatusColor(item.status)}`}>

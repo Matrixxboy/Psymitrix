@@ -22,9 +22,9 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-4">
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label htmlFor="email" className="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
           Email
         </label>
         <Input
@@ -40,7 +40,7 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
       </div>
       
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label htmlFor="password" className="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
           Password
         </label>
         <Input
@@ -56,7 +56,7 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
       </div>
       
       {error && (
-        <div className="text-red-600 text-sm mt-2">
+        <div className="text-red-600 text-sm sm:text-base mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-md border border-red-200 dark:border-red-800">
           {error}
         </div>
       )}
@@ -64,7 +64,8 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
       <Button
         type="submit"
         variant="primary"
-        className="w-full"
+        size="lg"
+        className="w-full mt-6"
         disabled={loading}
       >
         {loading ? 'Signing in...' : 'Sign In'}
