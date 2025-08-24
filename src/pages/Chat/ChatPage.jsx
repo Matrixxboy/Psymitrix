@@ -1,0 +1,224 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+
+const ChatPage = () => {
+  const { user, logout } = useAuth();
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      type: 'ai',
+      content: `Hello ${user?.name}, I'm your AI psychiatrist. I'm here to listen and help you work through whatever is on your mind. How are you feeling today?`,
+      timestamp: new Date()
+    }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const analyzeMessage = (message) => {
+    const anxietyKeywords = ['anxious', 'worried', 'nervous', 'panic', 'stress'];
+    const depressionKeywords = ['sad', 'depressed', 'hopeless', 'lonely', 'empty'];
+    const positiveKeywords = ['happy', 'good', 'great', 'better', 'positive'];
+    
+    const lowerMessage = message.toLowerCase();
+    
+    if (anxietyKeywords.some(word => lowerMessage.includes(word))) {
+      return 'anxiety';
+    } else if (depressionKeywords.some(word => lowerMessage.includes(word))) {
+      return 'depression';
+    } else if (positiveKeywords.some(word => lowerMessage.includes(word))) {
+      return 'positive';
+    }
+    return 'neutral';
+  };
+
+  const generateAIResponse = (userMessage, sentiment) => {
+    const responses = {
+      anxiety: [
+        "I understand you're feeling anxious. That's completely valid. Can you tell me what specifically is causing these anxious feelings?",
+        "Anxiety can feel overwhelming. Let's try a quick breathing exercise: breathe in for 4 counts, hold for 4, and breathe out for 6. How does that feel?",
+        "Thank you for sharing that with me. Anxiety is very treatable. What coping strategies have you tried before?"
+      ],
+      depression: [
+        "I hear that you're going through a difficult time. Your feelings are valid, and I'm here to support you. What has been the hardest part of your day?",
+        "Depression can make everything feel heavy. You're brave for reaching out. Have you been able to maintain any daily routines?",
+        "I'm glad you're talking about this. Small steps can make a big difference. What's one small thing that brought you even a moment of peace recently?"
+      ],
+      positive: [
+        "It's wonderful to hear you're feeling good! What's contributing to these positive feelings?",
+        "That's great to hear! Celebrating positive moments is important. How can we help you maintain this feeling?",
+        "I'm so glad you're having a good day. What strategies or activities helped you feel this way?"
+      ],
+      neutral: [
+        "Thank you for sharing that with me. Can you tell me more about what you're experiencing?",
+        "I'm listening. How has your week been overall?",
+        "That's interesting. How do you feel about that situation?",
+        "Can you help me understand what's on your mind right now?"
+      ]
+    };
+
+    const sentimentResponses = responses[sentiment] || responses.neutral;
+    return sentimentResponses[Math.floor(Math.random() * sentimentResponses.length)];
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      content: inputMessage,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsTyping(true);
+
+    // Simulate AI thinking time
+    setTimeout(() => {
+      const sentiment = analyzeMessage(inputMessage);
+      const aiResponse = generateAIResponse(inputMessage, sentiment);
+      
+      const aiMessage = {
+        id: Date.now() + 1,
+        type: 'ai',
+        content: aiResponse,
+        sentiment: sentiment,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      setIsTyping(false);
+    }, 1500 + Math.random() * 1000);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+      <nav className="bg-white dark:bg-gray-800 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center space-x-8">
+              <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+                PsyMitrix
+              </Link>
+              <nav className="flex space-x-4">
+                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Home
+                </Link>
+                <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Dashboard
+                </Link>
+                <Link to="/chat" className="text-primary-600 dark:text-primary-400 font-medium">
+                  AI Chat
+                </Link>
+                <Link to="/assessments" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Assessments
+                </Link>
+                <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Profile
+                </Link>
+              </nav>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {user?.name}
+              </span>
+              <Button variant="secondary" size="sm" onClick={logout}>
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+            AI Psychiatrist Chat
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Safe space for mental health conversations
+          </p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                  message.type === 'user'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-600'
+                }`}
+              >
+                <p className="text-sm">{message.content}</p>
+                <p className={`text-xs mt-1 ${
+                  message.type === 'user' ? 'text-primary-100' : 'text-gray-500 dark:text-gray-400'
+                }`}>
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
+          ))}
+          
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-600 px-4 py-2 rounded-lg">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex space-x-2">
+            <textarea
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Share what's on your mind..."
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white resize-none"
+              rows="2"
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isTyping}
+              variant="primary"
+            >
+              Send
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatPage;
