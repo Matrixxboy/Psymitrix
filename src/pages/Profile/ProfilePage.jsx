@@ -23,6 +23,18 @@ const ProfilePage = () => {
                 <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                   Dashboard
                 </Link>
+                <Link to="/chat" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  AI Chat
+                </Link>
+                <Link to="/assessments" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Assessments
+                </Link>
+                <Link to="/games" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Wellness Games
+                </Link>
+                <Link to="/progress" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  Progress
+                </Link>
                 <Link to="/profile" className="text-primary-600 dark:text-primary-400 font-medium">
                   Profile
                 </Link>

@@ -8,6 +8,7 @@ import ProfilePage from '../pages/Profile/ProfilePage';
 import ChatPage from '../pages/Chat/ChatPage';
 import AssessmentsPage from '../pages/Assessments/AssessmentsPage';
 import GamesPage from '../pages/Games/GamesPage';
+import ProgressPage from '../pages/Progress/ProgressPage';
 import ThemeToggler from '../components/custom/ThemeToggler';
 
 // Protected Route wrapper component
@@ -93,6 +94,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <GamesPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/progress" 
+          element={
+            <ProtectedRoute>
+              <ProgressPage />
             </ProtectedRoute>
           } 
         />
