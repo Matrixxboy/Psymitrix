@@ -5,6 +5,9 @@ import { Login } from '../features/auth';
 import Home from '../pages/Home';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
 import ProfilePage from '../pages/Profile/ProfilePage';
+import ChatPage from '../pages/Chat/ChatPage';
+import AssessmentsPage from '../pages/Assessments/AssessmentsPage';
+import GamesPage from '../pages/Games/GamesPage';
 import ThemeToggler from '../components/custom/ThemeToggler';
 
 // Protected Route wrapper component
@@ -66,6 +69,30 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/chat" 
+          element={
+            <ProtectedRoute>
+              <ChatPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/assessments" 
+          element={
+            <ProtectedRoute>
+              <AssessmentsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/games" 
+          element={
+            <ProtectedRoute>
+              <GamesPage />
             </ProtectedRoute>
           } 
         />
