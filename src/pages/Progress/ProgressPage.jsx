@@ -166,8 +166,8 @@ const ProgressPage = () => {
         )}
 
         {/* Session History */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+        <div className="glass glass-card">
+          <h3 className="text-lg font-semibold text-[var(--color-text)] mb-6">
             Recent Sessions
           </h3>
           <div className="space-y-4">
