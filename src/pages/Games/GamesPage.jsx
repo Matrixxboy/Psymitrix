@@ -196,7 +196,7 @@ const GamesPage = () => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Share any thoughts or experiences from today..."
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+            className="w-full glass-input px-3 py-2 rounded-md placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             rows="4"
           />
         </div>
@@ -267,7 +267,7 @@ const GamesPage = () => {
                 value={gratitude}
                 onChange={(e) => handleGratitudeChange(index, e.target.value)}
                 placeholder="Something you appreciate today"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                className="w-full glass-input px-3 py-2 rounded-md placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
           ))}
@@ -315,12 +315,12 @@ const GamesPage = () => {
 
   if (selectedGame) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <nav className="bg-white dark:bg-gray-800 shadow-sm">
+      <div className="min-h-screen bg-app">
+        <nav className="glass shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center space-x-8">
-                <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+                <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                   PsyMitrix
                 </Link>
                 <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -335,7 +335,7 @@ const GamesPage = () => {
         </nav>
 
         <main className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+          <div className="glass glass-card">
             {renderGameContent()}
           </div>
         </main>
@@ -344,31 +344,31 @@ const GamesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
+    <div className="min-h-screen bg-app">
+      <nav className="glass shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+              <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                 PsyMitrix
               </Link>
               <nav className="flex space-x-4">
-                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Home
                 </Link>
-                <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/dashboard" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Dashboard
                 </Link>
-                <Link to="/chat" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/chat" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   AI Chat
                 </Link>
-                <Link to="/assessments" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/assessments" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Assessments
                 </Link>
-                <Link to="/games" className="text-primary-600 dark:text-primary-400 font-medium">
+                <Link to="/games" className="text-[var(--color-primary)] font-medium">
                   Wellness Games
                 </Link>
-                <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Profile
                 </Link>
               </nav>
@@ -387,10 +387,10 @@ const GamesPage = () => {
 
       <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">
             Mental Wellness Games
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-[var(--color-text-secondary)]">
             Interactive activities to support your mental health journey
           </p>
         </div>
@@ -401,13 +401,13 @@ const GamesPage = () => {
               <div className={`inline-block p-2 rounded-lg mb-4 bg-${game.color}-100 dark:bg-${game.color}-900`}>
                 <div className="w-8 h-8 bg-current rounded opacity-20"></div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
                 {game.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-[var(--color-text-secondary)] mb-4">
                 {game.description}
               </p>
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <div className="flex items-center text-sm text-[var(--color-text-secondary)] mb-4">
                 <span>Duration: {game.duration}</span>
               </div>
               <Button
