@@ -40,22 +40,22 @@ const RecentSessionsSection = () => {
     switch (mood.toLowerCase()) {
       case 'positive':
       case 'optimistic':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-[color-mix(in_oklab,var(--color-secondary),white_85%)] text-[color-mix(in_oklab,var(--color-text),black_20%)]';
       case 'calm':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-[color-mix(in_oklab,var(--color-primary),white_85%)] text-[color-mix(in_oklab,var(--color-text),black_20%)]';
       case 'neutral':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        return 'bg-[rgba(255,255,255,0.6)] text-[var(--color-text)]';
       case 'anxious':
       case 'stressed':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        return 'bg-[rgba(255,255,255,0.6)] text-[var(--color-text)]';
     }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
-      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="glass glass-card p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)] mb-4">
         Recent Sessions
       </h3>
       <div className="space-y-3 sm:space-y-4">
@@ -64,21 +64,21 @@ const RecentSessionsSection = () => {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 space-y-2 sm:space-y-0">
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mb-1 space-y-1 sm:space-y-0">
-                  <p className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm sm:text-base font-medium text-[var(--color-text)]">
                     {session.type}
                   </p>
                   <span className={`px-2 py-1 text-xs rounded-full w-fit ${getMoodColor(session.mood)}`}>
                     {session.mood}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-1">
+                <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mb-1">
                   {session.summary}
                 </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">
+                <p className="text-xs text-[var(--color-text-secondary)]">
                   Duration: {session.duration}
                 </p>
               </div>
-              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 sm:ml-4">
+              <span className="text-xs sm:text-sm text-[var(--color-text-secondary)] sm:ml-4">
                 {session.time}
               </span>
             </div>
