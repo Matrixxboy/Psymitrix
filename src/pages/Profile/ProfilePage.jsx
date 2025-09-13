@@ -9,12 +9,12 @@ const ProfilePage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
+    <div className="min-h-screen bg-app">
+      <nav className="glass shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+              <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                 PsyMitrix
               </Link>
               {/* Desktop Navigation */}
@@ -37,7 +37,7 @@ const ProfilePage = () => {
                 <Link to="/progress" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                   Progress
                 </Link>
-                <Link to="/profile" className="text-primary-600 dark:text-primary-400 font-medium px-3 py-2 rounded-md text-sm">
+                <Link to="/profile" className="text-[var(--color-primary)] font-medium px-3 py-2 rounded-md text-sm">
                   Profile
                 </Link>
               </nav>
@@ -118,7 +118,7 @@ const ProfilePage = () => {
                 </Link>
                 <Link
                   to="/profile"
-                  className="text-primary-600 dark:text-primary-400 font-medium block px-3 py-2 rounded-md text-base"
+                  className="text-[var(--color-primary)] font-medium block px-3 py-2 rounded-md text-base"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Profile
@@ -141,10 +141,10 @@ const ProfilePage = () => {
 
       <main className="max-w-4xl mx-auto py-4 px-4 sm:py-8 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text)]">
             Profile Settings
           </h1>
-          <p className="mt-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm sm:text-base text-[var(--color-text-secondary)]">
             Manage your account settings and preferences.
           </p>
         </div>
