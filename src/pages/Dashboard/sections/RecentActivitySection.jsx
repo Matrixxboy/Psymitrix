@@ -9,17 +9,17 @@ const RecentActivitySection = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="glass glass-card p-6">
+      <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">
         Recent Activity
       </h3>
       <div className="space-y-3">
         {activities.map((activity) => (
           <div key={activity.id} className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-            <span className="text-sm text-gray-600 dark:text-gray-300">
+            <span className="text-sm text-[var(--color-text-secondary)]">
               {activity.action}
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-[var(--color-text-secondary)]">
               {activity.time}
             </span>
           </div>

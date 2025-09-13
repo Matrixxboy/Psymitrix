@@ -37,9 +37,9 @@ const UserDetailsSection = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="glass glass-card">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-[var(--color-text)]">
           User Details
         </h3>
         {!isEditing && (
@@ -52,7 +52,7 @@ const UserDetailsSection = () => {
       {isEditing ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
               Name
             </label>
             <Input
@@ -64,7 +64,7 @@ const UserDetailsSection = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
               Email
             </label>
             <Input
@@ -77,7 +77,7 @@ const UserDetailsSection = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
               Role
             </label>
             <Input
@@ -104,7 +104,7 @@ const UserDetailsSection = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Name
             </label>
-            <p className="mt-1 text-sm text-gray-900 dark:text-white">
+            <p className="mt-1 text-sm text-[var(--color-text)]">
               {user?.name}
             </p>
           </div>
@@ -113,7 +113,7 @@ const UserDetailsSection = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email
             </label>
-            <p className="mt-1 text-sm text-gray-900 dark:text-white">
+            <p className="mt-1 text-sm text-[var(--color-text)]">
               {user?.email}
             </p>
           </div>
@@ -122,7 +122,7 @@ const UserDetailsSection = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Role
             </label>
-            <p className="mt-1 text-sm text-gray-900 dark:text-white capitalize">
+            <p className="mt-1 text-sm text-[var(--color-text)] capitalize">
               {user?.role}
             </p>
           </div>

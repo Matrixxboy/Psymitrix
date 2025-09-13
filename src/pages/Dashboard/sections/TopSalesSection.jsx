@@ -9,22 +9,22 @@ const TopSalesSection = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="glass glass-card p-6">
+      <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">
         Top Sales
       </h3>
       <div className="space-y-4">
         {salesData.map((item) => (
           <div key={item.id} className="flex justify-between items-center">
             <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <p className="text-sm font-medium text-[var(--color-text)]">
                 {item.product}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-[var(--color-text-secondary)]">
                 Revenue: {item.amount}
               </p>
             </div>
-            <span className="text-sm font-medium text-green-600 dark:text-green-400">
+            <span className="text-sm font-medium text-[var(--color-success)]">
               {item.change}
             </span>
           </div>

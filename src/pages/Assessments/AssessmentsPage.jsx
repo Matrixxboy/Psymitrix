@@ -102,34 +102,34 @@ const AssessmentsPage = () => {
 
   if (isCompleted && results) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <nav className="bg-white dark:bg-gray-800 shadow-sm">
+      <div className="min-h-screen bg-app">
+        <nav className="glass shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center space-x-8">
-                <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+                <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                   PsyMitrix
                 </Link>
                 <nav className="flex space-x-4">
-                  <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     Home
                   </Link>
-                  <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/dashboard" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     Dashboard
                   </Link>
-                  <Link to="/chat" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/chat" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     AI Chat
                   </Link>
-                  <Link to="/assessments" className="text-primary-600 dark:text-primary-400 font-medium">
+                  <Link to="/assessments" className="text-[var(--color-primary)] font-medium">
                     Assessments
                   </Link>
-                  <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     Profile
                   </Link>
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-[var(--color-text-secondary)]">
                   {user?.name}
                 </span>
                 <Button variant="secondary" size="sm" onClick={logout}>
@@ -141,14 +141,14 @@ const AssessmentsPage = () => {
         </nav>
 
         <main className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="glass glass-card text-center">
+            <h2 className="text-2xl font-bold text-[var(--color-text)] mb-4">
               Assessment Complete
             </h2>
-            <div className={`inline-block px-6 py-3 rounded-full text-white font-semibold mb-4 bg-${results.color}-500`}>
+            <div className="inline-block px-6 py-3 rounded-full text-white font-semibold mb-4" style={{ backgroundColor: (results.color==='green'?'var(--color-success)':results.color==='yellow'||results.color==='orange'?'var(--color-warning)':'var(--color-error)') }}>
               {results.level}
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--color-text-secondary)] mb-6">
               {results.description}
             </p>
             <div className="space-y-3">
@@ -177,12 +177,12 @@ const AssessmentsPage = () => {
     const progress = ((currentQuestion + 1) / selectedAssessment.questions.length) * 100;
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <nav className="bg-white dark:bg-gray-800 shadow-sm">
+      <div className="min-h-screen bg-app">
+        <nav className="glass shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center space-x-8">
-                <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+                <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                   PsyMitrix
                 </Link>
                 <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -197,25 +197,25 @@ const AssessmentsPage = () => {
         </nav>
 
         <main className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+          <div className="glass glass-card">
             <div className="mb-6">
-              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <div className="flex justify-between text-sm text-[var(--color-text-secondary)] mb-2">
                 <span>Question {currentQuestion + 1} of {selectedAssessment.questions.length}</span>
                 <span>{Math.round(progress)}% Complete</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div className="w-full rounded-full h-2" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }}>
                 <div
-                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                  className="h-2 rounded-full transition-all duration-300" style={{ backgroundColor: 'var(--color-primary)' }}
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-xl font-semibold text-[var(--color-text)] mb-6">
               Over the last 2 weeks, how often have you been bothered by:
             </h2>
             
-            <p className="text-lg text-gray-800 dark:text-gray-200 mb-8">
+            <p className="text-lg text-[var(--color-text)] mb-8">
               {question}
             </p>
 
@@ -224,19 +224,11 @@ const AssessmentsPage = () => {
                 <button
                   key={option.value}
                   onClick={() => handleAnswerSelect(currentQuestion, option.value)}
-                  className={`w-full p-4 text-left rounded-lg border-2 transition-colors ${
-                    answers[currentQuestion] === option.value
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900'
-                      : 'border-gray-200 dark:border-gray-600 hover:border-primary-300'
-                  }`}
+                  className={`w-full p-4 text-left rounded-lg border-2 transition-colors glass-button`} style={answers[currentQuestion]===option.value?{ borderColor:'var(--color-primary)', background: 'color-mix(in_oklab, var(--color-primary) 15%, transparent)'}:{}}
                 >
                   <div className="flex items-center">
-                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
-                      answers[currentQuestion] === option.value
-                        ? 'border-primary-500 bg-primary-500'
-                        : 'border-gray-300 dark:border-gray-600'
-                    }`}></div>
-                    <span className="text-gray-900 dark:text-white">{option.label}</span>
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3`} style={answers[currentQuestion]===option.value?{ borderColor:'var(--color-primary)', backgroundColor:'var(--color-primary)'}:{}}></div>
+                    <span className="text-[var(--color-text)]">{option.label}</span>
                   </div>
                 </button>
               ))}
@@ -258,34 +250,34 @@ const AssessmentsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
+    <div className="min-h-screen bg-app">
+      <nav className="glass shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+              <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                 PsyMitrix
               </Link>
               <nav className="flex space-x-4">
-                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Home
                 </Link>
-                <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/dashboard" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Dashboard
                 </Link>
-                <Link to="/chat" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/chat" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   AI Chat
                 </Link>
-                <Link to="/assessments" className="text-primary-600 dark:text-primary-400 font-medium">
+                <Link to="/assessments" className="text-[var(--color-primary)] font-medium">
                   Assessments
                 </Link>
-                <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Profile
                 </Link>
               </nav>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm text-[var(--color-text-secondary)]">
                 {user?.name}
               </span>
               <Button variant="secondary" size="sm" onClick={logout}>
@@ -308,14 +300,14 @@ const AssessmentsPage = () => {
 
         <div className="grid gap-6 md:grid-cols-2">
           {assessments.map((assessment) => (
-            <div key={assessment.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <div key={assessment.id} className="glass glass-card">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
                 {assessment.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-[var(--color-text-secondary)] mb-4">
                 {assessment.description}
               </p>
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <div className="flex items-center text-sm text-[var(--color-text-secondary)] mb-4">
                 <span>Duration: {assessment.duration}</span>
               </div>
               <Button

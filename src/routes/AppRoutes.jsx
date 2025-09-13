@@ -10,6 +10,7 @@ import AssessmentsPage from '../pages/Assessments/AssessmentsPage';
 import GamesPage from '../pages/Games/GamesPage';
 import ProgressPage from '../pages/Progress/ProgressPage';
 import ThemeToggler from '../components/custom/ThemeToggler';
+import Walkthrough from '../components/onboarding/Walkthrough';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -45,6 +46,7 @@ const AppRoutes = () => {
   return (
     <>
       <ThemeToggler />
+      <Walkthrough />
       <Routes>
         {/* Public Routes */}
         <Route 

@@ -77,14 +77,14 @@ const ChangePasswordSection = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+    <div className="glass glass-card">
+      <h3 className="text-lg font-semibold text-[var(--color-text)] mb-6">
         Change Password
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
             Current Password
           </label>
           <Input
@@ -96,12 +96,12 @@ const ChangePasswordSection = () => {
             error={!!errors.currentPassword}
           />
           {errors.currentPassword && (
-            <p className="text-red-600 text-sm mt-1">{errors.currentPassword}</p>
+            <p className="text-[var(--color-error)] text-sm mt-1">{errors.currentPassword}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
             New Password
           </label>
           <Input
@@ -113,12 +113,12 @@ const ChangePasswordSection = () => {
             error={!!errors.newPassword}
           />
           {errors.newPassword && (
-            <p className="text-red-600 text-sm mt-1">{errors.newPassword}</p>
+            <p className="text-[var(--color-error)] text-sm mt-1">{errors.newPassword}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
             Confirm New Password
           </label>
           <Input
@@ -130,7 +130,7 @@ const ChangePasswordSection = () => {
             error={!!errors.confirmPassword}
           />
           {errors.confirmPassword && (
-            <p className="text-red-600 text-sm mt-1">{errors.confirmPassword}</p>
+            <p className="text-[var(--color-error)] text-sm mt-1">{errors.confirmPassword}</p>
           )}
         </div>
 

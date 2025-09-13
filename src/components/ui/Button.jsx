@@ -9,13 +9,13 @@ const Button = ({
   className = '', 
   ...props 
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-xl select-none transition duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-secondary-200 text-secondary-800 hover:bg-secondary-300 focus:ring-secondary-500 dark:bg-secondary-700 dark:text-secondary-200 dark:hover:bg-secondary-600',
-    outline: 'border border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white focus:ring-primary-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500'
+    primary: 'text-white bg-[var(--color-primary)] hover:brightness-110 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]',
+    secondary: 'text-[#2C2C2C] dark:text-[var(--color-text)] bg-[var(--color-secondary)] hover:brightness-105 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-secondary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]',
+    outline: 'glass-button text-[var(--color-text)] dark:text-[var(--color-text)] bg-transparent hover:brightness-110 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)]',
+    danger: 'text-white bg-[var(--color-error)] hover:brightness-110 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-error)] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
   };
   
   const sizes = {
