@@ -45,7 +45,7 @@ const ProfilePage = () => {
 
             {/* Desktop User Menu */}
             <div className="hidden md:flex items-center space-x-4">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm text-[var(--color-text-secondary)]">
                 {user?.name}
               </span>
               <Button variant="secondary" size="sm" onClick={logout}>
@@ -124,7 +124,7 @@ const ProfilePage = () => {
                   Profile
                 </Link>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
-                  <div className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
+                  <div className="px-3 py-2 text-sm text-[var(--color-text-secondary)]">
                     {user?.name}
                   </div>
                   <div className="px-3">
