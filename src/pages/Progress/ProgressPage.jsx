@@ -94,7 +94,7 @@ const ProgressPage = () => {
               </nav>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm text-[var(--color-text-secondary)]">
                 {user?.name}
               </span>
               <Button variant="secondary" size="sm" onClick={logout}>
