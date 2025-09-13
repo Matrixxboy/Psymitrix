@@ -134,75 +134,33 @@ const ProgressPage = () => {
           </div>
         </div>
 
-        {/* Overall Wellness Score */}
+        {/* Charts Grid */}
         {metrics && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 mb-8">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                Overall Wellness Score
-              </h2>
-              <div className={`text-6xl font-bold mb-2 ${getWellnessScoreColor(metrics.overallWellness.score)}`}>
-                {metrics.overallWellness.score}
-              </div>
-              <div className="text-gray-600 dark:text-gray-400 mb-4">
-                out of 10
-              </div>
-              <div className={`text-lg font-medium ${getProgressColor(metrics.overallWellness.trend)}`}>
-                {metrics.overallWellness.trend} from last week
-              </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                {metrics.overallWellness.description}
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="glass glass-card">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">Mood Over Time</h3>
+              <LineChart
+                labels={Array.from({ length: timeframe === 'year' ? 12 : timeframe === 'month' ? 30 : 7 }).map((_, i) => `${i + 1}`)}
+                values={Array.from({ length: timeframe === 'year' ? 12 : timeframe === 'month' ? 30 : 7 }).map(() => Math.round((6 + Math.random() * 4) * 10) / 10)}
+                title="Mood"
+              />
             </div>
-          </div>
-        )}
-
-        {/* Metrics Grid */}
-        {metrics && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Anxiety Level
-              </h3>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {metrics.anxiety.level}
-              </div>
-              <div className={`text-sm font-medium ${getProgressColor(metrics.anxiety.change)}`}>
-                {metrics.anxiety.change}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {metrics.anxiety.description}
-              </p>
+            <div className="glass glass-card">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">Wellness Balance</h3>
+              <RadarChart
+                labels={['Sleep', 'Stress', 'Energy', 'Focus', 'Social']}
+                values={[7.2, 5.8, 6.9, 7.5, 6.1]}
+                title="Balance"
+              />
             </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Depression Scale
-              </h3>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {metrics.depression.level}
-              </div>
-              <div className={`text-sm font-medium ${getProgressColor(metrics.depression.change)}`}>
-                {metrics.depression.change}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {metrics.depression.description}
-              </p>
+            <div className="glass glass-card">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">Healing Progress</h3>
+              <DonutChart value={Math.min(95, Math.max(20, Math.round(metrics.overallWellness.score * 10)))} label="Completion" />
+              <p className="text-center mt-3 text-sm text-[var(--color-text-secondary)]">{metrics.overallWellness.trend} vs last week • {metrics.overallWellness.description}</p>
             </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Sleep Quality
-              </h3>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                {metrics.sleepQuality.level}
-              </div>
-              <div className={`text-sm font-medium ${getProgressColor(metrics.sleepQuality.change)}`}>
-                {metrics.sleepQuality.change}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                {metrics.sleepQuality.description}
-              </p>
+            <div className="glass glass-card">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-4">Mood Calendar</h3>
+              <HeatmapCalendar days={30} values={Array.from({ length: 30 }).map((_, i) => ({ date: new Date(Date.now() - (29 - i) * 86400000), value: Math.random() }))} />
             </div>
           </div>
         )}
