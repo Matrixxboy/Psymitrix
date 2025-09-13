@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { getMentalHealthSessions, getMentalHealthMetrics } from '../../api/sessions';
 import Button from '../../components/ui/Button';
+import LineChart from '../../components/charts/LineChart';
+import RadarChart from '../../components/charts/RadarChart';
+import DonutChart from '../../components/charts/DonutChart';
+import HeatmapCalendar from '../../components/charts/HeatmapCalendar';
 
 const ProgressPage = () => {
   const { user, logout } = useAuth();
