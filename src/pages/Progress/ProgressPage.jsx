@@ -106,7 +106,7 @@ const ProgressPage = () => {
           <h1 className="text-2xl font-bold text-[var(--color-text)]">
             Mental Health Progress
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-[var(--color-text-secondary)]">
             Track your mental wellness journey over time
           </p>
         </div>
