@@ -10,7 +10,9 @@ const ThemeToggler = () => {
       variant="outline"
       size="sm"
       onClick={toggleTheme}
-      className="fixed top-4 right-4"
+      className="glass-button fixed top-4 right-4 h-10 w-10 rounded-full text-lg"
+      aria-label="Toggle theme"
+      title="Toggle theme"
     >
       {theme === 'light' ? '🌙' : '☀️'}
     </Button>
