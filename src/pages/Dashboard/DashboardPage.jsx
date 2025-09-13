@@ -1,182 +1,147 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { RecentSessionsSection, MentalHealthMetricsSection } from './sections';
-import Button from '../../components/ui/Button';
+import { FiBarChart2, FiActivity, FiCheckSquare, FiCalendar, FiZap } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+
 import LineChart from '../../components/charts/LineChart';
 import RadarChart from '../../components/charts/RadarChart';
 import DonutChart from '../../components/charts/DonutChart';
 import HeatmapCalendar from '../../components/charts/HeatmapCalendar';
 
+import DashboardHeader from './sections/DashboardHeader';
+import PrimaryCTA from './sections/PrimaryCTA';
+import MoodTracker from './sections/MoodTracker';
+import SuggestionCard from './sections/SuggestionCard';
+import InsightCard from './sections/InsightCard';
+import DashboardSkeleton from './sections/DashboardSkeleton';
+import ChartCard from './ChartCard';
+
+const getSampleData = () => {
+  const generateHeatmapData = (days, maxVal) => {
+    return Array.from({ length: days }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      return {
+        date: date.toISOString(),
+        value: Math.random() > 0.3 ? Math.random() * maxVal : 0,
+      };
+    });
+  };
+
+  return {
+    moodTrend: {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      values: [6, 7, 5, 8, 7, 9, 8],
+    },
+    activityBreakdown: { value: 65 },
+    wellnessBalance: {
+      labels: ['Stress', 'Anxiety', 'Depression'],
+      datasets: [{ label: 'Current', data: [4, 6, 7] }],
+    },
+    consistency: generateHeatmapData(35, 1),
+    dailyInsight: {
+      title: "Today's Prompt",
+      text: "What is one small thing you can do today that would bring you a moment of joy?",
+    },
+    suggestions: {
+      activities: [
+        { title: 'Breathing Exercise', details: '5 min' },
+        { title: 'Mindful Walk', details: '15 min' },
+      ],
+      tests: [{ title: 'Anxiety Score (GAD-7)', details: 'Quick check-in' }],
+    },
+  };
+};
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+};
+
 const DashboardPage = () => {
-  const { user, logout } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [mood, setMood] = useState(3);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setData(getSampleData());
+      setLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
+  };
 
   return (
-    <div className="min-h-screen bg-app">
-      <nav className="glass shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
-                PsyMitrix
-              </Link>
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex ml-8 space-x-4">
-                <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  Home
-                </Link>
-                <Link to="/dashboard" className="text-[var(--color-primary)] font-medium px-3 py-2 rounded-md text-sm">
-                  Dashboard
-                </Link>
-                <Link to="/chat" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  AI Chat
-                </Link>
-                <Link to="/assessments" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  Assessments
-                </Link>
-                <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  Profile
-                </Link>
-              </nav>
-            </div>
+    <div className="min-h-screen text-light-body dark:text-dark-body p-4 sm:p-6 lg:p-8">
+      <main className="max-w-7xl mx-auto">
+        <DashboardHeader user={user} greeting={getGreeting()} />
 
-            {/* Desktop User Menu */}
-            <div className="hidden md:flex items-center space-x-4">
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                {user?.name}
-              </span>
-              <Button variant="secondary" size="sm" onClick={logout}>
-                Logout
-              </Button>
-            </div>
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-6 flex flex-col">
+            <motion.div variants={itemVariants}><PrimaryCTA /></motion.div>
+            
+            <motion.div variants={itemVariants}>
+              <ChartCard title="Mood Trend" icon={FiBarChart2}>
+                <div className="h-64"><LineChart {...data.moodTrend} /></div>
+              </ChartCard>
+            </motion.div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] p-2"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  {isMobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <motion.div variants={itemVariants}>
+                <ChartCard title="Activity Breakdown" icon={FiCheckSquare}>
+                  <div className="h-64"><DonutChart {...data.activityBreakdown} /></div>
+                </ChartCard>
+              </motion.div>
+              <motion.div variants={itemVariants}>
+                <ChartCard title="Wellness Balance" icon={FiActivity}>
+                  <div className="h-64"><RadarChart {...data.wellnessBalance} /></div>
+                </ChartCard>
+              </motion.div>
             </div>
           </div>
 
-          {/* Mobile Navigation */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 dark:border-gray-700">
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                <Link
-                  to="/"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link
-                  to="/dashboard"
-                  className="text-primary-600 dark:text-primary-400 font-medium block px-3 py-2 rounded-md text-base"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/chat"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  AI Chat
-                </Link>
-                <Link
-                  to="/assessments"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Assessments
-                </Link>
-                <Link
-                  to="/profile"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Profile
-                </Link>
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
-                  <div className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
-                    {user?.name}
-                  </div>
-                  <div className="px-3">
-                    <Button variant="secondary" size="sm" onClick={logout} className="w-full">
-                      Logout
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
+          {/* Right Column */}
+          <div className="lg:col-span-1 space-y-6 flex flex-col">
+            <motion.div variants={itemVariants}>
+              <MoodTracker mood={mood} setMood={setMood} />
+            </motion.div>
+            
+            <InsightCard {...data.dailyInsight} icon={<FiZap />} itemVariants={itemVariants} />
+            
+            <motion.div variants={itemVariants}>
+              <ChartCard title="Consistency" icon={FiCalendar}>
+                <HeatmapCalendar data={data.consistency} />
+              </ChartCard>
+            </motion.div>
 
-      <main className="max-w-7xl mx-auto py-4 px-4 sm:py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--color-text)]">
-            Mental Health Dashboard
-          </h1>
-          <p className="mt-2 text-sm sm:text-base text-[var(--color-text-secondary)]">
-            Welcome back, {user?.name}! Here's your mental wellness journey overview.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
-          <div className="glass glass-card">
-            <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)] mb-3">Mood Over Time</h3>
-            <LineChart labels={["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]} values={[6.5,7.1,6.8,7.6,7.9,7.2,7.5]} title="Mood" />
+            <motion.div variants={itemVariants}>
+              <SuggestionCard title="Suggested Activities" items={data.suggestions.activities} />
+            </motion.div>
           </div>
-          <div className="glass glass-card">
-            <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)] mb-3">Wellness Balance</h3>
-            <RadarChart labels={["Sleep","Stress","Energy","Focus","Social"]} values={[7.2,5.8,6.9,7.5,6.1]} />
-          </div>
-          <div className="glass glass-card">
-            <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)] mb-3">Healing Progress</h3>
-            <DonutChart value={72} label="Completion" />
-          </div>
-          <div className="glass glass-card">
-            <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)] mb-3">Mood Calendar</h3>
-            <HeatmapCalendar days={30} values={Array.from({length:30}).map((_,i)=>({date:new Date(Date.now()-(29-i)*86400000), value: Math.random()}))} />
-          </div>
-          <RecentSessionsSection />
-          <MentalHealthMetricsSection />
-        </div>
-
-        {/* Quick Actions */}
-        <div className="glass glass-card p-4 sm:p-6">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Quick Actions
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <Link to="/chat">
-              <Button variant="primary" size="lg" className="w-full">
-                Start AI Chat Session
-              </Button>
-            </Link>
-            <Link to="/assessments">
-              <Button variant="secondary" size="lg" className="w-full">
-                Take Assessment
-              </Button>
-            </Link>
-            <Link to="/games">
-              <Button variant="outline" size="lg" className="w-full">
-                Play Wellness Games
-              </Button>
-            </Link>
-          </div>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

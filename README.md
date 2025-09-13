@@ -514,7 +514,7 @@ graph TD
 ## 🤝 Contributing
 
 We welcome contributions from the community! Here's how you can help:
-
+<!-- 
 ### 🚀 Quick Contribution Guide
 
 ```mermaid
@@ -528,13 +528,13 @@ gitgraph
     checkout main
     merge feature
     commit id: "Release"
-```
+``` -->
 
 ### 📝 Contribution Steps
 
 1. **Fork the Project**
    ```bash
-   git clone https://github.com/your-username/psymitrix.git
+   git clone https://github.com/Matrixxboy/psymitrix.git
    ```
 
 2. **Create Feature Branch**
@@ -597,7 +597,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ```
 MIT License
 
-Copyright (c) 2024 PsyMitrix
+Copyright (c) 2024 Matrixxboy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

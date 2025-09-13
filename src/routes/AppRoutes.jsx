@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Login } from '../features/auth';
 import Home from '../pages/Home';
@@ -9,7 +9,7 @@ import ChatPage from '../pages/Chat/ChatPage';
 import AssessmentsPage from '../pages/Assessments/AssessmentsPage';
 import GamesPage from '../pages/Games/GamesPage';
 import ProgressPage from '../pages/Progress/ProgressPage';
-import ThemeToggler from '../components/custom/ThemeToggler';
+import Layout from '../components/layout/Layout';
 import Walkthrough from '../components/onboarding/Walkthrough';
 
 // Protected Route wrapper component
@@ -39,13 +39,18 @@ const PublicRoute = ({ children }) => {
     );
   }
   
-  return !isLoggedIn ? children : <Navigate to="/" replace />;
+  return !isLoggedIn ? children : <Navigate to="/dashboard" replace />;
 };
 
 const AppRoutes = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <>
-      <ThemeToggler />
       <Walkthrough />
       <Routes>
         {/* Public Routes */}
@@ -59,62 +64,64 @@ const AppRoutes = () => {
         />
         
         {/* Protected Routes */}
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/chat" 
-          element={
-            <ProtectedRoute>
-              <ChatPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/assessments" 
-          element={
-            <ProtectedRoute>
-              <AssessmentsPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/games" 
-          element={
-            <ProtectedRoute>
-              <GamesPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/progress" 
-          element={
-            <ProtectedRoute>
-              <ProgressPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/profile" 
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          } 
-        />
+        <Route element={<Layout />}>
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/chat" 
+            element={
+              <ProtectedRoute>
+                <ChatPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/assessments" 
+            element={
+              <ProtectedRoute>
+                <AssessmentsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/games" 
+            element={
+              <ProtectedRoute>
+                <GamesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/progress" 
+            element={
+              <ProtectedRoute>
+                <ProgressPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+        </Route>
         
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" replace />} />

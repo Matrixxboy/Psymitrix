@@ -1,84 +1,74 @@
 import React from 'react';
+import { FiTrendingUp, FiTrendingDown, FiMinus } from 'react-icons/fi';
+import GlassCard from '../../../components/ui/GlassCard';
 
 const MentalHealthMetricsSection = () => {
   const mentalHealthData = [
     { 
       id: 1, 
-      metric: 'Overall Wellness Score', 
-      value: '7.2/10', 
-      change: '+0.8', 
+      metric: 'Overall Wellness', 
+      value: '7.8/10', 
+      change: '+0.5', 
       status: 'improving',
-      description: 'Based on last 7 sessions'
     },
     { 
       id: 2, 
       metric: 'Anxiety Level', 
-      value: 'Moderate', 
-      change: '-12%', 
+      value: 'Low', 
+      change: '-10%', 
       status: 'improving',
-      description: 'Decreased from last week'
     },
     { 
       id: 3, 
       metric: 'Depression Scale', 
       value: 'Mild', 
-      change: '-8%', 
-      status: 'improving',
-      description: 'PHQ-9 Score: 6'
+      change: '+2%', 
+      status: 'concerning',
     },
     { 
       id: 4, 
       metric: 'Sleep Quality', 
       value: 'Good', 
-      change: '+15%', 
+      change: '+8%', 
       status: 'improving',
-      description: 'Average 7.2 hours'
     }
   ];
 
-  const getStatusColor = (status) => {
+  const getStatusIcon = (status) => {
     switch (status) {
       case 'improving':
-        return 'text-[var(--color-success)]';
-      case 'stable':
-        return 'text-[var(--color-warning)]';
+        return <FiTrendingUp className="text-success" />;
       case 'concerning':
-        return 'text-[var(--color-error)]';
+        return <FiTrendingDown className="text-error" />;
       default:
-        return 'text-[var(--color-text-secondary)]';
+        return <FiMinus className="text-warning" />;
     }
   };
 
   return (
-    <div className="glass glass-card p-4 sm:p-6">
-      <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)] mb-4">
+    <GlassCard className="p-6">
+      <h3 className="text-xl font-semibold text-light-headings dark:text-dark-headings mb-4">
         Mental Health Metrics
       </h3>
-      <div className="space-y-3 sm:space-y-4">
+      <div className="space-y-4">
         {mentalHealthData.map((item) => (
-          <div key={item.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 last:border-b-0 last:pb-0">
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm sm:text-base font-medium text-[var(--color-text)]">
-                  {item.metric}
-                </p>
-                <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">
-                  {item.description}
-                </p>
+          <div key={item.id} className="flex items-center justify-between p-4 rounded-lg bg-white/20 hover:bg-white/30 transition-all">
+            <div className="flex items-center">
+              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-light-primary/20 dark:bg-dark-primary/20 mr-4">
+                {getStatusIcon(item.status)}
               </div>
-              <div className="text-right ml-4 flex-shrink-0">
-                <p className="text-sm sm:text-base font-semibold text-[var(--color-text)]">
-                  {item.value}
-                </p>
-                <span className={`text-sm font-medium ${getStatusColor(item.status)}`}>
-                  {item.change}
-                </span>
+              <div>
+                <p className="font-semibold text-light-headings dark:text-dark-headings">{item.metric}</p>
+                <p className="text-sm text-light-body dark:text-dark-body">{item.value}</p>
               </div>
             </div>
+            <p className={`font-semibold ${item.status === 'improving' ? 'text-success' : item.status === 'concerning' ? 'text-error' : 'text-warning'}`}>
+              {item.change}
+            </p>
           </div>
         ))}
       </div>
-    </div>
+    </GlassCard>
   );
 };
 

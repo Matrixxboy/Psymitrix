@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiMessageCircle, FiBarChart2, FiHeart, FiGrid, FiPlayCircle } from 'react-icons/fi';
+import GlassCard from '../ui/GlassCard';
+import Button from '../ui/Button';
 
 const Walkthrough = () => {
   const navigate = useNavigate();
@@ -7,11 +10,11 @@ const Walkthrough = () => {
   const [index, setIndex] = useState(0);
 
   const steps = useMemo(() => ([
-    { title: 'This is your safe healing space 🌿', desc: 'Gentle, private, and supportive. You are in control.' },
-    { title: 'Track Mood & Progress', desc: 'Daily check-ins, tests, and journals to measure your growth.' },
-    { title: 'Play & Heal', desc: 'Relax with calming games and guided breathing exercises.' },
-    { title: 'AI Support', desc: 'Chat with an AI companion that understands you and suggests exercises.' },
-    { title: 'Beautiful Progress Dashboard', desc: 'See your healing journey with soft, encouraging visuals.' }
+    { icon: <FiHeart />, title: 'A Safe Space for Your Mind', desc: 'Psymitrix is a gentle, private, and supportive environment where you are in control of your mental wellness journey.' },
+    { icon: <FiMessageCircle />, title: 'Empathetic AI Chat', desc: 'Chat with Aura, an AI companion that understands you, offers support, and suggests helpful exercises.' },
+    { icon: <FiBarChart2 />, title: 'Track Mood & Progress', desc: 'Use daily check-ins, assessments, and journals to measure your growth and celebrate your progress.' },
+    { icon: <FiPlayCircle />, title: 'Relax with Calming Games', desc: 'Unwind and refocus with a selection of calming games and guided breathing exercises designed to soothe your mind.' },
+    { icon: <FiGrid />, title: 'Your Personal Dashboard', desc: 'Visualize your healing journey with soft, encouraging visuals and get a clear overview of your progress.' }
   ]), []);
 
   useEffect(() => {
@@ -32,40 +35,36 @@ const Walkthrough = () => {
   const onGetStarted = () => {
     localStorage.setItem('walkthroughSeen', 'true');
     setOpen(false);
-    navigate('/login');
+    navigate('/dashboard');
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-gradient-to-br from-[rgba(107,174,214,0.25)] via-[rgba(199,185,255,0.18)] to-[rgba(163,217,165,0.22)] dark:from-[rgba(74,144,226,0.18)] dark:via-[rgba(168,144,255,0.16)] dark:to-[rgba(129,201,149,0.18)]" />
-      <div className="absolute inset-0 backdrop-blur-xl" />
-
-      <div className="relative glass glass-card max-w-md w-full text-center">
-        <div className="mb-4">
-          <div className="mx-auto h-14 w-14 rounded-2xl glass-button flex items-center justify-center text-2xl">💙</div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-light-background/50 /50 backdrop-blur-2xl">
+      <GlassCard className="max-w-md w-full text-center p-8">
+        <div className="mb-6 text-5xl text-light-primary dark:text-dark-primary mx-auto w-20 h-20 flex items-center justify-center bg-white/20 rounded-full shadow-inner">
+          {steps[index].icon}
         </div>
-        <h3 className="text-2xl font-bold text-[var(--color-text)]">{steps[index].title}</h3>
-        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{steps[index].desc}</p>
+        <h3 className="text-2xl font-bold text-light-headings dark:text-dark-headings">{steps[index].title}</h3>
+        <p className="mt-2 text-light-body dark:text-dark-body">{steps[index].desc}</p>
 
-        <div className="mt-6 flex items-center justify-between">
-          <button onClick={onSkip} className="text-sm text-[var(--color-text-secondary)] hover:opacity-80">Skip</button>
-          <div className="flex items-center space-x-2">
+        <div className="mt-8 flex items-center justify-center space-x-3">
             {steps.map((_, i) => (
-              <span key={i} className={`h-2 w-2 rounded-full ${i === index ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-text-secondary)]/30'}`} />
+              <span key={i} className={`h-2 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-light-primary dark:bg-dark-primary' : 'w-2 bg-white/30'}`} />
             ))}
-          </div>
-          {index === steps.length - 1 ? (
-            <button onClick={onGetStarted} className="px-4 py-2 rounded-lg text-white bg-[var(--color-primary)] hover:brightness-110">Get Started</button>
-          ) : (
-            <button onClick={onNext} className="px-4 py-2 rounded-lg text-white bg-[var(--color-primary)] hover:brightness-110">Next</button>
-          )}
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
-          <button onClick={onPrev} disabled={index === 0} className="text-sm text-[var(--color-text-secondary)] disabled:opacity-40">← Previous</button>
-          <span className="text-xs text-[var(--color-text-secondary)]">{index + 1} / {steps.length}</span>
+        <div className="mt-8 grid grid-cols-3 gap-4 items-center text-light-headings dark:text-dark-headings">
+            <Button onClick={onPrev} disabled={index === 0} variant="outline" className="font-semibold disabled:opacity-50 text-left">Previous</Button>
+            
+            {index === steps.length - 1 ? (
+              <Button onClick={onGetStarted} variant="primary" className="col-span-1">Get Started</Button>
+            ) : (
+              <Button onClick={onNext} variant="primary" className="col-span-1">Next</Button>
+            )}
+
+            <Button onClick={onSkip} variant="outline" className="font-semibold disabled:opacity-50 text-right">Skip</Button>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 };

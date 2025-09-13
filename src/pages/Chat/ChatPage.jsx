@@ -1,298 +1,224 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
+
+// --- SVG Icon Components ---
+const FiSend = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+);
+const FiCpu = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+);
+const FiMenu = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+);
+const FiPlus = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+);
+const FiTrash2 = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+);
 
 const ChatPage = () => {
-  const { user, logout } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'ai',
-      content: `Hello ${user?.name}, I'm your AI psychiatrist. I'm here to listen and help you work through whatever is on your mind. How are you feeling today?`,
-      timestamp: new Date()
-    }
+  const { user } = useAuth();
+  const getInitialMessage = () => `Hello ${user?.name || 'there'}, I'm PsyMitrix AI, your personal AI companion. I'm here to listen and help you work through whatever is on your mind. How are you feeling today?`;
+
+  const [sessions, setSessions] = useState([
+    { id: 1, title: 'Welcome Chat', messages: [{ id: 1, role: 'model', content: getInitialMessage() }] }
   ]);
+  const [activeSessionId, setActiveSessionId] = useState(1);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
+  const [error, setError] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const activeSession = useMemo(() => sessions.find(s => s.id === activeSessionId), [sessions, activeSessionId]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const analyzeMessage = (message) => {
-    const anxietyKeywords = ['anxious', 'worried', 'nervous', 'panic', 'stress'];
-    const depressionKeywords = ['sad', 'depressed', 'hopeless', 'lonely', 'empty'];
-    const positiveKeywords = ['happy', 'good', 'great', 'better', 'positive'];
-    
-    const lowerMessage = message.toLowerCase();
-    
-    if (anxietyKeywords.some(word => lowerMessage.includes(word))) {
-      return 'anxiety';
-    } else if (depressionKeywords.some(word => lowerMessage.includes(word))) {
-      return 'depression';
-    } else if (positiveKeywords.some(word => lowerMessage.includes(word))) {
-      return 'positive';
-    }
-    return 'neutral';
-  };
-
-  const generateAIResponse = (userMessage, sentiment) => {
-    const responses = {
-      anxiety: [
-        "I understand you're feeling anxious. That's completely valid. Can you tell me what specifically is causing these anxious feelings?",
-        "Anxiety can feel overwhelming. Let's try a quick breathing exercise: breathe in for 4 counts, hold for 4, and breathe out for 6. How does that feel?",
-        "Thank you for sharing that with me. Anxiety is very treatable. What coping strategies have you tried before?"
-      ],
-      depression: [
-        "I hear that you're going through a difficult time. Your feelings are valid, and I'm here to support you. What has been the hardest part of your day?",
-        "Depression can make everything feel heavy. You're brave for reaching out. Have you been able to maintain any daily routines?",
-        "I'm glad you're talking about this. Small steps can make a big difference. What's one small thing that brought you even a moment of peace recently?"
-      ],
-      positive: [
-        "It's wonderful to hear you're feeling good! What's contributing to these positive feelings?",
-        "That's great to hear! Celebrating positive moments is important. How can we help you maintain this feeling?",
-        "I'm so glad you're having a good day. What strategies or activities helped you feel this way?"
-      ],
-      neutral: [
-        "Thank you for sharing that with me. Can you tell me more about what you're experiencing?",
-        "I'm listening. How has your week been overall?",
-        "That's interesting. How do you feel about that situation?",
-        "Can you help me understand what's on your mind right now?"
-      ]
-    };
-
-    const sentimentResponses = responses[sentiment] || responses.neutral;
-    return sentimentResponses[Math.floor(Math.random() * sentimentResponses.length)];
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
-    const userMessage = {
-      id: Date.now(),
-      type: 'user',
-      content: inputMessage,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+  const generateAIResponse = async (history) => {
     setIsTyping(true);
+    setError(null);
+    const apiKey = ""; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    
+    const systemPrompt = "You are PsyMitrix AI, a personal AI companion... Keep your responses conversational and concise, typically 1-3 sentences.";
 
-    // Simulate AI thinking time
-    setTimeout(() => {
-      const sentiment = analyzeMessage(inputMessage);
-      const aiResponse = generateAIResponse(inputMessage, sentiment);
-      
-      const aiMessage = {
-        id: Date.now() + 1,
-        type: 'ai',
-        content: aiResponse,
-        sentiment: sentiment,
-        timestamp: new Date()
+    const payload = {
+        contents: history.map(msg => ({ role: msg.role, parts: [{ text: msg.content }] })),
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+    };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+        const result = await response.json();
+        const candidate = result.candidates?.[0];
+        if (candidate?.content?.parts?.[0]?.text) {
+            return candidate.content.parts[0].text;
+        } else {
+            throw new Error("Received an invalid response from the AI.");
+        }
+    } catch (e) {
+        console.error(e);
+        setError("I'm having trouble connecting right now. Please try again in a moment.");
+        return null;
+    } finally {
+        setIsTyping(false);
+    }
+  };
+  
+  const updateSessionMessages = (sessionId, newMessages) => {
+    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, messages: newMessages } : s));
+  };
+  
+  const handleSendMessage = async (messageContent) => {
+    if (!messageContent.trim() || !activeSession) return;
+
+    const userMessage = { id: Date.now(), role: 'user', content: messageContent };
+    const updatedMessages = [...activeSession.messages, userMessage];
+    updateSessionMessages(activeSessionId, updatedMessages);
+    setInputMessage('');
+    
+    const aiResponseContent = await generateAIResponse(updatedMessages);
+
+    if (aiResponseContent) {
+        const aiMessage = { id: Date.now() + 1, role: 'model', content: aiResponseContent };
+        updateSessionMessages(activeSessionId, [...updatedMessages, aiMessage]);
+    }
+  };
+
+  const handleNewChat = () => {
+      const newSessionId = Date.now();
+      const newSession = {
+          id: newSessionId,
+          title: `New Chat - ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+          messages: [{ id: 1, role: 'model', content: getInitialMessage() }]
       };
+      setSessions(prev => [...prev, newSession]);
+      setActiveSessionId(newSessionId);
+      setIsSidebarOpen(false);
+  };
+  
+  const handleDeleteSession = (e, sessionIdToDelete) => {
+    e.stopPropagation(); 
+    
+    const newSessions = sessions.filter(s => s.id !== sessionIdToDelete);
 
-      setMessages(prev => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500 + Math.random() * 1000);
+    if (activeSessionId === sessionIdToDelete) {
+        if (newSessions.length > 0) {
+            setActiveSessionId(newSessions[0].id);
+        } else {
+            const newSessionId = Date.now();
+            const welcomeSession = {
+                id: newSessionId,
+                title: 'Welcome Chat',
+                messages: [{ id: 1, role: 'model', content: getInitialMessage() }]
+            };
+            setSessions([welcomeSession]);
+            setActiveSessionId(newSessionId);
+            return; 
+        }
+    }
+    setSessions(newSessions);
   };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      handleSendMessage(inputMessage);
     }
   };
 
+  const Sidebar = () => (
+    <aside className={`absolute md:relative z-20 w-64 h-full bg-white/10 dark:bg-gray-800/50 backdrop-blur-lg border-r border-white/10 dark:border-gray-700/50 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-4 border-b border-white/10 dark:border-gray-700/50">
+            <button onClick={handleNewChat} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-light-primary/80 dark:bg-dark-primary/80 text-white hover:bg-light-primary dark:hover:bg-dark-primary transition-colors">
+                <FiPlus/> New Chat
+            </button>
+        </div>
+        <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+            {sessions.map(session => (
+                <div key={session.id} onClick={() => { setActiveSessionId(session.id); setIsSidebarOpen(false); }}
+                   className={`group flex items-center justify-between p-2 rounded-lg text-sm cursor-pointer ${activeSessionId === session.id ? 'bg-white/20 dark:bg-gray-700' : 'hover:bg-white/10 dark:hover:bg-gray-700/50'}`}>
+                    <span className="truncate pr-2">{session.title}</span>
+                    <button onClick={(e) => handleDeleteSession(e, session.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-opacity">
+                      <FiTrash2 className="w-4 h-4"/>
+                    </button>
+                </div>
+            ))}
+        </nav>
+    </aside>
+  );
+
   return (
-    <div className="min-h-screen bg-app flex flex-col">
-      <nav className="glass shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
-                PsyMitrix
-              </Link>
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex ml-8 space-x-4">
-                <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  Home
-                </Link>
-                <Link to="/dashboard" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  Dashboard
-                </Link>
-                <Link to="/chat" className="text-[var(--color-primary)] font-medium px-3 py-2 rounded-md text-sm">
-                  AI Chat
-                </Link>
-                <Link to="/assessments" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  Assessments
-                </Link>
-                <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] px-3 py-2 rounded-md text-sm font-medium">
-                  Profile
-                </Link>
-              </nav>
-            </div>
-
-            {/* Desktop User Menu */}
-            <div className="hidden md:flex items-center space-x-4">
-              <span className="text-sm text-[var(--color-text-secondary)]">
-                {user?.name}
-              </span>
-              <Button variant="secondary" size="sm" onClick={logout}>
-                Logout
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] p-2"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  {isMobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
+    <div className="bg-light-background dark:bg-gray-900 font-sans text-light-body dark:text-dark-body flex items-center justify-center min-h-screen p-0 sm:p-4">
+      <div className="flex h-full sm:h-[90vh] w-full lg:w-[60vw] sm:rounded-2xl shadow-2xl overflow-hidden bg-white/5 dark:bg-gray-800/20 backdrop-blur-2xl border border-white/10 dark:border-gray-700/50">
+        <Sidebar/>
+        <main className="flex-1 flex flex-col h-full bg-white/5 dark:bg-black/10">
+          <header className="flex items-center p-4 border-b border-white/10 dark:border-gray-700/80 bg-light-background/80 dark:bg-gray-900/80 backdrop-blur-sm">
+              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden mr-4 p-2 rounded-md hover:bg-white/10">
+                  <FiMenu/>
               </button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 dark:border-gray-700">
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                <Link
-                  to="/"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link
-                  to="/dashboard"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/chat"
-                  className="text-primary-600 dark:text-primary-400 font-medium block px-3 py-2 rounded-md text-base"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  AI Chat
-                </Link>
-                <Link
-                  to="/assessments"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Assessments
-                </Link>
-                <Link
-                  to="/profile"
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Profile
-                </Link>
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
-                  <div className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
-                    {user?.name}
-                  </div>
-                  <div className="px-3">
-                    <Button variant="secondary" size="sm" onClick={logout} className="w-full">
-                      Logout
-                    </Button>
+              <h1 className="text-lg font-semibold text-light-headings dark:text-dark-headings truncate">{activeSession?.title || 'Chat'}</h1>
+          </header>
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="max-w-3xl mx-auto">
+              {activeSession?.messages.length <= 1 && (
+                <div className="text-center p-8 my-8">
+                    <div className="inline-block p-4 bg-light-secondary/80 dark:bg-dark-secondary/80 rounded-full mb-4 animate-fade-in-up">
+                        <FiCpu className="w-10 h-10 text-white"/>
+                    </div>
+                    <h2 className="text-2xl font-bold text-light-headings dark:text-dark-headings animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                        Session with PsyMitrix AI
+                    </h2>
+                    <p className="mt-2 text-md text-light-body dark:text-dark-body max-w-md mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                        This is a safe space to explore your thoughts. Start by telling me what's on your mind, or try a suggested prompt.
+                    </p>
+                </div>
+              )}
+              {activeSession?.messages.map((message) => (
+                <div key={message.id} className={`flex items-end gap-3 my-4 animate-fade-in-up ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {message.role === 'model' && (
+                    <div className="w-8 h-8 rounded-full bg-light-secondary/80 dark:bg-dark-secondary/80 flex-shrink-0 flex items-center justify-center text-white"><FiCpu className="w-5 h-5"/></div>
+                  )}
+                  <div className={`max-w-[80%] md:max-w-[70%] p-4 rounded-2xl shadow-md ${message.role === 'user' ? 'bg-light-primary/90 dark:bg-dark-primary/90 text-white rounded-br-lg' : 'bg-white/50 dark:bg-gray-700/50 text-light-headings dark:text-dark-headings rounded-bl-lg'}`}>
+                    <p className="text-base whitespace-pre-wrap">{message.content}</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
-        <div className="glass p-4">
-          <h1 className="text-lg sm:text-xl font-semibold text-[var(--color-text)]">
-            AI Psychiatrist Chat
-          </h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Safe space for mental health conversations
-          </p>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 sm:px-4 py-2 rounded-lg ${
-                  message.type === 'user'
-                    ? 'bg-[var(--color-primary)] text-white shadow'
-                    : 'glass text-[var(--color-text)]'
-                }`}
-              >
-                <p className="text-sm sm:text-base">{message.content}</p>
-                <p className={`text-xs mt-1 ${
-                  message.type === 'user' ? 'text-white/80' : 'text-[var(--color-text-secondary)]'
-                }`}>
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </div>
-            </div>
-          ))}
-          
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="glass px-4 py-2 rounded-lg">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              ))}
+              {isTyping && (
+                <div className="flex items-end gap-3 my-4 justify-start">
+                  <div className="w-8 h-8 rounded-full bg-light-secondary/80 dark:bg-dark-secondary/80 flex-shrink-0 flex items-center justify-center text-white"><FiCpu className="w-5 h-5"/></div>
+                  <div className="p-4 rounded-2xl shadow-md bg-white/50 dark:bg-gray-700/50">
+                    <div className="flex space-x-1.5">
+                      <div className="w-2 h-2 bg-light-body dark:bg-dark-body rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-light-body dark:bg-dark-body rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-light-body dark:bg-dark-body rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
                 </div>
+              )}
+              {error && <div className="text-center text-red-500 text-sm py-4">{error}</div>}
+            </div>
+          </div>
+          <footer className="bg-light-background/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-white/10 dark:border-gray-700/50 p-4">
+            <div className="max-w-3xl mx-auto">
+              <div className="relative flex items-center">
+                <textarea value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} onKeyPress={handleKeyPress} placeholder="Share what's on your mind..."
+                  className="w-full h-14 pl-4 pr-16 py-4 resize-none rounded-xl bg-white/20 dark:bg-gray-800/80 text-light-headings dark:text-dark-headings placeholder:text-light-body/70 dark:placeholder:text-dark-body/70 border border-white/30 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary shadow-md transition-all"
+                  rows="1" />
+                <button onClick={() => handleSendMessage(inputMessage)} disabled={!inputMessage.trim() || isTyping}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all bg-light-primary dark:bg-dark-primary text-white hover:bg-light-primary/80 dark:hover:bg-dark-primary/80 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed">
+                  <FiSend className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="glass p-3 sm:p-4">
-          <div className="flex space-x-2">
-            <textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Share what's on your mind..."
-              className="flex-1 glass-input px-3 py-3 sm:py-2 text-base sm:text-sm rounded-md placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none"
-              rows="2"
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isTyping}
-              variant="primary"
-              size="lg"
-            >
-              Send
-            </Button>
-          </div>
-        </div>
+          </footer>
+        </main>
       </div>
     </div>
   );
 };
 
 export default ChatPage;
+

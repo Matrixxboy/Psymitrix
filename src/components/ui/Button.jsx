@@ -9,19 +9,19 @@ const Button = ({
   className = '', 
   ...props 
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-xl select-none transition duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center font-semibold rounded-lg select-none transition duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    primary: 'text-white bg-[var(--color-primary)] hover:brightness-110 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]',
-    secondary: 'text-[#2C2C2C] dark:text-[var(--color-text)] bg-[var(--color-secondary)] hover:brightness-105 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-secondary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]',
-    outline: 'glass-button text-[var(--color-text)] dark:text-[var(--color-text)] bg-transparent hover:brightness-110 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary)]',
-    danger: 'text-white bg-[var(--color-error)] hover:brightness-110 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-error)] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
+    primary: 'text-white bg-light-primary dark:bg-dark-primary hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-light-primary dark:focus:ring-dark-primary',
+    secondary: 'text-white bg-light-secondary dark:bg-dark-secondary hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-light-secondary dark:focus:ring-dark-secondary',
+    outline: 'bg-white/20 hover:bg-white/30 text-light-headings dark:text-dark-headings focus:ring-2 focus:ring-offset-2 focus:ring-light-primary dark:focus:ring-dark-primary',
+    danger: 'text-white bg-error hover:opacity-90 focus:ring-2 focus:ring-offset-2 focus:ring-error'
   };
   
   const sizes = {
-    sm: 'px-3 py-2 sm:py-1.5 text-sm',
-    md: 'px-4 py-3 sm:py-2 text-base sm:text-sm',
-    lg: 'px-6 py-4 sm:py-3 text-base sm:text-lg font-semibold'
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg'
   };
   
   const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;

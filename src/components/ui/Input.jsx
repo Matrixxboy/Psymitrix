@@ -1,3 +1,5 @@
+// AuthProvider: useEffect - checking for stored auth data.
+
 import React from 'react';
 
 const Input = ({ 
@@ -10,10 +12,10 @@ const Input = ({
   className = '', 
   ...props 
 }) => {
-  const baseClasses = 'w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm rounded-lg shadow-sm placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition';
+  const baseClasses = 'w-full px-4 py-3 rounded-lg bg-white/10 text-light-headings dark:text-dark-headings placeholder:text-light-body/70 dark:placeholder:text-dark-body/70 border border-white/20 focus:outline-none focus:ring-2 shadow-inner transition-all duration-300';
   
-  const normalState = 'glass-input text-[var(--color-text)] dark:text-[var(--color-text)] focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)]';
-  const errorState = 'glass-input text-[var(--color-text)] dark:text-[var(--color-text)] border-[var(--color-error)] focus:border-[var(--color-error)] focus:ring-[var(--color-error)]';
+  const normalState = 'focus:ring-light-primary dark:focus:ring-dark-primary';
+  const errorState = 'border-error focus:ring-error';
 
   const classes = `${baseClasses} ${error ? errorState : normalState} ${className}`;
   

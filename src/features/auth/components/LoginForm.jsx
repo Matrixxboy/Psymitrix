@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+import Button from '../../../components/ui/Button';
 
 const LoginForm = ({ onSubmit, loading = false, error = null }) => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: 'demo@user.com',
+    password: 'password123'
   });
 
   const handleChange = (e) => {
@@ -22,41 +22,33 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="email" className="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Email
-        </label>
         <Input
           id="email"
           name="email"
           type="email"
           value={formData.email}
           onChange={handleChange}
-          placeholder="Enter your email"
+          placeholder="Email"
           required
-          error={!!error}
         />
       </div>
       
       <div>
-        <label htmlFor="password" className="block text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Password
-        </label>
         <Input
           id="password"
           name="password"
           type="password"
           value={formData.password}
           onChange={handleChange}
-          placeholder="Enter your password"
+          placeholder="Password"
           required
-          error={!!error}
         />
       </div>
       
       {error && (
-        <div className="text-red-600 text-sm sm:text-base mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-md border border-red-200 dark:border-red-800">
+        <div className="text-error text-sm p-3 bg-error/10 rounded-lg border border-error/20">
           {error}
         </div>
       )}
@@ -64,8 +56,7 @@ const LoginForm = ({ onSubmit, loading = false, error = null }) => {
       <Button
         type="submit"
         variant="primary"
-        size="lg"
-        className="w-full mt-6"
+        className="w-full"
         disabled={loading}
       >
         {loading ? 'Signing in...' : 'Sign In'}
