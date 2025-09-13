@@ -102,34 +102,34 @@ const AssessmentsPage = () => {
 
   if (isCompleted && results) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <nav className="bg-white dark:bg-gray-800 shadow-sm">
+      <div className="min-h-screen bg-app">
+        <nav className="glass shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center space-x-8">
-                <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+                <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                   PsyMitrix
                 </Link>
                 <nav className="flex space-x-4">
-                  <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     Home
                   </Link>
-                  <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/dashboard" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     Dashboard
                   </Link>
-                  <Link to="/chat" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/chat" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     AI Chat
                   </Link>
-                  <Link to="/assessments" className="text-primary-600 dark:text-primary-400 font-medium">
+                  <Link to="/assessments" className="text-[var(--color-primary)] font-medium">
                     Assessments
                   </Link>
-                  <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                  <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                     Profile
                   </Link>
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-[var(--color-text-secondary)]">
                   {user?.name}
                 </span>
                 <Button variant="secondary" size="sm" onClick={logout}>
@@ -177,12 +177,12 @@ const AssessmentsPage = () => {
     const progress = ((currentQuestion + 1) / selectedAssessment.questions.length) * 100;
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <nav className="bg-white dark:bg-gray-800 shadow-sm">
+      <div className="min-h-screen bg-app">
+        <nav className="glass shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex items-center space-x-8">
-                <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+                <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                   PsyMitrix
                 </Link>
                 <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -258,34 +258,34 @@ const AssessmentsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <nav className="bg-white dark:bg-gray-800 shadow-sm">
+    <div className="min-h-screen bg-app">
+      <nav className="glass shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
-              <Link to="/" className="text-xl font-semibold text-gray-900 dark:text-white">
+              <Link to="/" className="text-xl font-semibold text-[var(--color-text)]">
                 PsyMitrix
               </Link>
               <nav className="flex space-x-4">
-                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Home
                 </Link>
-                <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/dashboard" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Dashboard
                 </Link>
-                <Link to="/chat" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/chat" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   AI Chat
                 </Link>
-                <Link to="/assessments" className="text-primary-600 dark:text-primary-400 font-medium">
+                <Link to="/assessments" className="text-[var(--color-primary)] font-medium">
                   Assessments
                 </Link>
-                <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Profile
                 </Link>
               </nav>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm text-[var(--color-text-secondary)]">
                 {user?.name}
               </span>
               <Button variant="secondary" size="sm" onClick={logout}>
