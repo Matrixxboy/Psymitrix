@@ -195,7 +195,7 @@ const ProgressPage = () => {
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                <p className="text-sm text-[var(--color-text-secondary)] mb-2">
                   {session.summary}
                 </p>
                 {session.insights && session.insights.length > 0 && (
