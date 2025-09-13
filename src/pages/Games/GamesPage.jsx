@@ -397,7 +397,7 @@ const GamesPage = () => {
 
         <div className="grid gap-6 md:grid-cols-2">
           {games.map((game) => (
-            <div key={game.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div key={game.id} className="glass glass-card">
               <div className={`inline-block p-2 rounded-lg mb-4 bg-${game.color}-100 dark:bg-${game.color}-900`}>
                 <div className="w-8 h-8 bg-current rounded opacity-20"></div>
               </div>
