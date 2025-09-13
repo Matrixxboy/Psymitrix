@@ -187,9 +187,9 @@ const ProgressPage = () => {
                       Score: {session.mentalStateScore}/10
                     </span>
                     <div className={`text-xs px-2 py-1 rounded-full inline-block ml-2 ${
-                      session.mood === 'Positive' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                      session.mood === 'Calm' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                      session.mood === 'Positive' ? 'bg-[color-mix(in_oklab,var(--color-secondary),white_85%)] text-[color-mix(in_oklab,var(--color-text),black_20%)]' :
+                      session.mood === 'Calm' ? 'bg-[color-mix(in_oklab,var(--color-primary),white_85%)] text-[color-mix(in_oklab,var(--color-text),black_20%)]' :
+                      'bg-[rgba(255,255,255,0.6)] text-[var(--color-text)]'
                     }`}>
                       {session.mood}
                     </div>
