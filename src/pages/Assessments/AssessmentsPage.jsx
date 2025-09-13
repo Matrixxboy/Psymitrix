@@ -197,25 +197,25 @@ const AssessmentsPage = () => {
         </nav>
 
         <main className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
+          <div className="glass glass-card">
             <div className="mb-6">
-              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <div className="flex justify-between text-sm text-[var(--color-text-secondary)] mb-2">
                 <span>Question {currentQuestion + 1} of {selectedAssessment.questions.length}</span>
                 <span>{Math.round(progress)}% Complete</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div className="w-full rounded-full h-2" style={{ backgroundColor: 'rgba(0,0,0,0.08)' }}>
                 <div
-                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                  className="h-2 rounded-full transition-all duration-300" style={{ backgroundColor: 'var(--color-primary)' }}
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-xl font-semibold text-[var(--color-text)] mb-6">
               Over the last 2 weeks, how often have you been bothered by:
             </h2>
             
-            <p className="text-lg text-gray-800 dark:text-gray-200 mb-8">
+            <p className="text-lg text-[var(--color-text)] mb-8">
               {question}
             </p>
 
@@ -224,19 +224,11 @@ const AssessmentsPage = () => {
                 <button
                   key={option.value}
                   onClick={() => handleAnswerSelect(currentQuestion, option.value)}
-                  className={`w-full p-4 text-left rounded-lg border-2 transition-colors ${
-                    answers[currentQuestion] === option.value
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900'
-                      : 'border-gray-200 dark:border-gray-600 hover:border-primary-300'
-                  }`}
+                  className={`w-full p-4 text-left rounded-lg border-2 transition-colors glass-button`} style={answers[currentQuestion]===option.value?{ borderColor:'var(--color-primary)', background: 'color-mix(in_oklab, var(--color-primary) 15%, transparent)'}:{}}
                 >
                   <div className="flex items-center">
-                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
-                      answers[currentQuestion] === option.value
-                        ? 'border-primary-500 bg-primary-500'
-                        : 'border-gray-300 dark:border-gray-600'
-                    }`}></div>
-                    <span className="text-gray-900 dark:text-white">{option.label}</span>
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3`} style={answers[currentQuestion]===option.value?{ borderColor:'var(--color-primary)', backgroundColor:'var(--color-primary)'}:{}}></div>
+                    <span className="text-[var(--color-text)]">{option.label}</span>
                   </div>
                 </button>
               ))}
