@@ -175,7 +175,7 @@ const ProgressPage = () => {
               <div key={session.id} className="border-l-4 border-[var(--color-primary)] pl-4 py-3">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+                    <h4 className="text-sm font-medium text-[var(--color-text)]">
                       {session.type}
                     </h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
