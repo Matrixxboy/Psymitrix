@@ -178,7 +178,7 @@ const ProgressPage = () => {
                     <h4 className="text-sm font-medium text-[var(--color-text)]">
                       {session.type}
                     </h4>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-[var(--color-text-secondary)]">
                       {session.date.toLocaleDateString()} • {session.duration} min
                     </p>
                   </div>
