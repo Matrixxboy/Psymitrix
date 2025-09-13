@@ -81,7 +81,7 @@ const ProgressPage = () => {
                 <Link to="/games" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Wellness Games
                 </Link>
-                <Link to="/progress" className="text-primary-600 dark:text-primary-400 font-medium">
+                <Link to="/progress" className="text-[var(--color-primary)] font-medium">
                   Progress
                 </Link>
                 <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
