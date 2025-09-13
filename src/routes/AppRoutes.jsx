@@ -46,6 +46,7 @@ const AppRoutes = () => {
   return (
     <>
       <ThemeToggler />
+      <Walkthrough />
       <Routes>
         {/* Public Routes */}
         <Route 
