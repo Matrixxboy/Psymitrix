@@ -141,14 +141,14 @@ const AssessmentsPage = () => {
         </nav>
 
         <main className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="glass glass-card text-center">
+            <h2 className="text-2xl font-bold text-[var(--color-text)] mb-4">
               Assessment Complete
             </h2>
-            <div className={`inline-block px-6 py-3 rounded-full text-white font-semibold mb-4 bg-${results.color}-500`}>
+            <div className="inline-block px-6 py-3 rounded-full text-white font-semibold mb-4" style={{ backgroundColor: (results.color==='green'?'var(--color-success)':results.color==='yellow'||results.color==='orange'?'var(--color-warning)':'var(--color-error)') }}>
               {results.level}
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-[var(--color-text-secondary)] mb-6">
               {results.description}
             </p>
             <div className="space-y-3">
@@ -308,14 +308,14 @@ const AssessmentsPage = () => {
 
         <div className="grid gap-6 md:grid-cols-2">
           {assessments.map((assessment) => (
-            <div key={assessment.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <div key={assessment.id} className="glass glass-card">
+              <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">
                 {assessment.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-[var(--color-text-secondary)] mb-4">
                 {assessment.description}
               </p>
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <div className="flex items-center text-sm text-[var(--color-text-secondary)] mb-4">
                 <span>Duration: {assessment.duration}</span>
               </div>
               <Button
