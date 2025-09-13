@@ -183,7 +183,7 @@ const ProgressPage = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <span className="text-sm font-medium text-[var(--color-text)]">
                       Score: {session.mentalStateScore}/10
                     </span>
                     <div className={`text-xs px-2 py-1 rounded-full inline-block ml-2 ${
