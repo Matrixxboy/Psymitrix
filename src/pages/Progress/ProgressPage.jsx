@@ -66,25 +66,25 @@ const ProgressPage = () => {
                 PsyMitrix
               </Link>
               <nav className="flex space-x-4">
-                <Link to="/" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Home
                 </Link>
-                <Link to="/dashboard" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/dashboard" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Dashboard
                 </Link>
-                <Link to="/chat" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/chat" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   AI Chat
                 </Link>
-                <Link to="/assessments" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/assessments" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Assessments
                 </Link>
-                <Link to="/games" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/games" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Wellness Games
                 </Link>
                 <Link to="/progress" className="text-primary-600 dark:text-primary-400 font-medium">
                   Progress
                 </Link>
-                <Link to="/profile" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <Link to="/profile" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
                   Profile
                 </Link>
               </nav>
