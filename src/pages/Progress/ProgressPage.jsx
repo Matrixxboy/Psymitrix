@@ -172,7 +172,7 @@ const ProgressPage = () => {
           </h3>
           <div className="space-y-4">
             {sessions.map((session) => (
-              <div key={session.id} className="border-l-4 border-primary-500 pl-4 py-3">
+              <div key={session.id} className="border-l-4 border-[var(--color-primary)] pl-4 py-3">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">
