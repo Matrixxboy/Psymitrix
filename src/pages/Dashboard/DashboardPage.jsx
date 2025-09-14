@@ -31,11 +31,21 @@ const DashboardPage = () => {
   const [mood, setMood] = useState(3);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setData(getSampleData());
+    let mounted = true;
+    getAppData().then((app) => {
+      if (!mounted) return;
+      const mapped = {
+        moodTrend: app.charts.moodTrend,
+        activityBreakdown: { value: app.charts.completion.value, label: app.charts.completion.label },
+        wellnessBalance: app.charts.radar,
+        consistency: app.charts.heatmap,
+        dailyInsight: app.dashboard?.dailyInsight,
+        suggestions: app.dashboard?.suggestions || { activities: [], tests: [] },
+      };
+      setData(mapped);
       setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    });
+    return () => { mounted = false; };
   }, []);
 
   if (loading) {
