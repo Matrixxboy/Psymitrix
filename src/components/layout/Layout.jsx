@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ThemeToggler from '../custom/ThemeToggler';
+import Orb3D from '../custom/Orb3D';
 
 const Burger = ({ open, setOpen }) => (
   <button
