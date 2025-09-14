@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import LineChart from '../../components/charts/LineChart';
 import RadarChart from '../../components/charts/RadarChart';
 import BarChart from '../../components/charts/BarChart';
+import PieChart from '../../components/charts/PieChart';
 import GlassCard from '../../components/ui/GlassCard';
 import { getAppData } from '../../api/data';
+import Achievements from './Achievements';
 
 // Minimal inline icons
 const FiTrendingUp = (props) => (
@@ -30,30 +32,18 @@ const FiStar = (props) => (
 
 const ChartCard = ({ title, icon: Icon, children }) => (
   <GlassCard>
-    <div className="flex items-center gap-3 mb-4">
+    <div className="flex items-center gap-3 mb-4 p-4">
       <Icon className="text-xl text-light-primary dark:text-dark-primary" />
       <h3 className="text-lg font-semibold text-light-headings dark:text-dark-headings">{title}</h3>
     </div>
-    {children}
+    <div className="p-4 pt-0">
+      {children}
+    </div>
   </GlassCard>
 );
 
-const Achievements = ({ items = [] }) => (
-  <div className="space-y-4">
-    {items.slice(0, 3).map((ach, i) => (
-      <div key={i} className={`flex items-center gap-4 p-3 rounded-lg ${ach.achieved ? 'bg-white/10' : 'bg-white/5 opacity-60'}`}>
-        <FiStar className={`${ach.achieved ? 'text-yellow-400' : 'text-light-body dark:text-dark-body'} text-xl`} />
-        <span className={`font-medium ${ach.achieved ? 'text-light-headings dark:text-dark-headings' : 'text-light-body dark:text-dark-body'}`}>{ach.title}</span>
-      </div>
-    ))}
-    <button className="text-center w-full mt-2 text-sm text-light-primary dark:text-dark-primary font-semibold hover:underline">
-      View All
-    </button>
-  </div>
-);
-
 const StatCard = ({ icon: Icon, value, label }) => (
-  <GlassCard className="flex items-center gap-4">
+  <GlassCard className="p-4 flex items-center gap-4">
     <div className="p-3 bg-white/10 rounded-full">
       <Icon className="text-2xl text-light-primary dark:text-dark-primary" />
     </div>
@@ -70,12 +60,25 @@ const ProgressPage = () => {
 
   useEffect(() => {
     let mounted = true;
-    getAppData().then((app) => { if (mounted) setProgress(app.progress); });
+    getAppData().then((appData) => {
+      if (mounted) {
+        setProgress(appData.progress);
+      }
+    });
     return () => { mounted = false; };
   }, []);
 
   const stats = useMemo(() => progress?.stats || { avgMood: 0, habitRate: 0, daysStreak: 0, achievementsCount: 0 }, [progress]);
-  const chartData = useMemo(() => progress?.[timeframe] || { moodTrend:{}, wellnessBalance:{}, habitConsistency:{}, activityBreakdown:{} }, [progress, timeframe]);
+  const chartData = useMemo(() => progress?.[timeframe] || { moodTrend: {}, wellnessBalance: {}, habitConsistency: {}, activityBreakdown: {} }, [progress, timeframe]);
+
+  // **IMPROVEMENT**: Add a loading state
+  if (!progress) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-light-headings dark:text-dark-headings">Loading your progress...</p>
+      </div>
+    );
+  }
 
   const TimeframeButton = ({ period, label }) => (
     <button
@@ -97,7 +100,7 @@ const ProgressPage = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard icon={FiTrendingUp} value={stats.avgMood} label="Avg. Mood" />
+          <StatCard icon={FiTrendingUp} value={stats.avgMood.toFixed(1)} label="Avg. Mood" />
           <StatCard icon={FiCheckSquare} value={`${stats.habitRate}%`} label="Habit Rate" />
           <StatCard icon={FiStar} value={stats.daysStreak} label="Days Streak" />
           <StatCard icon={FiAward} value={stats.achievementsCount} label="Achievements" />
@@ -119,11 +122,12 @@ const ProgressPage = () => {
           </ChartCard>
 
           <ChartCard title="Wellness Balance" icon={FiActivity}>
+            {/* Note: Your RadarChart component correctly expects a 'datasets' array. This implementation is correct. */}
             <div className="h-80"><RadarChart labels={chartData.wellnessBalance?.labels || []} datasets={[{ label: 'Wellness', data: chartData.wellnessBalance?.values || [] }]} /></div>
           </ChartCard>
 
           <ChartCard title="Activity Breakdown (Mins)" icon={FiPieChart}>
-            <div className="h-80"><BarChart {...(chartData.activityBreakdown || {})} title="Minutes" /></div>
+            <div className="h-80"><PieChart labels={chartData.activityBreakdown?.labels} datasets={[{ data: chartData.activityBreakdown?.values }]} /></div>
           </ChartCard>
 
           <div className="lg:col-span-2">

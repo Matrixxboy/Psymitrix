@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Radar } from 'react-chartjs-2';
 import {
   Chart as ChartJS, RadialLinearScale, PointElement, LineElement,
@@ -7,24 +7,6 @@ import {
 import { useTheme } from '../../providers/ThemeProvider';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
-
-// --- Simplified, Reusable Theming Hook ---
-const usePalette = () => {
-  const { theme } = useTheme();
-
-  const palette = useMemo(() => {
-    return {
-      primary: `var(--primary)`,
-      secondary: `var(--secondary)`,
-      accent: `var(--accent)`,
-      headings: `var(--headings)`,
-      body: `var(--body)`,
-      background: `var(--background)`,
-    };
-  }, [theme]);
-
-  return palette;
-};
 
 /**
  * An advanced, theme-aware radar chart for comparing multiple datasets.
@@ -36,7 +18,21 @@ const usePalette = () => {
  * @param {Array<{label: string, data: number[]}>} props.datasets - An array of dataset objects to compare.
  */
 const RadarChart = ({ labels, datasets = [] }) => {
-  const pal = usePalette();
+  const { theme } = useTheme();
+
+  // Define colors based on the current theme
+  const pal = useMemo(() => {
+    const isDark = theme === 'dark';
+    return {
+      primary: isDark ? '#8C82FC' : '#6C63FF',
+      secondary: isDark ? '#26D7AE' : '#00BFA6',
+      accent: isDark ? '#FF8A80' : '#FF6B6B',
+      headings: isDark ? '#E0E0E0' : '#2C3E50',
+      body: isDark ? '#BDBDBD' : '#4F4F4F',
+      background: isDark ? '#121212' : '#F5F7FA',
+    };
+  }, [theme]);
+
   const themeColors = useMemo(() => [pal.primary, pal.secondary, pal.accent], [pal]);
 
   const data = useMemo(() => ({
