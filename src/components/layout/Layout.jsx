@@ -64,7 +64,7 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-light-background dark:bg-dark-background text-light-body dark:text-dark-body">
+    <div className="min-h-screen flex flex-col">
       {/* Navbar (use the .glass utility) */}
       <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4">
         <div className="relative max-w-7xl mx-auto flex justify-between items-center">
