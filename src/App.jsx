@@ -8,7 +8,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <div className="min-h-screen bg-light-background dark:bg-dark-background text-light-body dark:text-dark-body">
+        <div className="min-h-screen">
           <BrowserRouter
             future={{
               v7_startTransition: true,
