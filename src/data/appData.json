@@ -19,6 +19,35 @@
     "dailyInsight": {"title":"Today's Prompt","text":"What is one small thing you can do today that would bring you a moment of joy?"},
     "suggestions": {"activities":[{"title":"Breathing Exercise","details":"5 min"},{"title":"Mindful Walk","details":"15 min"}],"tests":[{"title":"Anxiety Score (GAD-7)","details":"Quick check-in"}]}
   },
+  "progress": {
+    "stats": {"avgMood":7.2, "habitRate":82, "daysStreak":12, "achievementsCount":6},
+    "week": {
+      "moodTrend": {"labels":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"values":[6,7,7,6,8,7,7]},
+      "wellnessBalance": {"labels":["Stress","Anxiety","Sleep","Focus","Energy"],"values":[6,5,7,6,7]},
+      "habitConsistency": {"labels":["Meditate","Journal","Exercise","Gratitude"],"values":[5,4,3,6]},
+      "activityBreakdown": {"labels":["Guided","Silent","Walking","Breathing"],"values":[35,28,18,22]}
+    },
+    "month": {
+      "moodTrend": {"labels":["Week 1","Week 2","Week 3","Week 4"],"values":[6.8,7.1,7.5,7.3]},
+      "wellnessBalance": {"labels":["Stress","Anxiety","Sleep","Focus","Energy"],"values":[6,6,7,6,7]},
+      "habitConsistency": {"labels":["Meditate","Journal","Exercise","Gratitude"],"values":[18,12,14,20]},
+      "activityBreakdown": {"labels":["Guided","Silent","Walking","Breathing"],"values":[120,90,60,75]}
+    },
+    "year": {
+      "moodTrend": {"labels":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"values":[6.9,7.0,7.2,7.4,7.5,7.6,7.3,7.1,7.2,7.4,7.6,7.7]},
+      "wellnessBalance": {"labels":["Stress","Anxiety","Sleep","Focus","Energy"],"values":[6,6,7,6,7]},
+      "habitConsistency": {"labels":["Meditate","Journal","Exercise","Gratitude"],"values":[120,95,110,140]},
+      "activityBreakdown": {"labels":["Guided","Silent","Walking","Breathing"],"values":[620,480,360,410]}
+    },
+    "achievements": [
+      {"title":"First Session","achieved":true},
+      {"title":"7-Day Streak","achieved":true},
+      {"title":"Mindful Master","achieved":false},
+      {"title":"Assessment Complete","achieved":true},
+      {"title":"Journal Entry","achieved":true},
+      {"title":"Perfect Week","achieved":false}
+    ]
+  },
   "interactions": {
     "lastLogin":"2025-01-03T09:12:00.000Z",
     "recentSessions":[{"id":"s_101","title":"Mindfulness Basics","date":"2025-01-02T18:20:00.000Z","durationMin":12},{"id":"s_102","title":"Breathing Exercise","date":"2025-01-03T08:50:00.000Z","durationMin":5}],
