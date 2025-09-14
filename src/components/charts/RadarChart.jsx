@@ -87,6 +87,9 @@ const RadarChart = ({ labels, datasets = [] }) => {
           borderWidth: 1,
           padding: 10,
           cornerRadius: 8,
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.r}`
+          }
         },
       },
       scales: {

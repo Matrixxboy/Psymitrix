@@ -70,18 +70,16 @@ const DonutChart = ({ value = 72, label = 'Completion' }) => {
   const options = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
-    cutout: '70%',
+    cutout: '72%',
     plugins: {
       legend: { display: false },
-      tooltip: {
-        enabled: false, // Tooltip is redundant with the central text
-      },
+      tooltip: { enabled: true, callbacks: { label: (ctx) => `${label}: ${value}%` } },
     },
     animation: {
       animateRotate: true,
       animateScale: true,
     },
-  }), [pal]);
+  }), [pal, value, label]);
 
   return (
     <div className="w-full h-full relative">

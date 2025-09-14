@@ -11,6 +11,12 @@ import GamesPage from '../pages/Games/GamesPage';
 import ProgressPage from '../pages/Progress/ProgressPage';
 import Layout from '../components/layout/Layout';
 import Walkthrough from '../components/onboarding/Walkthrough';
+import About from '../pages/Static/About';
+import Contact from '../pages/Static/Contact';
+import FAQ from '../pages/Static/FAQ';
+import HelpCenter from '../pages/Static/HelpCenter';
+import PrivacyPolicy from '../pages/Static/PrivacyPolicy';
+import TermsOfService from '../pages/Static/TermsOfService';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -119,6 +125,56 @@ const AppRoutes = () => {
               <ProtectedRoute>
                 <ProfilePage />
               </ProtectedRoute>
+            } 
+          />
+
+          {/* Static Pages */}
+          <Route 
+            path="/about" 
+            element={
+              <ProtectedRoute>
+                <About />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/contact" 
+            element={
+              <ProtectedRoute>
+                <Contact />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/faq" 
+            element={
+              <ProtectedRoute>
+                <FAQ />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/help" 
+            element={
+              <ProtectedRoute>
+                <HelpCenter />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/privacy" 
+            element={
+              <ProtectedRoute>
+                <PrivacyPolicy />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/terms" 
+            element={
+                <ProtectedRoute>
+                  <TermsOfService />
+                </ProtectedRoute>
             } 
           />
         </Route>

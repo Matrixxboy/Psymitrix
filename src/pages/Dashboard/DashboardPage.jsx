@@ -15,43 +15,7 @@ import SuggestionCard from './sections/SuggestionCard';
 import InsightCard from './sections/InsightCard';
 import DashboardSkeleton from './sections/DashboardSkeleton';
 import ChartCard from './ChartCard';
-
-const getSampleData = () => {
-  const generateHeatmapData = (days, maxVal) => {
-    return Array.from({ length: days }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return {
-        date: date.toISOString(),
-        value: Math.random() > 0.3 ? Math.random() * maxVal : 0,
-      };
-    });
-  };
-
-  return {
-    moodTrend: {
-      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      values: [6, 7, 5, 8, 7, 9, 8],
-    },
-    activityBreakdown: { value: 65 },
-    wellnessBalance: {
-      labels: ['Stress', 'Anxiety', 'Depression'],
-      datasets: [{ label: 'Current', data: [4, 6, 7] }],
-    },
-    consistency: generateHeatmapData(35, 1),
-    dailyInsight: {
-      title: "Today's Prompt",
-      text: "What is one small thing you can do today that would bring you a moment of joy?",
-    },
-    suggestions: {
-      activities: [
-        { title: 'Breathing Exercise', details: '5 min' },
-        { title: 'Mindful Walk', details: '15 min' },
-      ],
-      tests: [{ title: 'Anxiety Score (GAD-7)', details: 'Quick check-in' }],
-    },
-  };
-};
+import { getAppData } from '../../api/data';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -67,11 +31,21 @@ const DashboardPage = () => {
   const [mood, setMood] = useState(3);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setData(getSampleData());
+    let mounted = true;
+    getAppData().then((app) => {
+      if (!mounted) return;
+      const mapped = {
+        moodTrend: app.charts.moodTrend,
+        activityBreakdown: { value: app.charts.completion.value, label: app.charts.completion.label },
+        wellnessBalance: app.charts.radar,
+        consistency: app.charts.heatmap,
+        dailyInsight: app.dashboard?.dailyInsight,
+        suggestions: app.dashboard?.suggestions || { activities: [], tests: [] },
+      };
+      setData(mapped);
       setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    });
+    return () => { mounted = false; };
   }, []);
 
   if (loading) {

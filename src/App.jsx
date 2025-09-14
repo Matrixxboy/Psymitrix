@@ -8,14 +8,16 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter
-          future={{
-            v7_startTransition: true,
-            v7_relativeSplatPath: true
-          }}
-        >
-          <AppRoutes />
-        </BrowserRouter>
+        <div className="min-h-screen">
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true
+            }}
+          >
+            <AppRoutes />
+          </BrowserRouter>
+        </div>
       </AuthProvider>
     </ThemeProvider>
   );

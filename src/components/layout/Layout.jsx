@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ThemeToggler from '../custom/ThemeToggler';
+import Orb3D from '../custom/Orb3D';
 
 const Burger = ({ open, setOpen }) => (
   <button
@@ -63,11 +64,13 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-light-background dark:bg-dark-background text-light-body dark:text-dark-body">
+    <div className="min-h-screen flex flex-col">
       {/* Navbar (use the .glass utility) */}
       <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold text-light-headings dark:text-dark-headings">PsyMitrix</Link>
+        <div className="relative max-w-7xl mx-auto flex justify-between items-center">
+          <Link to="/" className="text-2xl font-extrabold tracking-tight text-light-headings dark:text-dark-headings">
+            <span className="inline-block transform will-change-transform [text-shadow:0_2px_12px_rgba(108,99,255,0.35)]">PsyMitrix</span>
+          </Link>
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center space-x-6">
@@ -86,6 +89,9 @@ const Layout = () => {
             <button onClick={logout} className="hidden sm:block px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">Logout</button>
             <Burger open={menuOpen} setOpen={setMenuOpen} />
           </div>
+
+          {/* Decorative 3D orb */}
+          <Orb3D />
         </div>
       </nav>
 

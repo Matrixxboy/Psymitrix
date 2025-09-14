@@ -1,0 +1,57 @@
+{
+  "meta": {"version":1,"generatedAt":"2025-01-01T00:00:00.000Z"},
+  "user": {
+    "id":"u_001","name":"Utsav Lankapati","email":"utsav@example.com","avatarUrl":"https://avatars.githubusercontent.com/u/1?v=4",
+    "preferences":{"theme":"system","notifications":true,"language":"en"},
+    "stats":{"streakDays":4,"level":3,"xp":1240}
+  },
+  "assessments": [
+    {"id":"phq9","title":"PHQ-9 Depression Assessment","description":"A 9-question screening tool to help identify and monitor depression symptoms.","duration":"5-10 minutes","questions":["Little interest or pleasure in doing things","Feeling down, depressed, or hopeless","Trouble falling or staying asleep, or sleeping too much","Feeling tired or having little energy","Poor appetite or overeating","Feeling bad about yourself or that you are a failure","Trouble concentrating on things, such as reading or watching TV","Moving or speaking so slowly that other people could have noticed","Thoughts that you would be better off dead or of hurting yourself"],"options":[{"value":0,"label":"Not at all"},{"value":1,"label":"Several days"},{"value":2,"label":"More than half the days"},{"value":3,"label":"Nearly every day"}]},
+    {"id":"gad7","title":"GAD-7 Anxiety Assessment","description":"A 7-question screening tool for generalized anxiety disorder.","duration":"3-5 minutes","questions":["Feeling nervous, anxious, or on edge","Not being able to stop or control worrying","Worrying too much about different things","Trouble relaxing","Being so restless that it's hard to sit still","Becoming easily annoyed or irritable","Feeling afraid as if something awful might happen"],"options":[{"value":0,"label":"Not at all"},{"value":1,"label":"Several days"},{"value":2,"label":"More than half the days"},{"value":3,"label":"Nearly every day"}]}
+  ],
+  "charts": {
+    "moodTrend": {"labels":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"values":[3,4,5,4,6,7,6]},
+    "completion": {"value":68, "label":"Weekly Goal"},
+    "radar": {"labels":["Stress","Sleep","Mood","Energy","Focus"],"datasets":[{"label":"This Week","data":[6,5,7,6,5]},{"label":"Last Week","data":[5,6,6,5,6]}]},
+    "heatmap": [{"date":"2025-01-01","value":0.7},{"date":"2025-01-02","value":0.3},{"date":"2025-01-03","value":0.9}]
+  },
+  "dashboard": {
+    "dailyInsight": {"title":"Today's Prompt","text":"What is one small thing you can do today that would bring you a moment of joy?"},
+    "suggestions": {"activities":[{"title":"Breathing Exercise","details":"5 min"},{"title":"Mindful Walk","details":"15 min"}],"tests":[{"title":"Anxiety Score (GAD-7)","details":"Quick check-in"}]}
+  },
+  "progress": {
+    "stats": {"avgMood":7.2, "habitRate":82, "daysStreak":12, "achievementsCount":6},
+    "week": {
+      "moodTrend": {"labels":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"values":[6,7,7,6,8,7,7]},
+      "wellnessBalance": {"labels":["Stress","Anxiety","Sleep","Focus","Energy"],"values":[6,5,7,6,7]},
+      "habitConsistency": {"labels":["Meditate","Journal","Exercise","Gratitude"],"values":[5,4,3,6]},
+      "activityBreakdown": {"labels":["Guided","Silent","Walking","Breathing"],"values":[35,28,18,22]}
+    },
+    "month": {
+      "moodTrend": {"labels":["Week 1","Week 2","Week 3","Week 4"],"values":[6.8,7.1,7.5,7.3]},
+      "wellnessBalance": {"labels":["Stress","Anxiety","Sleep","Focus","Energy"],"values":[6,6,7,6,7]},
+      "habitConsistency": {"labels":["Meditate","Journal","Exercise","Gratitude"],"values":[18,12,14,20]},
+      "activityBreakdown": {"labels":["Guided","Silent","Walking","Breathing"],"values":[120,90,60,75]}
+    },
+    "year": {
+      "moodTrend": {"labels":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"values":[6.9,7.0,7.2,7.4,7.5,7.6,7.3,7.1,7.2,7.4,7.6,7.7]},
+      "wellnessBalance": {"labels":["Stress","Anxiety","Sleep","Focus","Energy"],"values":[6,6,7,6,7]},
+      "habitConsistency": {"labels":["Meditate","Journal","Exercise","Gratitude"],"values":[120,95,110,140]},
+      "activityBreakdown": {"labels":["Guided","Silent","Walking","Breathing"],"values":[620,480,360,410]}
+    },
+    "achievements": [
+      {"title":"First Session","achieved":true},
+      {"title":"7-Day Streak","achieved":true},
+      {"title":"Mindful Master","achieved":false},
+      {"title":"Assessment Complete","achieved":true},
+      {"title":"Journal Entry","achieved":true},
+      {"title":"Perfect Week","achieved":false}
+    ]
+  },
+  "interactions": {
+    "lastLogin":"2025-01-03T09:12:00.000Z",
+    "recentSessions":[{"id":"s_101","title":"Mindfulness Basics","date":"2025-01-02T18:20:00.000Z","durationMin":12},{"id":"s_102","title":"Breathing Exercise","date":"2025-01-03T08:50:00.000Z","durationMin":5}],
+    "assessmentsHistory":[{"id":"phq9","date":"2024-12-28T11:00:00.000Z","score":6,"level":"Mild Depression"},{"id":"gad7","date":"2024-12-30T15:45:00.000Z","score":8,"level":"Mild Anxiety"}]
+  },
+  "chatHistory":[{"id":"c1","role":"user","content":"I'm feeling a bit overwhelmed lately."},{"id":"c2","role":"assistant","content":"I'm here for you. Can you tell me what situations trigger this feeling?"}]
+}
