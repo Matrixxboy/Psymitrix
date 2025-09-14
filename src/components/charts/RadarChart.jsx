@@ -9,28 +9,18 @@ import { useTheme } from '../../providers/ThemeProvider';
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 // --- Simplified, Reusable Theming Hook ---
-const readPaletteFromDOM = (theme) => {
-  if (typeof window === 'undefined') {
-    return { primary: '#6C63FF', secondary: '#00BFA6', accent: '#FF6B6B', headings: '#2C3E50', body: '#4F4F4F', background: '#F5F7FA' };
-  }
-  const s = getComputedStyle(document.documentElement);
-  const prefix = theme === 'dark' ? '--dark-' : '--light-';
-  return {
-    primary: s.getPropertyValue(`${prefix}primary`).trim(),
-    secondary: s.getPropertyValue(`${prefix}secondary`).trim(),
-    accent: s.getPropertyValue(`${prefix}accent`).trim(),
-    headings: s.getPropertyValue(`${prefix}headings`).trim(),
-    body: s.getPropertyValue(`${prefix}body`).trim(),
-    background: s.getPropertyValue(`${prefix}background`).trim(),
-  };
-};
-
 const usePalette = () => {
   const { theme } = useTheme();
-  const [palette, setPalette] = useState(() => readPaletteFromDOM(theme));
 
-  useEffect(() => {
-    setPalette(readPaletteFromDOM(theme));
+  const palette = useMemo(() => {
+    return {
+      primary: `var(--primary)`,
+      secondary: `var(--secondary)`,
+      accent: `var(--accent)`,
+      headings: `var(--headings)`,
+      body: `var(--body)`,
+      background: `var(--background)`,
+    };
   }, [theme]);
 
   return palette;
@@ -56,7 +46,7 @@ const RadarChart = ({ labels, datasets = [] }) => {
       return {
         label: dataset.label,
         data: dataset.data,
-        backgroundColor: `${color}33`, // Use color with ~20% opacity for the fill
+        backgroundColor: `${color}33`,
         borderColor: color,
         pointBackgroundColor: color,
         borderWidth: 2.5,
@@ -72,16 +62,14 @@ const RadarChart = ({ labels, datasets = [] }) => {
   }), [labels, datasets, pal, themeColors]);
 
   const options = useMemo(() => {
-    // Dynamically calculate the max value across all datasets for a responsive scale
     const allData = datasets.flatMap(ds => ds.data);
     const maxValue = Math.max(...allData, 0);
-    const suggestedMax = Math.ceil(maxValue * 1.25); // Add 25% padding
+    const suggestedMax = Math.ceil(maxValue * 1.25);
     
     return {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        // The legend is now enabled and themed, crucial for comparing datasets
         legend: {
           display: true,
           position: 'top',
@@ -103,18 +91,17 @@ const RadarChart = ({ labels, datasets = [] }) => {
       },
       scales: {
         r: {
-          angleLines: { color: `${pal.body}33` },
-          grid: { color: `${pal.body}33` },
+          angleLines: { color: pal.body },
+          grid: { color: pal.body },
           pointLabels: {
             color: pal.headings,
             font: { size: 13, weight: '500' },
           },
-          // Ticks are now visible and styled for better data interpretation
           ticks: {
             display: true,
             color: pal.body,
             backdropColor: `${pal.background}99`,
-            stepSize: Math.ceil(suggestedMax / 5), // Aim for ~5 tick marks
+            stepSize: Math.ceil(suggestedMax / 5),
           },
           beginAtZero: true,
           suggestedMax: suggestedMax > 0 ? suggestedMax : 10,

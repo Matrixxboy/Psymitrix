@@ -2,8 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* base variables + body */
 @layer base {
   :root {
+    --background: #F5F7FA;
+    --primary: #6C63FF;
+    --secondary: #00BFA6;
+    --accent: #FF6B6B;
+    --headings: #2C3E50;
+    --body: #4F4F4F;
+
     --light-background: #F5F7FA;
     --light-primary: #6C63FF;
     --light-secondary: #00BFA6;
@@ -23,11 +31,81 @@
     --error: #EB5757;
   }
 
+  .dark {
+    --background: #121212;
+    --primary: #8C82FC;
+    --secondary: #26D7AE;
+    --accent: #FF8A80;
+    --headings: #E0E0E0;
+    --body: #BDBDBD;
+  }
+
   html, body {
     height: 100%;
   }
 
   body {
     @apply bg-light-background dark:bg-dark-background text-light-body dark:text-dark-body;
+  }
+}
+
+/* components: glass utilities */
+@layer components {
+  /* Main reusable glass card */
+  .glass {
+    background-color: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 30px rgba(2,6,23,0.25);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+  }
+
+  .dark .glass {
+    background-color: rgba(18,18,18,0.45);
+    border: 1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  }
+
+  /* Fullscreen overlay used to blur/darken the whole page */
+  .glass-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    /* Fallback (always apply a dark tint so blur isn't required) */
+    background-color: rgba(0,0,0,0.45);
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+  }
+
+  /* If the browser supports backdrop-filter, use it (and a lighter tint) */
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .glass-overlay {
+      background-color: rgba(2,6,23,0.32);
+      -webkit-backdrop-filter: blur(12px) saturate(120%);
+      backdrop-filter: blur(12px) saturate(120%);
+    }
+  }
+
+  /* Glassy panel that sits on top of the overlay */
+  .glass-panel {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    top: 4rem; /* matches nav height (p-4 -> ~4rem). adjust if your nav is taller */
+    z-index: 50;
+    padding: 0.75rem;
+    background-color: rgba(255,255,255,0.12);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+  }
+
+  .dark .glass-panel {
+    background-color: rgba(18,18,18,0.45);
+    border-top: 1px solid rgba(255,255,255,0.03);
   }
 }
