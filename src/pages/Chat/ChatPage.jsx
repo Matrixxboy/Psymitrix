@@ -130,7 +130,7 @@ const ChatPage = () => {
   };
 
   const Sidebar = () => (
-    <aside className={`absolute md:relative z-20 w-64 h-full bg-white/10 dark:bg-gray-800/50 backdrop-blur-lg border-r border-white/10 dark:border-gray-700/50 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+    <aside className={`absolute md:relative z-20 w-64 h-full bg-white/10 dark:bg-gray-800/50 glass border-r border-white/10 dark:border-gray-700/50 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="p-4 border-b border-white/10 dark:border-gray-700/50">
             <button onClick={handleNewChat} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-light-primary/80 dark:bg-dark-primary/80 text-white hover:bg-light-primary dark:hover:bg-dark-primary transition-colors">
                 <FiPlus/> New Chat
@@ -151,7 +151,7 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="bg-light-background dark:bg-gray-900 font-sans text-light-body dark:text-dark-body flex items-center justify-center min-h-screen p-0 sm:p-4">
+    <div className="bg-light-background dark:bg-dark-background font-sans text-light-body dark:text-dark-body flex items-center justify-center p-0 sm:p-4">
       <div className="flex h-full sm:h-[90vh] w-full lg:w-[60vw] sm:rounded-2xl shadow-2xl overflow-hidden bg-white/5 dark:bg-gray-800/20 backdrop-blur-2xl border border-white/10 dark:border-gray-700/50">
         <Sidebar/>
         <main className="flex-1 flex flex-col h-full bg-white/5 dark:bg-black/10">
@@ -205,7 +205,7 @@ const ChatPage = () => {
             <div className="max-w-3xl mx-auto">
               <div className="relative flex items-center">
                 <textarea value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} onKeyPress={handleKeyPress} placeholder="Share what's on your mind..."
-                  className="w-full h-14 pl-4 pr-16 py-4 resize-none rounded-xl bg-white/20 dark:bg-gray-800/80 text-light-headings dark:text-dark-headings placeholder:text-light-body/70 dark:placeholder:text-dark-body/70 border border-white/30 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary shadow-md transition-all"
+                  className="w-full h-14 pl-4 pr-16 py-4 resize-none rounded-xl bg-white/20 dark:bg-gray-800/80 text-light-headings dark:text-dark-headings placeholder:text-light-body/70 dark:placeholder:text-dark-body/70 border border-white/30 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary shadow-md transition-all overflow-hidden"
                   rows="1" />
                 <button onClick={() => handleSendMessage(inputMessage)} disabled={!inputMessage.trim() || isTyping}
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all bg-light-primary dark:bg-dark-primary text-white hover:bg-light-primary/80 dark:hover:bg-dark-primary/80 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed">
