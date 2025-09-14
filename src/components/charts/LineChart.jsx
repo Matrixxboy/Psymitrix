@@ -74,7 +74,7 @@ const LineChart = ({ labels, values, title = 'Progress' }) => {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
+        legend: { display: true, labels: { color: pal.body, boxWidth: 0 } },
         tooltip: {
           backgroundColor: pal.background,
           titleColor: pal.headings,
@@ -84,6 +84,10 @@ const LineChart = ({ labels, values, title = 'Progress' }) => {
           padding: 10,
           cornerRadius: 8,
           displayColors: false,
+          callbacks: {
+            label: (ctx) => `Value: ${ctx.parsed.y}`,
+            title: (items) => items[0]?.label ?? ''
+          }
         },
       },
       scales: {
