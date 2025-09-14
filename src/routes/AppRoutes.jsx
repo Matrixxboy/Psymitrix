@@ -127,6 +127,56 @@ const AppRoutes = () => {
               </ProtectedRoute>
             } 
           />
+
+          {/* Static Pages */}
+          <Route 
+            path="/about" 
+            element={
+              <ProtectedRoute>
+                <About />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/contact" 
+            element={
+              <ProtectedRoute>
+                <Contact />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/faq" 
+            element={
+              <ProtectedRoute>
+                <FAQ />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/help" 
+            element={
+              <ProtectedRoute>
+                <HelpCenter />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/privacy" 
+            element={
+              <ProtectedRoute>
+                <PrivacyPolicy />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/terms" 
+            element={
+                <ProtectedRoute>
+                  <TermsOfService />
+                </ProtectedRoute>
+            } 
+          />
         </Route>
         
         {/* Catch all route */}
