@@ -91,7 +91,7 @@ const Layout = () => {
           </div>
 
           {/* Decorative 3D orb */}
-          {/**/}
+          <Orb3D />
         </div>
       </nav>
 
