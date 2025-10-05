@@ -67,7 +67,7 @@ const DashboardPage = () => {
       <main className="max-w-7xl mx-auto">
         <DashboardHeader user={user} greeting={getGreeting()} />
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 lg:grid-cols-3 gap-6"
           variants={containerVariants}
           initial="hidden"
@@ -76,7 +76,7 @@ const DashboardPage = () => {
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6 flex flex-col">
             <motion.div variants={itemVariants}><PrimaryCTA /></motion.div>
-            
+
             <motion.div variants={itemVariants}>
               <ChartCard title="Mood Trend" icon={FiBarChart2}>
                 <div className="h-64"><LineChart {...data.moodTrend} /></div>
@@ -84,17 +84,23 @@ const DashboardPage = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div variants={itemVariants}>
-                <ChartCard title="Activity Breakdown" icon={FiCheckSquare}>
-                  <div className="h-64"><DonutChart {...data.activityBreakdown} /></div>
+              <motion.div variants={itemVariants} className="flex">
+                <ChartCard title="Activity Breakdown" icon={FiCheckSquare} className="w-full">
+                  <div className="h-72 flex items-center justify-center">
+                    <DonutChart {...data.activityBreakdown} />
+                  </div>
                 </ChartCard>
               </motion.div>
-              <motion.div variants={itemVariants}>
-                <ChartCard title="Wellness Balance" icon={FiActivity}>
-                  <div className="h-64"><RadarChart {...data.wellnessBalance} /></div>
+
+              <motion.div variants={itemVariants} className="flex">
+                <ChartCard title="Wellness Balance" icon={FiActivity} className="w-full">
+                  <div className="h-72 flex items-center justify-center">
+                    <RadarChart {...data.wellnessBalance} />
+                  </div>
                 </ChartCard>
               </motion.div>
             </div>
+
           </div>
 
           {/* Right Column */}
@@ -102,9 +108,9 @@ const DashboardPage = () => {
             <motion.div variants={itemVariants}>
               <MoodTracker mood={mood} setMood={setMood} />
             </motion.div>
-            
+
             <InsightCard {...data.dailyInsight} icon={<FiZap />} itemVariants={itemVariants} />
-            
+
             <motion.div variants={itemVariants}>
               <ChartCard title="Consistency" icon={FiCalendar}>
                 <HeatmapCalendar data={data.consistency} />

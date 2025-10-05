@@ -1,0 +1,94 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F4F4F2;
+    color: #333;
+}
+
+h1,
+h2,
+h3,
+.font-serif {
+    font-family: 'Lora', serif;
+}
+
+.logo-text-color {
+    color: #A5645A;
+}
+
+.logo-highlight-color {
+    color: #E5C397;
+}
+
+.bg-logo-primary {
+    background-color: #A5645A;
+}
+
+.bg-logo-secondary {
+    background-color: #E5C397;
+}
+
+.border-logo-primary {
+    border-color: #A5645A;
+}
+
+.nav-link {
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #A5645A;
+    transition: width 0.3s ease;
+}
+
+.nav-link.active::after {
+    width: 100%;
+}
+
+.hotspot {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(165, 100, 90, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.hotspot:hover {
+    background-color: rgba(165, 100, 90, 1);
+    transform: scale(1.1);
+}
+
+.hotspot.active {
+    background-color: #A5645A;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

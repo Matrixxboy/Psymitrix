@@ -24,7 +24,7 @@ const MoodTracker = ({ mood, setMood }) => (
                 max="5"
                 value={mood}
                 onChange={(e) => setMood(e.target.value)}
-                className="w-full h-2 rounded-lg appearance-none cursor-pointer mt-4 bg-white/30 dark:bg-white/10 accent-light-primary dark:accent-dark-primary"
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer mt-4 bg-gray-300 dark:bg-white/10 accent-light-primary dark:accent-dark-primary"
             />
         </GlassCard>
     </motion.div>
