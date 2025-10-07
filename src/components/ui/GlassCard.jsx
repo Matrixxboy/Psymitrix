@@ -17,6 +17,8 @@ const GlassCard = ({ children, className = '' }) => {
     el.style.setProperty('--ry', `${ry}deg`);
     el.style.setProperty('--tx', `${(ry / 6) * 3}px`);
     el.style.setProperty('--ty', `${(rx / -6) * 3}px`);
+    el.style.setProperty('--mx', `${(x / rect.width) * 100}%`);
+    el.style.setProperty('--my', `${(y / rect.height) * 100}%`);
   };
 
   const onLeave = () => {
@@ -26,6 +28,8 @@ const GlassCard = ({ children, className = '' }) => {
     el.style.setProperty('--ry', '0deg');
     el.style.setProperty('--tx', '0px');
     el.style.setProperty('--ty', '0px');
+    el.style.setProperty('--mx', '50%');
+    el.style.setProperty('--my', '50%');
   };
 
   return (
@@ -33,10 +37,13 @@ const GlassCard = ({ children, className = '' }) => {
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className={`relative rounded-2xl shadow-lg border border-gray-300/70 dark:border-white/10 bg-white/20 dark:bg-white/5 backdrop-blur-2xl transition-transform duration-200 [transform-style:preserve-3d] hover:shadow-2xl ${className}`}
+      className={`glass relative rounded-3xl transition-transform duration-300 [transform-style:preserve-3d] ${className}`}
       style={{ transform: 'perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translate3d(var(--tx, 0), var(--ty, 0), 0)' }}
     >
-      <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity" style={{ background: 'radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,0.06), transparent 40%)' }} />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 hover:opacity-100 transition-opacity"
+        style={{ background: 'radial-gradient(460px circle at var(--mx, 50%) var(--my, 50%), rgba(225,167,158,0.28), transparent 62%)' }}
+      />
       {children}
     </div>
   );
