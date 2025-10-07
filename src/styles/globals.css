@@ -55,6 +55,10 @@
     --accent: #F1B18F;
     --headings: #F8F1EB;
     --body: #E5DAD2;
+    --glass-gradient: linear-gradient(135deg, var(--glass-dark-surface), var(--glass-dark-tint));
+    --glass-base: var(--glass-dark-base);
+    --glass-border: var(--glass-dark-border);
+    --glass-shadow: var(--glass-dark-shadow);
   }
 
   html, body {
