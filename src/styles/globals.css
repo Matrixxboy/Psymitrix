@@ -130,18 +130,27 @@
     position: fixed;
     inset: 0;
     z-index: 40;
-    /* Fallback (always apply a dark tint so blur isn't required) */
-    background-color: rgba(0,0,0,0.45);
+    background-color: rgba(229,195,151,0.28);
     will-change: backdrop-filter;
     transform: translateZ(0);
+  }
+
+  .dark .glass-overlay {
+    background-color: rgba(63,42,38,0.58);
   }
 
   /* If the browser supports backdrop-filter, use it (and a lighter tint) */
   @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
     .glass-overlay {
-      background-color: rgba(2,6,23,0.32);
-      -webkit-backdrop-filter: blur(12px) saturate(120%);
-      backdrop-filter: blur(12px) saturate(120%);
+      background-color: rgba(229,195,151,0.22);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    .dark .glass-overlay {
+      background-color: rgba(63,42,38,0.46);
+      -webkit-backdrop-filter: blur(20px) saturate(175%);
+      backdrop-filter: blur(20px) saturate(175%);
     }
   }
 
@@ -150,19 +159,19 @@
     position: absolute;
     left: 0;
     width: 100%;
-    top: 4rem; 
+    top: 4rem;
     z-index: 50;
     padding: 0.75rem;
-    background-color: rgba(255,255,255,0.12);
-    border-top: 1px solid rgba(255,255,255,0.06);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
+    background-image: linear-gradient(135deg, rgba(251,247,242,0.72), rgba(229,195,151,0.28));
+    border-top: 1px solid rgba(229,195,151,0.4);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
     will-change: backdrop-filter;
     transform: translateZ(0);
   }
 
   .dark .glass-panel {
-    background-color: rgba(18,18,18,0.45);
-    border-top: 1px solid rgba(255,255,255,0.03);
+    background-image: linear-gradient(135deg, rgba(74,48,42,0.68), rgba(118,76,66,0.3));
+    border-top: 1px solid rgba(225,167,158,0.32);
   }
 }
