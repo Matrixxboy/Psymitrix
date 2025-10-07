@@ -100,7 +100,7 @@ const Layout = () => {
       </main>
 
       {/* Footer (unchanged) */}
-      <footer className="bg-white/20 dark:bg-white/5 backdrop-blur-xl border-t border-white/30 dark:border-white/10 shadow-lg p-8 mt-12">
+      <footer className="bg-white/50 dark:bg-white/5 backdrop-blur-xl border-t border-white/30 dark:border-white/10 shadow-lg  p-8 mt-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-light-body dark:text-dark-body">
           {/* Brand */}
           <div>

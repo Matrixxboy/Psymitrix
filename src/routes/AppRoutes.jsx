@@ -17,6 +17,7 @@ import FAQ from '../pages/Static/FAQ';
 import HelpCenter from '../pages/Static/HelpCenter';
 import PrivacyPolicy from '../pages/Static/PrivacyPolicy';
 import TermsOfService from '../pages/Static/TermsOfService';
+import Info from '../pages/info';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -45,7 +46,7 @@ const PublicRoute = ({ children }) => {
     );
   }
   
-  return !isLoggedIn ? children : <Navigate to="/dashboard" replace />;
+  return !isLoggedIn ? children : <Navigate to="/" replace />;
 };
 
 const AppRoutes = () => {
@@ -66,6 +67,13 @@ const AppRoutes = () => {
             <PublicRoute>
               <Login />
             </PublicRoute>
+          } 
+        />
+        
+        <Route 
+          path="/info" 
+          element={
+              <Info />
           } 
         />
         

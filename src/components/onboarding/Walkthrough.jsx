@@ -35,7 +35,7 @@ const Walkthrough = () => {
   const onGetStarted = () => {
     localStorage.setItem('walkthroughSeen', 'true');
     setOpen(false);
-    navigate('/dashboard');
+    navigate('/');
   };
 
   return (

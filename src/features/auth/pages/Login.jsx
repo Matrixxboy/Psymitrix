@@ -20,7 +20,7 @@ const Login = () => {
       
       if (result.success) {
         login(result.data.user, result.data.token);
-        navigate('/dashboard');
+        navigate('/');
       } else {
         setError(result.error);
       }
