@@ -5,26 +5,43 @@
 /* base variables + body */
 @layer base {
   :root {
-    --background: #F5F7FA;
-    --primary: #6C63FF;
-    --secondary: #00BFA6;
-    --accent: #FF6B6B;
-    --headings: #2C3E50;
-    --body: #4F4F4F;
+    --background: #F4F4F2;
+    --primary: #A5645A;
+    --secondary: #E5C397;
+    --accent: #D87D62;
+    --headings: #4B2F2A;
+    --body: #4A433F;
 
-    --light-background: #F5F7FA;
-    --light-primary: #6C63FF;
-    --light-secondary: #00BFA6;
-    --light-accent: #FF6B6B;
-    --light-headings: #2C3E50;
-    --light-body: #4F4F4F;
+    --light-background: #F4F4F2;
+    --light-primary: #A5645A;
+    --light-secondary: #E5C397;
+    --light-accent: #D87D62;
+    --light-headings: #4B2F2A;
+    --light-body: #4A433F;
 
-    --dark-background: #121212;
-    --dark-primary: #8C82FC;
-    --dark-secondary: #26D7AE;
-    --dark-accent: #FF8A80;
-    --dark-headings: #E0E0E0;
-    --dark-body: #BDBDBD;
+    --dark-background: #1C1A1A;
+    --dark-primary: #E1A79E;
+    --dark-secondary: #F0D2A8;
+    --dark-accent: #F1B18F;
+    --dark-headings: #F8F1EB;
+    --dark-body: #E5DAD2;
+
+    --glass-light-surface: rgba(251,247,242,0.78);
+    --glass-light-tint: rgba(229,195,151,0.35);
+    --glass-light-base: rgba(248,242,236,0.45);
+    --glass-light-border: rgba(229,195,151,0.45);
+    --glass-light-shadow: rgba(165,100,90,0.18);
+
+    --glass-dark-surface: rgba(74,48,42,0.72);
+    --glass-dark-tint: rgba(118,76,66,0.38);
+    --glass-dark-base: rgba(63,42,38,0.48);
+    --glass-dark-border: rgba(225,167,158,0.38);
+    --glass-dark-shadow: rgba(46,28,24,0.6);
+
+    --glass-gradient: linear-gradient(135deg, var(--glass-light-surface), var(--glass-light-tint));
+    --glass-base: var(--glass-light-base);
+    --glass-border: var(--glass-light-border);
+    --glass-shadow: var(--glass-light-shadow);
 
     --success: #27AE60;
     --warning: #F2C94C;
@@ -32,12 +49,16 @@
   }
 
   .dark {
-    --background: #121212;
-    --primary: #8C82FC;
-    --secondary: #26D7AE;
-    --accent: #FF8A80;
-    --headings: #E0E0E0;
-    --body: #BDBDBD;
+    --background: #1C1A1A;
+    --primary: #E1A79E;
+    --secondary: #F0D2A8;
+    --accent: #F1B18F;
+    --headings: #F8F1EB;
+    --body: #E5DAD2;
+    --glass-gradient: linear-gradient(135deg, var(--glass-dark-surface), var(--glass-dark-tint));
+    --glass-base: var(--glass-dark-base);
+    --glass-border: var(--glass-dark-border);
+    --glass-shadow: var(--glass-dark-shadow);
   }
 
   html, body {
@@ -53,19 +74,55 @@
 @layer components {
   /* Main reusable glass card */
   .glass {
-    background-color: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 8px 30px rgba(2,6,23,0.25);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    will-change: backdrop-filter;
+    background-image: var(--glass-gradient);
+    background-color: var(--glass-base);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 28px 60px var(--glass-shadow);
+    border-radius: 1.5rem;
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+    overflow: hidden;
+    position: relative;
+    will-change: transform, backdrop-filter;
     transform: translateZ(0);
+    transition: box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
   }
 
-  .dark .glass {
-    background-color: rgba(18,18,18,0.45);
-    border: 1px solid rgba(255,255,255,0.03);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  .glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top, rgba(255,255,255,0.35), transparent 60%);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(255,255,255,0.15) 0%, transparent 45%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    opacity: 0.25;
+    transition: opacity 0.4s ease;
+  }
+
+  .glass:hover::after {
+    opacity: 0.4;
+  }
+
+  .glass:hover {
+    box-shadow: 0 36px 72px var(--glass-shadow);
+  }
+
+  .dark .glass::before {
+    background: radial-gradient(ellipse at top, rgba(239,214,202,0.24), transparent 68%);
+    opacity: 0.38;
+  }
+
+  .dark .glass::after {
+    background: linear-gradient(160deg, rgba(225,167,158,0.22) 0%, transparent 55%);
   }
 
   /* Fullscreen overlay used to blur/darken the whole page */
@@ -73,18 +130,27 @@
     position: fixed;
     inset: 0;
     z-index: 40;
-    /* Fallback (always apply a dark tint so blur isn't required) */
-    background-color: rgba(0,0,0,0.45);
+    background-color: rgba(229,195,151,0.28);
     will-change: backdrop-filter;
     transform: translateZ(0);
+  }
+
+  .dark .glass-overlay {
+    background-color: rgba(63,42,38,0.58);
   }
 
   /* If the browser supports backdrop-filter, use it (and a lighter tint) */
   @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
     .glass-overlay {
-      background-color: rgba(2,6,23,0.32);
-      -webkit-backdrop-filter: blur(12px) saturate(120%);
-      backdrop-filter: blur(12px) saturate(120%);
+      background-color: rgba(229,195,151,0.22);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    .dark .glass-overlay {
+      background-color: rgba(63,42,38,0.46);
+      -webkit-backdrop-filter: blur(20px) saturate(175%);
+      backdrop-filter: blur(20px) saturate(175%);
     }
   }
 
@@ -93,19 +159,19 @@
     position: absolute;
     left: 0;
     width: 100%;
-    top: 4rem; 
+    top: 4rem;
     z-index: 50;
     padding: 0.75rem;
-    background-color: rgba(255,255,255,0.12);
-    border-top: 1px solid rgba(255,255,255,0.06);
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
+    background-image: linear-gradient(135deg, rgba(251,247,242,0.72), rgba(229,195,151,0.28));
+    border-top: 1px solid rgba(229,195,151,0.4);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
     will-change: backdrop-filter;
     transform: translateZ(0);
   }
 
   .dark .glass-panel {
-    background-color: rgba(18,18,18,0.45);
-    border-top: 1px solid rgba(255,255,255,0.03);
+    background-image: linear-gradient(135deg, rgba(74,48,42,0.68), rgba(118,76,66,0.3));
+    border-top: 1px solid rgba(225,167,158,0.32);
   }
 }

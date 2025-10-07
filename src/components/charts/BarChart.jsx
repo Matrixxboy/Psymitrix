@@ -14,7 +14,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const readPaletteFromDOM = (theme) => {
   if (typeof window === 'undefined') {
-    return { primary: '#6C63FF', accent: '#FF6B6B', body: '#4F4F4F', background: '#F5F7FA' };
+    return { primary: '#A5645A', accent: '#D87D62', body: '#4A433F', background: '#F4F4F2' };
   }
   const s = getComputedStyle(document.documentElement);
   const prefix = theme === 'dark' ? '--dark-' : '--light-';

@@ -24,12 +24,12 @@ const RadarChart = ({ labels, datasets = [] }) => {
   const pal = useMemo(() => {
     const isDark = theme === 'dark';
     return {
-      primary: isDark ? '#8C82FC' : '#6C63FF',
-      secondary: isDark ? '#26D7AE' : '#00BFA6',
-      accent: isDark ? '#FF8A80' : '#FF6B6B',
-      headings: isDark ? '#E0E0E0' : '#2C3E50',
-      body: isDark ? '#BDBDBD' : '#4F4F4F',
-      background: isDark ? '#121212' : '#F5F7FA',
+      primary: isDark ? '#E1A79E' : '#A5645A',
+      secondary: isDark ? '#F0D2A8' : '#E5C397',
+      accent: isDark ? '#F1B18F' : '#D87D62',
+      headings: isDark ? '#F8F1EB' : '#4B2F2A',
+      body: isDark ? '#E5DAD2' : '#4A433F',
+      background: isDark ? '#1C1A1A' : '#F4F4F2',
     };
   }, [theme]);
 

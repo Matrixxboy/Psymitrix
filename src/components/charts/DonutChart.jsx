@@ -14,7 +14,7 @@ const readPaletteFromDOM = (theme) => {
   if (typeof window === 'undefined') {
     // Return a default palette for server-side rendering
     return {
-      primary: '#6C63FF', headings: '#2C3E50', body: '#4F4F4F', background: '#F5F7FA'
+      primary: '#A5645A', headings: '#4B2F2A', body: '#4A433F', background: '#F4F4F2'
     };
   }
   const s = getComputedStyle(document.documentElement);

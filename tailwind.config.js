@@ -10,19 +10,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        'light-background': '#F5F7FA',
-        'light-primary': '#6C63FF',
-        'light-secondary': '#00BFA6',
-        'light-accent': '#FF6B6B',
-        'light-headings': '#2C3E50',
-        'light-body': '#4F4F4F',
+        'light-background': '#F4F4F2',
+        'light-primary': '#A5645A',
+        'light-secondary': '#E5C397',
+        'light-accent': '#D87D62',
+        'light-headings': '#4B2F2A',
+        'light-body': '#4A433F',
 
-        'dark-background': '#121212',
-        'dark-primary': '#8C82FC',
-        'dark-secondary': '#26D7AE',
-        'dark-accent': '#FF8A80',
-        'dark-headings': '#E0E0E0',
-        'dark-body': '#BDBDBD',
+        'dark-background': '#1C1A1A',
+        'dark-primary': '#E1A79E',
+        'dark-secondary': '#F0D2A8',
+        'dark-accent': '#F1B18F',
+        'dark-headings': '#F8F1EB',
+        'dark-body': '#E5DAD2',
 
         'success': '#27AE60',
         'warning': '#F2C94C',
@@ -51,22 +51,28 @@ export default {
       // reusable glass components
       addComponents({
         '.glass': {
-          'background-color': 'rgba(255,255,255,0.12)', /* light glass */
-          'border': '1px solid rgba(255,255,255,0.06)',
-          
-          'box-shadow': '0 8px 30px rgba(2,6,23,0.25)',
-          '-webkit-backdrop-filter': 'blur(12px)',
-          'backdrop-filter': 'blur(12px)',
-          'will-change': 'backdrop-filter',
+          'background-image': 'linear-gradient(135deg, rgba(251,247,242,0.78), rgba(229,195,151,0.35))',
+          'background-color': 'rgba(248,242,236,0.45)',
+          'border': '1px solid rgba(229,195,151,0.45)',
+          'box-shadow': '0 24px 52px rgba(165,100,90,0.18)',
+          'border-radius': '1.5rem',
+          '-webkit-backdrop-filter': 'blur(24px) saturate(160%)',
+          'backdrop-filter': 'blur(24px) saturate(160%)',
+          'overflow': 'hidden',
+          'position': 'relative',
+          'will-change': 'transform, backdrop-filter',
         },
         '.glass-dark': {
-          'background-color': 'rgba(18,18,18,0.45)', /* dark glass */
-          'border': '1px solid rgba(255,255,255,0.03)',
-          
-          'box-shadow': '0 8px 30px rgba(0,0,0,0.6)',
-          '-webkit-backdrop-filter': 'blur(12px)',
-          'backdrop-filter': 'blur(12px)',
-          'will-change': 'backdrop-filter',
+          'background-image': 'linear-gradient(135deg, rgba(74,48,42,0.72), rgba(118,76,66,0.38))',
+          'background-color': 'rgba(63,42,38,0.48)',
+          'border': '1px solid rgba(225,167,158,0.38)',
+          'box-shadow': '0 28px 60px rgba(46,28,24,0.6)',
+          'border-radius': '1.5rem',
+          '-webkit-backdrop-filter': 'blur(26px) saturate(185%)',
+          'backdrop-filter': 'blur(26px) saturate(185%)',
+          'overflow': 'hidden',
+          'position': 'relative',
+          'will-change': 'transform, backdrop-filter',
         },
       });
     })

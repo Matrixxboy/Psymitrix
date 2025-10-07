@@ -23,15 +23,15 @@ const PieChart = ({ labels, datasets = [], title }) => {
   const pal = useMemo(() => {
     const isDark = theme === 'dark';
     const baseColors = {
-      primary: isDark ? '#8C82FC' : '#6C63FF',
-      secondary: isDark ? '#26D7AE' : '#00BFA6',
-      accent: isDark ? '#FF8A80' : '#FF6B6B',
-      yellow: isDark ? '#F2C94C' : '#F2C94C',
-      blue: isDark ? '#56CCF2' : '#2F80ED',
-      purple: isDark ? '#BB86FC' : '#9B51E0',
-      headings: isDark ? '#E0E0E0' : '#2C3E50',
-      body: isDark ? '#BDBDBD' : '#4F4F4F',
-      background: isDark ? '#121212' : '#F5F7FA',
+      primary: isDark ? '#E1A79E' : '#A5645A',
+      secondary: isDark ? '#F0D2A8' : '#E5C397',
+      accent: isDark ? '#F1B18F' : '#D87D62',
+      yellow: isDark ? '#F6D9B8' : '#F7E4CF',
+      blue: isDark ? '#B8897B' : '#C9A496',
+      purple: isDark ? '#D59580' : '#B06E60',
+      headings: isDark ? '#F8F1EB' : '#4B2F2A',
+      body: isDark ? '#E5DAD2' : '#4A433F',
+      background: isDark ? '#1C1A1A' : '#F4F4F2',
     };
     return {
       ...baseColors,
