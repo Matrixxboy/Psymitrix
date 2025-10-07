@@ -11,7 +11,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip,
 // --- Simplified, Reusable Theming Hook ---
 const readPaletteFromDOM = (theme) => {
   if (typeof window === 'undefined') {
-    return { primary: '#6C63FF', headings: '#2C3E50', body: '#4F4F4F', background: '#F5F7FA' };
+    return { primary: '#A5645A', headings: '#4B2F2A', body: '#4A433F', background: '#F4F4F2' };
   }
   const s = getComputedStyle(document.documentElement);
   const prefix = theme === 'dark' ? '--dark-' : '--light-';
