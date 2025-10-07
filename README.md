@@ -306,7 +306,7 @@ VITE_AI_API_KEY=your_ai_api_key_here
 
 **Demo Credentials:**
 - **Email:** `utsav@gmail.com`
-- **Password:** `123`
+- **Password:** `password`
 
 ### 🎮 Feature Walkthrough
 

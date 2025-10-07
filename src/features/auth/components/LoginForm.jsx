@@ -4,8 +4,8 @@ import Button from '../../../components/ui/Button';
 
 const LoginForm = ({ onSubmit, loading = false, error = null }) => {
   const [formData, setFormData] = useState({
-    email: 'demo@user.com',
-    password: 'password123'
+    email: 'utsav@example.com',
+    password: 'password'
   });
 
   const handleChange = (e) => {

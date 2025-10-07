@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ThemeToggler from '../custom/ThemeToggler';
-import Orb3D from '../custom/Orb3D';
 
 const Burger = ({ open, setOpen }) => (
   <button
@@ -89,9 +88,6 @@ const Layout = () => {
             <button onClick={logout} className="hidden sm:block px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">Logout</button>
             <Burger open={menuOpen} setOpen={setMenuOpen} />
           </div>
-
-          {/* Decorative 3D orb */}
-          <Orb3D />
         </div>
       </nav>
 

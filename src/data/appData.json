@@ -1,7 +1,16 @@
 {
   "meta": {"version":1,"generatedAt":"2025-01-01T00:00:00.000Z"},
   "user": {
-    "id":"u_001","name":"Utsav Lankapati","email":"utsav@example.com","avatarUrl":"https://avatars.githubusercontent.com/u/1?v=4",
+    "id":"u_001",
+    "name":"Utsav Lankapati",
+    "email":"utsav@example.com",
+    "gender":"Male",
+    "age":29,
+    "older_siblings":1,
+    "younger_siblings":0,
+    "blood_group":"B+",
+    "passwordHash":"password",
+    "avatarUrl":"https://avatars.githubusercontent.com/u/168621377?v=4",
     "preferences":{"theme":"system","notifications":true,"language":"en"},
     "stats":{"streakDays":4,"level":3,"xp":1240}
   },
