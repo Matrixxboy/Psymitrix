@@ -36,7 +36,10 @@ const Section = ({ children, className = '' }) => (
 const PrimaryButton = ({ to, children, className = '' }) => (
   <Link to={to}>
     <button
-      className={`px-8 py-4 font-semibold rounded-xl bg-gradient-to-r from-light-primary to-light-secondary dark:from-dark-primary dark:to-dark-secondary text-white text-lg shadow-xl shadow-light-primary/20 dark:shadow-dark-primary/20 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 ${className}`}
+      className={`px-8 py-4 font-semibold rounded-xl bg-gradient-to-r 
+        from-light-primary to-light-secondary 
+        dark:from-light-primary dark:via-light-primary dark:to-light-secondary dark:hover:from-dark-primary dark:hover:to-dark-secondary
+        text-white text-lg shadow-xl shadow-light-primary/20 dark:shadow-dark-primary/20 hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 ${className}`}
     >
       {children}
     </button>
@@ -62,12 +65,12 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
 );
 
 const SummaryCard = ({ title, value, icon: Icon }) => (
-  <GlassCard className="p-4 flex flex-col items-center justify-center text-center">
-    <div className="text-2xl text-light-primary dark:text-dark-primary mb-2">
+  <GlassCard className="p-4 flex flex-col items-center text-center">
+    <div className="text-xl text-light-primary dark:text-dark-primary mb-2 flex items-center justify-center ">
       <Icon />
     </div>
-    <h5 className="text-lg font-semibold text-light-headings dark:text-dark-headings">{title}</h5>
-    <p className="text-xl font-bold text-light-body dark:text-dark-body">{value}</p>
+    <h5 className="text-sm md:text-lg font-semibold text-light-headings dark:text-dark-headings">{title}</h5>
+    <p className="text-lg md:text-lg font-bold text-light-body dark:text-dark-body">{value}</p>
   </GlassCard>
 );
 
@@ -172,7 +175,7 @@ const Home = () => {
     <div className="min-h-screen text-light-body dark:text-dark-body overflow-hidden relative">
       <div className="absolute inset-0 -z-10">
         <div className="absolute -top-32 -left-40 w-[520px] h-[520px] rounded-full blur-3xl opacity-40 bg-gradient-to-br from-light-secondary/50 via-light-primary/30 to-transparent dark:from-dark-secondary/40 dark:via-dark-primary/28 dark:to-transparent" />
-        <div className="absolute bottom-[-120px] right-[-160px] w-[620px] h-[620px] rounded-full blur-3xl opacity-35 bg-gradient-to-br from-light-primary/25 via-light-secondary/20 to-transparent dark:from-dark-primary/28 dark:via-dark-secondary/22 dark:to-transparent" />
+        {/* <div className="absolute bottom-[-120px] right-[-160px] w-[620px] h-[620px] rounded-full blur-3xl opacity-35 bg-gradient-to-br from-light-primary/25 via-light-secondary/20 to-transparent dark:from-dark-primary/28 dark:via-dark-secondary/22 dark:to-transparent" /> */}
       </div>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 relative z-10">
@@ -209,7 +212,7 @@ const Home = () => {
 
           <motion.div variants={fadeInUp}>
             <GlassCard className="p-6 lg:p-8">
-              <div className="bg-gradient-to-br from-light-background/70 to-light-secondary/15 dark:from-dark-background/40 dark:to-dark-secondary/10 p-6 rounded-2xl backdrop-blur-xl space-y-6">
+              <div className=" p-6 rounded-2xl space-y-6">
                 <div>
                   <p className="font-bold text-xl md:text-2xl text-light-headings dark:text-dark-headings mb-2">
                     👋 Welcome back, {user ? user.name : 'Explorer'}
@@ -227,7 +230,7 @@ const Home = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 items-center">
                   <SummaryCard title="Sessions" value={sessionsCompleted} icon={FiMessageCircle} />
                   <SummaryCard title="Assessments" value={assessmentsTaken} icon={FiClipboard} />
                   <SummaryCard title="Mood Score" value={moodScore} icon={FiHeart} />
@@ -340,7 +343,7 @@ const Home = () => {
                 </span>
               </li>
             </ul>
-            <PrimaryButton to="/contact" className="w-fit">
+            <PrimaryButton to="/contact" className="w-fit mt-12">
               Talk with our clinical onboarding team
             </PrimaryButton>
           </motion.div>

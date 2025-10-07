@@ -27,13 +27,13 @@
     --dark-body: #E5DAD2;
 
     --glass-light-surface: rgba(251,247,242,0.78);
-    --glass-light-tint: rgba(229,195,151,0.35);
+    /* --glass-light-tint: rgba(229,195,151,0.35); */
     --glass-light-base: rgba(248,242,236,0.45);
     --glass-light-border: rgba(229,195,151,0.45);
     --glass-light-shadow: rgba(165,100,90,0.18);
 
     --glass-dark-surface: rgba(74,48,42,0.72);
-    --glass-dark-tint: rgba(118,76,66,0.38);
+    /* --glass-dark-tint: rgba(118,76,66,0.38); */
     --glass-dark-base: rgba(63,42,38,0.48);
     --glass-dark-border: rgba(225,167,158,0.38);
     --glass-dark-shadow: rgba(46,28,24,0.6);

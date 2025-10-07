@@ -17,7 +17,7 @@ export default {
         'light-headings': '#4B2F2A',
         'light-body': '#4A433F',
 
-        'dark-background': '#1C1A1A',
+        'dark-background': '#140d08',
         'dark-primary': '#E1A79E',
         'dark-secondary': '#F0D2A8',
         'dark-accent': '#F1B18F',
