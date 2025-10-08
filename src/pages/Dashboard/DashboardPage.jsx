@@ -84,7 +84,7 @@ const DashboardPage = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div variants={itemVariants} className="flex">
+              <motion.div variants={itemVariants} className="flex ">
                 <ChartCard title="Activity Breakdown" icon={FiCheckSquare} className="w-full">
                   <div className="h-72 flex items-center justify-center">
                     <DonutChart {...data.activityBreakdown} />

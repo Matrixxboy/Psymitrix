@@ -24,7 +24,7 @@ const ProfilePage = () => {
           <p className="mt-2 text-lg text-light-body dark:text-dark-body">Manage your profile and preferences</p>
         </div>
 
-        <div className="flex justify-center border-b border-white/20 mb-8">
+        <div className="flex justify-center border-b border-gray-300/70 dark:border-white/30 mb-8">
           <Link to="/profile" onClick={() => setActiveTab('profile')} className={`px-6 py-3 font-semibold ${activeTab === 'profile' ? 'text-light-primary dark:text-dark-primary border-b-2 border-light-primary dark:border-dark-primary' : 'text-light-body dark:text-dark-body'}`}>Profile</Link>
           <Link to="/profile/report" onClick={() => setActiveTab('report')} className={`px-6 py-3 font-semibold ${activeTab === 'report' ? 'text-light-primary dark:text-dark-primary border-b-2 border-light-primary dark:border-dark-primary' : 'text-light-body dark:text-dark-body'}`}>Report</Link>
         </div>

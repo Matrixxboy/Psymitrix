@@ -19,6 +19,25 @@ const FiTrash2 = (props) => (
 );
 
 const ChatPage = () => {
+   const [inputMessage, setInputMessage] = useState("");
+  const textareaRef = useRef(null);
+
+  // Auto-expand textarea height
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [inputMessage]);
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (inputMessage.trim()) handleSendMessage(inputMessage);
+      setInputMessage("");
+    }
+  };
   const { user } = useAuth();
   const getInitialMessage = () => `Hello ${user?.name || 'there'}, I'm PsyMitrix AI, your personal AI companion. I'm here to listen and help you work through whatever is on your mind. How are you feeling today?`;
 
@@ -26,7 +45,6 @@ const ChatPage = () => {
     { id: 1, title: 'Welcome Chat', messages: [{ id: 1, role: 'model', content: getInitialMessage() }] }
   ]);
   const [activeSessionId, setActiveSessionId] = useState(1);
-  const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -122,16 +140,11 @@ const ChatPage = () => {
     setSessions(newSessions);
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage(inputMessage);
-    }
-  };
+
 
   const Sidebar = () => (
-    <aside className={`absolute md:relative z-20 w-64 h-full bg-white/10 dark:bg-gray-800/50 glass border-r border-white/10 dark:border-gray-700/50 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-4 border-b border-white/10 dark:border-gray-700/50">
+    <aside className={`absolute md:relative mb-0 z-20 w-64 h-full bg-white/10 dark:bg-gray-800/50 glass rounded-tr-3xl rounded-br-3xl rounded-tl-none rounded-bl-none border-r border-white/10 dark:border-gray-700/50 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+        <div className="p-4 border-b border-gray-300/7010 dark:border-gray-700/50">
             <button onClick={handleNewChat} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-light-primary/80 dark:bg-dark-primary/80 text-white hover:bg-light-primary dark:hover:bg-dark-primary transition-colors">
                 <FiPlus/> New Chat
             </button>
@@ -151,11 +164,11 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="mt-[50px] bg-light-background dark:bg-dark-background font-sans text-light-body dark:text-dark-body flex items-center justify-center p-0 sm:p-4">
-      <div className="flex h-full sm:h-[90vh] w-full lg:w-[60vw] sm:rounded-2xl shadow-2xl overflow-hidden bg-white/5 dark:bg-gray-800/20 backdrop-blur-2xl border border-white/10 dark:border-gray-700/50">
+    <div className="mt-[30px]  font-sans text-light-body dark:text-dark-body flex items-center justify-center">
+      <div className="flex h-full w-full sm:h-[90vh] shadow-2xl overflow-hidden backdrop-blur-2xl border border-white/10 dark:border-gray-700/50">
         <Sidebar/>
-        <main className="flex-1 flex flex-col h-full bg-white/5 dark:bg-black/10">
-          <header className="flex items-center p-4 border-b border-white/10 dark:border-gray-700/80 bg-light-background/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <main className="flex-1 flex flex-col h-full ">
+          <header className="flex items-center p-4 border-b border-gray-300/70 dark:border-gray-700/80 backdrop-blur-sm">
               <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden mr-4 p-2 rounded-md hover:bg-white/10">
                   <FiMenu/>
               </button>
@@ -203,15 +216,35 @@ const ChatPage = () => {
           </div>
           <footer className="bg-light-background/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-white/10 dark:border-gray-700/50 p-4">
             <div className="max-w-3xl mx-auto">
-              <div className="relative flex items-center">
-                <textarea value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} onKeyPress={handleKeyPress} placeholder="Share what's on your mind..."
-                  className="w-full h-14 pl-4 pr-16 py-4 resize-none rounded-xl bg-white/20 dark:bg-gray-800/80 text-light-headings dark:text-dark-headings placeholder:text-light-body/70 dark:placeholder:text-dark-body/70 border border-white/30 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary shadow-md transition-all overflow-hidden"
-                  rows="1" />
-                <button onClick={() => handleSendMessage(inputMessage)} disabled={!inputMessage.trim() || isTyping}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all bg-light-primary dark:bg-dark-primary text-white hover:bg-light-primary/80 dark:hover:bg-dark-primary/80 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed">
-                  <FiSend className="w-5 h-5" />
-                </button>
-              </div>
+              <div className="relative flex items-end w-full">
+      <textarea
+        ref={textareaRef}
+        value={inputMessage}
+        onChange={(e) => setInputMessage(e.target.value)}
+        onKeyDown={handleKeyPress}
+        placeholder="Share what's on your mind..."
+        className="w-full min-h-14 max-h-48 pl-4 pr-16 py-3 resize-none rounded-xl bg-gray-100 border-gray-200 
+        dark:bg-gray-800/80 text-light-headings dark:text-dark-headings 
+        placeholder:text-light-body/70 dark:placeholder:text-dark-body/70 
+        border border-white/30 dark:border-gray-700 
+        focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary 
+        shadow-md transition-all overflow-hidden"
+        rows="1"
+      />
+      <button
+        onClick={() => {
+          if (inputMessage.trim()) handleSendMessage(inputMessage);
+          setInputMessage("");
+        }}
+        disabled={!inputMessage.trim() || isTyping}
+        className="absolute right-3 bottom-3 w-10 h-10 rounded-full flex items-center justify-center 
+        bg-light-primary dark:bg-dark-primary text-white transition-all 
+        hover:bg-light-primary/80 dark:hover:bg-dark-primary/80 
+        disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+      >
+        <FiSend className="w-5 h-5" />
+      </button>
+    </div>
             </div>
           </footer>
         </main>
