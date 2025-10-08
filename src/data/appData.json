@@ -25,7 +25,7 @@
     "heatmap": [{"date":"2025-01-01","value":0.7},{"date":"2025-01-02","value":0.3},{"date":"2025-01-03","value":0.9}]
   },
   "dashboard": {
-    "dailyInsight": {"title":"Today's Prompt","text":"What is one small thing you can do today that would bring you a moment of joy?"},
+    "dailyInsight": {"title":"Daily mental check","text":"According to your recent interactions, your mood has been stable with slight improvements in focus and energy levels. Keep up the good work!"},
     "suggestions": {"activities":[{"title":"Breathing Exercise","details":"5 min"},{"title":"Mindful Walk","details":"15 min"}],"tests":[{"title":"Anxiety Score (GAD-7)","details":"Quick check-in"}]}
   },
   "progress": {

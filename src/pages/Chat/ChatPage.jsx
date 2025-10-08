@@ -151,7 +151,7 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="bg-light-background dark:bg-dark-background font-sans text-light-body dark:text-dark-body flex items-center justify-center p-0 sm:p-4">
+    <div className="mt-[50px] bg-light-background dark:bg-dark-background font-sans text-light-body dark:text-dark-body flex items-center justify-center p-0 sm:p-4">
       <div className="flex h-full sm:h-[90vh] w-full lg:w-[60vw] sm:rounded-2xl shadow-2xl overflow-hidden bg-white/5 dark:bg-gray-800/20 backdrop-blur-2xl border border-white/10 dark:border-gray-700/50">
         <Sidebar/>
         <main className="flex-1 flex flex-col h-full bg-white/5 dark:bg-black/10">

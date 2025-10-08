@@ -21,8 +21,8 @@ const Burger = ({ open, setOpen }) => (
 );
 
 const MobileMenuContent = ({ onClose, user, logout }) => (
-  <div className="glass-panel">
-    <div className="flex flex-col items-start p-2 space-y-3">
+  <div className="glass-panel mt-10">
+    <div className="flex flex-col items-start p-2 space-y-3 ">
       <Link onClick={onClose} to="/dashboard" className="w-full">Dashboard</Link>
       <Link onClick={onClose} to="/chat" className="w-full">AI Chat</Link>
       <Link onClick={onClose} to="/assessments" className="w-full">Assessments</Link>
@@ -65,7 +65,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar (use the .glass utility) */}
-      <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4">
+      <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4 m-5">
         <div className="relative max-w-7xl mx-auto flex justify-between items-center">
           <Link to="/" className="text-2xl font-extrabold tracking-tight text-light-headings dark:text-dark-headings">
             <span className="inline-block transform will-change-transform [text-shadow:0_2px_12px_rgba(108,99,255,0.35)]">PsyMitrix</span>

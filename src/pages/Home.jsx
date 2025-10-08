@@ -20,7 +20,7 @@ import ProgressBar from '../components/ui/ProgressBar';
 
 const Section = ({ children, className = '' }) => (
   <motion.section
-    className={`my-20 md:my-28 ${className}`}
+    className={`my-10 md:my-25 ${className}`}
     initial="hidden"
     whileInView="visible"
     viewport={{ once: true, amount: 0.2 }}
@@ -173,13 +173,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen text-light-body dark:text-dark-body overflow-hidden relative">
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-40 w-[520px] h-[520px] rounded-full blur-3xl opacity-40 bg-gradient-to-br from-light-secondary/50 via-light-primary/30 to-transparent dark:from-dark-secondary/40 dark:via-dark-primary/28 dark:to-transparent" />
-        {/* <div className="absolute bottom-[-120px] right-[-160px] w-[620px] h-[620px] rounded-full blur-3xl opacity-35 bg-gradient-to-br from-light-primary/25 via-light-secondary/20 to-transparent dark:from-dark-primary/28 dark:via-dark-secondary/22 dark:to-transparent" /> */}
-      </div>
-
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 relative z-10">
-        <Section className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+        <Section className=" grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
           <motion.div
             className="text-center lg:text-left"
             variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
@@ -239,23 +234,22 @@ const Home = () => {
 
                 <ul className="space-y-3 text-sm text-left text-light-body dark:text-dark-body">
                   <li className="flex items-start gap-3">
-                    <span className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
+                    <span className="mt-1 flex h-8 w-14 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
                       <FiShield />
                     </span>
                     <span>
                       <strong>Clinical guardrails:</strong> Crisis detection routes you to regional hotlines and notifies your trusted contacts when you consent.
                     </span>
                   </li>
-                  <li className="flex items-start gap-3">
+                  {/* <li className="flex items-start gap-3">
                     <span className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
                       <FiAlertCircle />
                     </span>
                     <span>
-                      <strong>Licensed oversight:</strong> Every model update is reviewed by our psychiatrist council to ensure tone, bias, and safety stay aligned with best practice.
                     </span>
-                  </li>
+                  </li> */}
                   <li className="flex items-start gap-3">
-                    <span className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
+                    <span className="mt-1 flex h-8 w-14 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
                       <FiBookOpen />
                     </span>
                     <span>
@@ -268,7 +262,7 @@ const Home = () => {
           </motion.div>
         </Section>
 
-        <Section>
+        <Section className='my-20 md:my-28'>
           <motion.h2 variants={fadeInUp} className={`text-4xl font-bold mb-4 text-center ${gradientText}`}>
             Designed as a full-spectrum mental health companion
           </motion.h2>
@@ -287,8 +281,8 @@ const Home = () => {
           </motion.div>
         </Section>
 
-        <Section>
-          <motion.h2 variants={fadeInUp} className={`text-4xl font-bold mb-4 text-center ${gradientText}`}>
+        <Section className='my-20 md:my-28'>
+          <motion.h2 variants={fadeInUp} className={`text-4xl font-bold  mb-4 text-center ${gradientText}`}>
             How PsyMitrix guides every session
           </motion.h2>
           <motion.p
@@ -319,13 +313,13 @@ const Home = () => {
           </div>
         </Section>
 
-        <Section className="grid lg:grid-cols-2 gap-12 items-start">
-          <motion.div variants={fadeInUp} className="space-y-6">
+        <Section className="grid lg:grid-cols-2 gap-12 items-center text-center">
+          <motion.div variants={fadeInUp} className="space-y-6 my-20 md:my-28">
             <h2 className={`text-4xl font-bold ${gradientText}`}>Built with clinicians, ready for your care team</h2>
             <p className="text-lg text-light-body dark:text-dark-body leading-relaxed">
               PsyMitrix was co-designed with psychiatrists, psychologists, and lived-experience advisors. Aura keeps the warmth of human care while managing the continuity tasks that often fall through the cracks.
             </p>
-            <ul className="space-y-4 text-light-body dark:text-dark-body">
+            <ul className="space-y-4 text-light-body dark:text-dark-body text-left">
               <li className="flex items-start gap-3">
                 <span className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-light-secondary/25 dark:bg-dark-secondary/25 text-light-primary dark:text-dark-primary">
                   <FiCheckCircle />
@@ -348,7 +342,7 @@ const Home = () => {
             </PrimaryButton>
           </motion.div>
 
-          <motion.div variants={fadeInUp} className="space-y-6">
+          <motion.div variants={fadeInUp} className="space-y-6 my-20 md:my-28">
             {pillarHighlights.map((pillar) => (
               <GlassCard key={pillar.title} className="p-8">
                 <h3 className="text-2xl font-semibold text-light-headings dark:text-dark-headings mb-4">
@@ -357,7 +351,7 @@ const Home = () => {
                 <ul className="space-y-3 text-light-body dark:text-dark-body leading-relaxed">
                   {pillar.points.map((point) => (
                     <li key={point} className="flex items-start gap-3">
-                      <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-light-primary/15 dark:bg-dark-primary/15 text-light-primary dark:text-dark-primary text-sm">
+                      <span className="mt-1 flex h-6 w-8 items-center justify-center rounded-full bg-light-primary/15 dark:bg-dark-primary/15 text-light-primary dark:text-dark-primary text-sm">
                         <FiCheckCircle />
                       </span>
                       <span>{point}</span>

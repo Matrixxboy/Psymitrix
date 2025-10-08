@@ -92,7 +92,7 @@ const ProgressPage = () => {
   );
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="mt-[50px] min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
       <main className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-light-headings dark:text-dark-headings">Your Growth Journey</h1>

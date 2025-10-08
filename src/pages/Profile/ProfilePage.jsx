@@ -15,7 +15,7 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('profile');
 
   return (
-    <div className="min-h-screen text-light-body dark:text-dark-body p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen text-light-body dark:text-dark-body p-4 sm:p-6 lg:p-8 mt-[50px]">
       <main className="max-w-6xl mx-auto">
         <Breadcrumb />
         <div className="text-center my-12">
@@ -43,7 +43,7 @@ const ProfileContent = () => {
   const { logout } = useAuth();
   return (
     <>
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-2 ">
         <GlassCard className="p-6">
           <h3 className="text-xl font-semibold text-light-headings dark:text-dark-headings mb-6">Personal Information</h3>
           <PersonalInformation />

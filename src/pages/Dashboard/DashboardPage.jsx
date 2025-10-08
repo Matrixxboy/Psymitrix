@@ -63,7 +63,7 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen text-light-body dark:text-dark-body p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen text-light-body dark:text-dark-body p-4 sm:p-6 lg:p-8 mt-[50px]">
       <main className="max-w-7xl mx-auto">
         <DashboardHeader user={user} greeting={getGreeting()} />
 
@@ -105,11 +105,11 @@ const DashboardPage = () => {
 
           {/* Right Column */}
           <div className="lg:col-span-1 space-y-6 flex flex-col">
+            <InsightCard {...data.dailyInsight} icon={<FiZap />} itemVariants={itemVariants} />
+
             <motion.div variants={itemVariants}>
               <MoodTracker mood={mood} setMood={setMood} />
             </motion.div>
-
-            <InsightCard {...data.dailyInsight} icon={<FiZap />} itemVariants={itemVariants} />
 
             <motion.div variants={itemVariants}>
               <ChartCard title="Consistency" icon={FiCalendar}>
