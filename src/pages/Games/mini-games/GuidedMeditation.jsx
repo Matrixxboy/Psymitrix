@@ -4,6 +4,11 @@ import { FiHeadphones } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../../components/ui/Button';
 
+import { GiMeditation  } from "react-icons/gi";
+import { PiArmchairDuotone } from "react-icons/pi";
+import { TbHeadphonesFilled } from "react-icons/tb";
+import { IoMdCheckboxOutline } from "react-icons/io";
+
 const GuidedMeditation = () => {
   const [isMeditating, setIsMeditating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -15,22 +20,26 @@ const GuidedMeditation = () => {
 
   const timerRef = useRef(null);
   const audioRef = useRef(null);
-
+  
   const walkthroughSteps = [
     {
-      title: "Welcome to PsyMitrix Meditation 🌿",
+      icon : <GiMeditation className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      title: "Welcome to PsyMitrix Meditation",
       text: "Find a quiet space where you can relax without interruptions.",
     },
     {
-      title: "Sit or Lie Down Comfortably 🪷",
+      icon : <PiArmchairDuotone className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      title: "Sit or Lie Down Comfortably",
       text: "You may sit upright or lie down — whatever feels best for you. Loosen any tight clothing.",
     },
     {
-      title: "Use Headphones 🎧",
+      icon:<TbHeadphonesFilled className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      title: "Use Headphones",
       text: "For the best immersive experience, wear headphones and lower your phone volume slightly.",
     },
     {
-      title: "Prepare to Begin 🌬️",
+      icon:<IoMdCheckboxOutline className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      title: "Prepare to Begin",
       text: "Take a few slow breaths... Inhale calm, exhale stress. When you feel ready, begin your session.",
     },
   ];
@@ -175,10 +184,11 @@ const GuidedMeditation = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center justify-center"
           >
+            {walkthroughSteps[walkthroughStep].icon} 
             <h2 className="text-3xl font-semibold text-light-primary mb-2">
               {walkthroughSteps[walkthroughStep].title}
             </h2>
-            <p className="text-light-secondary mb-8 text-lg max-w-sm leading-relaxed">
+            <p className="text-light-accent dark:text-light-secondary  mb-8 text-lg max-w-sm leading-relaxed">
               {walkthroughSteps[walkthroughStep].text}
             </p>
 
@@ -207,6 +217,7 @@ const GuidedMeditation = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center justify-center"
           >
+
             <h2 className="text-3xl font-semibold text-light-primary mb-2">
               PsyMitrix Guided Meditation
             </h2>
