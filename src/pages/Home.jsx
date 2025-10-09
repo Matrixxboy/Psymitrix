@@ -237,8 +237,8 @@ const Home = () => {
                     <span className="mt-1 flex h-8 w-14 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
                       <FiShield />
                     </span>
-                    <span>
-                      <strong>Clinical guardrails:</strong> Crisis detection routes you to regional hotlines and notifies your trusted contacts when you consent.
+                    <span className='z-10'>
+                      <strong >Clinical guardrails:</strong> Crisis detection routes you to regional hotlines and notifies your trusted contacts when you consent.
                     </span>
                   </li>
                   {/* <li className="flex items-start gap-3">

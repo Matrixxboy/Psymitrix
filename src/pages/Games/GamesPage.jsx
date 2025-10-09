@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { FiWind, FiZap, FiArrowLeft } from 'react-icons/fi';   // feather icons
-import { FaPuzzlePiece } from 'react-icons/fa';                // font awesome
+import { FaPuzzlePiece, FaSpa } from 'react-icons/fa';                // font awesome
 import BreathingExercise from './mini-games/BreathingExercise';
 import FocusPuzzle from './mini-games/FocusPuzzle';
 import MemoryChallenge from './mini-games/MemoryChallenge';
+import GuidedMeditation from './mini-games/GuidedMeditation';
 
 const GamesPage = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -17,19 +18,27 @@ const GamesPage = () => {
       component: <BreathingExercise />
     },
     {
-      id: 'focus',
-      title: 'Focus Puzzle',
-      description: 'A simple puzzle to help you focus and enter a state of flow.',
-      icon: <FaPuzzlePiece />,   // ✅ from Font Awesome
-      component: <FocusPuzzle />
+      id: 'meditation',
+      title: 'Guided Meditation',
+      description: 'A guided meditation to help you relax and find inner peace.',
+      icon: <FaSpa />,
+      component: <GuidedMeditation />
     },
-    {
-      id: 'memory',
-      title: 'Memory Challenge',
-      description: 'A light-hearted memory game to sharpen your mind.',
-      icon: <FiZap />,
-      component: <MemoryChallenge />
-    },
+    // {
+    //   id: 'focus',
+    //   title: 'Focus Puzzle',
+    //   description: 'A simple puzzle to help you focus and enter a state of flow.',
+    //   icon: <FaPuzzlePiece />,   // ✅ from Font Awesome
+    //   component: <FocusPuzzle />
+    // },
+    // {
+    //   id: 'memory',
+    //   title: 'Memory Challenge',
+    //   description: 'A light-hearted memory game to sharpen your mind.',
+    //   icon: <FiZap />,
+    //   component: <MemoryChallenge />
+    // },
+    
   ];
 
   const GlassCard = ({ children, className = '' }) => (
