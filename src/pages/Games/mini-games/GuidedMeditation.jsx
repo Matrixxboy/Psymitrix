@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../../components/ui/Button';
 
 import { GiMeditation  } from "react-icons/gi";
-import { PiArmchairDuotone } from "react-icons/pi";
+import { PiHeartFill  } from "react-icons/pi";
 import { TbHeadphonesFilled } from "react-icons/tb";
 import { IoMdCheckboxOutline } from "react-icons/io";
 
@@ -23,22 +23,22 @@ const GuidedMeditation = () => {
   
   const walkthroughSteps = [
     {
-      icon : <GiMeditation className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      icon : <PiHeartFill  className='w-20 h-20 text-light-headings dark:text-light-secondary animate-heartbeat' />,
       title: "Welcome to PsyMitrix Meditation",
       text: "Find a quiet space where you can relax without interruptions.",
     },
     {
-      icon : <PiArmchairDuotone className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      icon : <GiMeditation className='w-20 h-20 text-light-headings dark:text-light-secondary animate-float' />,
       title: "Sit or Lie Down Comfortably",
       text: "You may sit upright or lie down — whatever feels best for you. Loosen any tight clothing.",
     },
     {
-      icon:<TbHeadphonesFilled className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      icon:<TbHeadphonesFilled className='w-20 h-20 text-light-headings dark:text-light-secondary animate-headphonePulse' />,
       title: "Use Headphones",
       text: "For the best immersive experience, wear headphones and lower your phone volume slightly.",
     },
     {
-      icon:<IoMdCheckboxOutline className='w-20 h-20 text-light-headings dark:text-light-secondary' />,
+      icon:<IoMdCheckboxOutline className='w-20 h-20 text-light-headings dark:text-light-secondary animate-checkPop' />,
       title: "Prepare to Begin",
       text: "Take a few slow breaths... Inhale calm, exhale stress. When you feel ready, begin your session.",
     },

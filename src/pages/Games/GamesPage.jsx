@@ -63,7 +63,7 @@ const GamesPage = () => {
             <p className="text-light-body dark:text-dark-body flex-grow mb-6">{game.description}</p>
             <button
               onClick={() => setSelectedGame(game)}
-              className="w-full mt-auto px-6 py-3 font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition-all text-light-headings dark:text-dark-headings"
+              className="w-full mt-auto px-6 py-3 font-semibold rounded-lg bg-light-headings/20 dark:bg-white/20 hover:bg-white/30 transition-all text-light-headings dark:text-dark-headings"
             >
               Play
             </button>

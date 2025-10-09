@@ -181,17 +181,18 @@ const Home = () => {
           >
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-light-headings dark:text-dark-headings mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-xm md:text-sm lg:text-sm font-medium text-light-headings dark:text-dark-headings mb-6 "
             >
-              <FiHeart className="text-light-primary dark:text-dark-primary" />
+              <FiHeart className="text-light-primary dark:text-dark-primary text-2xl" />
               Trusted AI psychiatrist for guided, human-centred care
             </motion.div>
-            <motion.h1 variants={fadeInUp} className={`text-5xl md:text-6xl font-bold mb-6 ${gradientText}`}>
+            <motion.h1 variants={fadeInUp} className={`text-5xl md:text-6xl pt-auto font-bold mb-6 ${gradientText}`}>
               Meet PsyMitrix, your always-on AI psychiatrist
             </motion.h1>
+            
             <motion.p
               variants={fadeInUp}
-              className="text-xl md:text-2xl text-light-body dark:text-dark-body max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed"
+              className="text-xl md:text-2xl text-light-body dark:text-dark-body max-w-xl mx-auto mt-2 lg:mx-0 mb-10 leading-relaxed"
             >
               Aura listens with empathy, surfaces clinically-backed insights, and keeps you connected to the practices and people who help you heal.
             </motion.p>

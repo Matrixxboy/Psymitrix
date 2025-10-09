@@ -27,7 +27,41 @@ export default {
         'success': '#27AE60',
         'warning': '#F2C94C',
         'error': '#EB5757',
-      }
+      },
+      keyframes: {
+        // ❤️ Heart Beat
+        heartbeat: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '25%': { transform: 'scale(1.15)' },
+          '50%': { transform: 'scale(0.95)' },
+          '75%': { transform: 'scale(1.1)' },
+        },
+
+        // 🧘 Meditation Float (slow up-down movement)
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+
+        // 🎧 Headphone Pulse (gentle vibration / soundwave feel)
+        headphonePulse: {
+          '0%, 100%': { transform: 'scale(1)', opacity: 1 },
+          '50%': { transform: 'scale(1.1)', opacity: 0.85 },
+        },
+
+        // ✅ Check Pop (gentle appear + bounce)
+        checkPop: {
+          '0%': { transform: 'scale(0)', opacity: 0 },
+          '60%': { transform: 'scale(1.2)', opacity: 1 },
+          '100%': { transform: 'scale(1)', opacity: 1 },
+        },
+      },
+      animation: {
+        heartbeat: 'heartbeat 1.3s ease-in-out infinite',
+        float: 'float 4s ease-in-out infinite',
+        headphonePulse: 'headphonePulse 1.8s ease-in-out infinite',
+        checkPop: 'checkPop 0.6s ease-out forwards',
+      },
     },
   },
   plugins: [
