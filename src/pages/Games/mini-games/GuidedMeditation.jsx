@@ -44,16 +44,18 @@ const GuidedMeditation = () => {
     },
   ];
 
-  const meditationScript = [
-    "Welcome to PsyMitrix Guided Meditation. Take a slow, deep breath in... and gently exhale.",
-    "Find a comfortable position, close your eyes softly, and allow your body to relax.",
-    "Feel the air as it enters your lungs, cool and fresh. Breathe in calm... breathe out tension.",
-    "With every breath, feel your thoughts settle like gentle waves on a peaceful shore.",
-    "You are safe. You are grounded. You are enough.",
-    "Now slowly bring awareness to your body, your heart, and your breath.",
-    "Let go of anything that no longer serves your peace.",
-    "When you’re ready, take a deep breath, smile gently, and open your eyes.",
-    "Carry this sense of calm with you throughout your day."
+ const meditationScript = [
+    "Welcome to PsyMitrix Guided Meditation. Let's begin by taking a soft, deep breath in...",
+    "And letting it go with a gentle sigh. Now, if your eyes are not yet closed, gently let your eyelids rest. Give your body permission to relax completely.",
+    "Bring your attention to your natural breath. Simply notice the sensation of the air as it gently flows in through your nostrils...",
+    "And effortlessly flows out. Inhale ease... Exhale any tension or holding you might notice.",
+    "Imagine your thoughts are like fluffy clouds slowly drifting across a vast, blue sky. Don't chase them; just watch them pass and allow yourself to sink deeper into stillness.",
+    "We are going to anchor ourselves in the present moment. Repeat softly to yourself: I am safe. I am grounded. I am enough.",
+    "Slowly, kindly, bring your awareness to your physical body. Notice the points where your body meets the chair or the floor. Feel the support beneath you.",
+    "Feel the weight of your own heart in your chest, beating gently and steadily, a source of peace.",
+    "For the next few moments, simply rest here in the silence, breathing in calm, letting go of effort.",
+    "With your next breath, invite a gentle smile to your face, keeping your eyes softly closed.",
+    "Take a final, deep breath, and as you exhale, know that you carry this quiet, peaceful awareness with you.",
   ];
 
   const motivationalMessages = [
@@ -70,9 +72,20 @@ const GuidedMeditation = () => {
     const synth = window.speechSynthesis;
     const u = new SpeechSynthesisUtterance();
     u.lang = 'en-US';
-    u.rate = 0.80;
-    u.pitch = 1.3;
-    u.voice = synth.getVoices().find(v => v.name.toLowerCase().includes("female")) || null;
+    u.rate = 0.75;
+    u.pitch = 1.1;
+
+    const setVoice = () => {
+      const voices = synth.getVoices();
+      const femaleVoice = voices.find(v => v.name.toLowerCase().includes('female') && v.lang.startsWith('en'));
+      u.voice = femaleVoice || voices.find(v => v.lang.startsWith('en'));
+    };
+
+    setVoice();
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = setVoice;
+    }
+
     setUtterance(u);
 
     audioRef.current = new Audio('https://cdn.pixabay.com/audio/2025/09/23/audio_3cbac54762.mp3?filename=meditation-background-409198.mp3');
