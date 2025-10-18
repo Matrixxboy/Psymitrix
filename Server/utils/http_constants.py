@@ -1,0 +1,34 @@
+# utils/http_status.py
+
+from http import HTTPStatus
+
+HTTP_STATUS = {
+    "OK": HTTPStatus.OK.value,                      # 200
+    "CREATED": HTTPStatus.CREATED.value,            # 201
+    "BAD_REQUEST": HTTPStatus.BAD_REQUEST.value,    # 400
+    "UNAUTHORIZED": HTTPStatus.UNAUTHORIZED.value,  # 401
+    "FORBIDDEN": HTTPStatus.FORBIDDEN.value,        # 403
+    "NOT_FOUND": HTTPStatus.NOT_FOUND.value,        # 404
+    "CONFLICT": HTTPStatus.CONFLICT.value,          # 409
+    "INTERNAL_SERVER_ERROR": HTTPStatus.INTERNAL_SERVER_ERROR.value,  # 500
+    "TOO_MANY_REQUESTS": HTTPStatus.TOO_MANY_REQUESTS.value,          # 429
+    "ERROR": 501
+}
+
+HTTP_CODE = {
+    "OK": "OK",
+    "CREATED": "CREATED",
+    "BAD_REQUEST": "BAD_REQUEST",
+    "UNAUTHORIZED": "UNAUTHORIZED",
+    "FORBIDDEN": "FORBIDDEN",
+    "ROUTE_NOT_FOUND": "ROUTE_NOT_FOUND",
+    "DATA_NOT_FOUND": "DATA_NOT_FOUND",
+    "CONFLICT": "CONFLICT",
+    "INTERNAL_SERVER_ERROR": "INTERNAL_SERVER_ERROR",
+    "TOO_MANY_REQUESTS": "TOO_MANY_REQUESTS",
+    "VALIDATION": "VALIDATION",
+    "ERROR": "ERROR",
+    "EMAILVERIFICATION": "EMAILVERIFICATION",
+    "INVALID_COUPON": "INVALID_COUPON",
+    "DATA_EXIST": "DATA_EXIST",
+}
