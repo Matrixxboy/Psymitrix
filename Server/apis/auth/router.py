@@ -1,15 +1,8 @@
 
 from fastapi import APIRouter
-from utils.response_helper import make_response
-from utils.http_constants import HTTP_STATUS, HTTP_CODE
+from . import registration, login
 
 router = APIRouter()
 
-@router.get("/auth/status")
-def get_auth_status():
-    return make_response(
-        HTTP_STATUS["OK"],
-        HTTP_CODE["OK"],
-        "Auth API is working",
-        {}
-    )
+router.include_router(registration.router)
+router.include_router(login.router)

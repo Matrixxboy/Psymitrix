@@ -49,17 +49,17 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         error_messages.append(f"{loc}: {msg}")
 
     return make_response(
-        HTTP_STATUS["BAD_REQUEST"],
-        HTTP_CODE["VALIDATION"],
-        "Validation error",
-        {"errors": error_messages}
+        status_code=HTTP_STATUS["BAD_REQUEST"],
+        code=HTTP_CODE["VALIDATION"],
+        message="Validation error",
+        data={"errors": error_messages}
     )
 
 @app.get("/")
 def read_root():
     return make_response(
-        HTTP_STATUS["OK"],
-        HTTP_CODE["OK"],
-        "Server is running 🚀",
-        {"Message": "Welcome to the Psymitrix Server"}
+        status_code=HTTP_STATUS["OK"],
+        code=HTTP_CODE["OK"],
+        message="Server is running 🚀",
+        data={"Message": "Welcome to the Psymitrix Server"}
     )

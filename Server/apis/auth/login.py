@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from fastapi import APIRouter, Depends, HTTPException
 from Database.db_connection import get_mongo_db
-from models.user_models import UserLogin
+from .models.user_models import UserLogin
 from utils.hashing import verify_password, create_access_token
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
