@@ -31,6 +31,6 @@ async def login_user(user: UserLogin, db=Depends(get_mongo_db)):
         return make_response(
             HTTP_STATUS["INTERNAL_SERVER_ERROR"],
             HTTP_CODE["INTERNAL_SERVER_ERROR"],
-            "An error occurred during login",
-            {"api": "login", "error": str(e)}
+            message="An error occurred during login",
+            data={"api": "login", "error": str(e)}
         )
