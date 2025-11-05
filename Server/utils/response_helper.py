@@ -1,10 +1,14 @@
 # utils/response_helper.py
 
-import json
 from fastapi.responses import JSONResponse
 from typing import Any, Optional
 
+
 def remove_backslashes(obj):
+    """ 
+    Recursively removes backslashes from strings in a dictionary or list.
+    TODO: Investigate the root cause of the backslashes and remove this function.
+    """
     if isinstance(obj, dict):
         return {k: remove_backslashes(v) for k, v in obj.items()}
     elif isinstance(obj, list):

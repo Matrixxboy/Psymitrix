@@ -1,7 +1,4 @@
-import os
-import sys
 from fastapi import APIRouter, Depends
-from fastapi.encoders import jsonable_encoder
 from utils.response_helper import make_response
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from models.user_model import User, UserUpdate
@@ -31,7 +28,7 @@ async def read_current_user(current_user: User = Depends(get_current_user)):
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],
             message="Current user fetched successfully",
-            data=jsonable_encoder(current_user)
+            data=current_user.model_dump_json()
         )
     except Exception as e:
         return make_response(
@@ -49,7 +46,7 @@ async def update_user_data(user_update: UserUpdate, current_user: User = Depends
     try:
         # Get the update data, excluding any fields that were not set in the request
         update_data = user_update.model_dump(exclude_unset=True)
-
+        
         if not update_data:
             return make_response(
                 status_code=HTTP_STATUS["BAD_REQUEST"],
@@ -71,7 +68,7 @@ async def update_user_data(user_update: UserUpdate, current_user: User = Depends
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],
             message="User data updated successfully",
-            data=jsonable_encoder(User(**updated_user))
+            data=User(**updated_user).model_dump_json()
         )
     except Exception as e:
         return make_response(

@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from typing import Optional
 from Database.db_connection import get_mongo_db
 from models.user_model import User
 from utils.hashing import SECRET_KEY, ALGORITHM
@@ -26,8 +25,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db = Depends(get
     )
     email = decode_access_token(token)
     if email is None:
-        raise credentials_exception
+        return credentials_exception
     user = db.users.find_one({"email": email})
     if user is None:
-        raise credentials_exception
+        return credentials_exception
     return User(**user)

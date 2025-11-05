@@ -1,4 +1,3 @@
-import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -16,6 +15,8 @@ from apis.google_login.router import router as google_login_router
 from apis.support.router import router as support_router
 from apis.resend_email.router import router as resend_email_router
 from apis.sessions.router import router as sessions_router
+from apis.games.router import router as games_router
+from apis.mood_trends.router import router as mood_trends_router
 
 app = FastAPI()
 
@@ -38,6 +39,8 @@ app.include_router(google_login_router, prefix="/api/v1")
 app.include_router(support_router, prefix="/api/v1")
 app.include_router(resend_email_router, prefix="/api/v1")
 app.include_router(sessions_router, prefix="/api/v1")
+app.include_router(games_router, prefix="/api/v1")
+app.include_router(mood_trends_router, prefix="/api/v1")
 
 
 @app.exception_handler(RequestValidationError)

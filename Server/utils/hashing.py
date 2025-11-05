@@ -3,6 +3,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
+from fastapi import HTTPException
 
 load_dotenv()
 
@@ -28,17 +29,12 @@ def verify_password(plain_password: str, hashed_password: str):
     except Exception:
         return False
 
-def create_access_token(data: dict):
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
     try:
-        to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        to_encode.update({"exp": expire})
-        try:
-            encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-            return encoded_jwt
-        except JWTError as e:
-            print(f"JWT encoding error: {e}")
-            return None
-    except Exception as e:
-        print(f"Error creating access token: {e}")
-        return None
+        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        return encoded_jwt
+    except JWTError:
+        raise HTTPException(status_code=500, detail="Could not create access token")

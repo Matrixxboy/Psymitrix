@@ -1,7 +1,4 @@
-import os
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from Database.db_connection import get_mongo_db
 from models.user_auth_models import UserLogin
 from utils.hashing import verify_password, create_access_token
@@ -16,11 +13,21 @@ async def login_user(user: UserLogin, db=Depends(get_mongo_db)):
     try:
         existing_user = db.users.find_one({"email": user.email})
         if not existing_user:
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+            return make_response(
+                status_code=HTTP_STATUS["BAD_REQUEST"],
+                code=HTTP_CODE["INVALID_INPUT"],
+                message="Invalid credentials",
+                data={}
+            )
         # Fetch user from DB
         stored_hashed_pwd = existing_user["hashed_password"]
         if not verify_password(user.password, stored_hashed_pwd):
-            raise HTTPException(status_code=400, detail="Invalid credentials")
+            return make_response(
+                status_code=HTTP_STATUS["BAD_REQUEST"],
+                code=HTTP_CODE["INVALID_INPUT"],
+                message="Invalid credentials",
+                data={}
+            )
         access_token = create_access_token(data={"sub": user.email})
         data = {
             "access_token": access_token,

@@ -11,18 +11,10 @@ router = APIRouter(prefix="/sessions", tags=["Sessions"])
 @router.post("/store")
 async def create_session(session: Session, current_user: User = Depends(get_current_user), db = Depends(get_mongo_db)):
     try:
-        # Add the new session to the user's sessions list
-        if current_user.sessions is None:
-            current_user.sessions = []
-        current_user.sessions.append(session)
-
-        # Encode the sessions list to be JSON-serializable
-        encoded_sessions = jsonable_encoder(current_user.sessions)
-
-        # Update the user in the database
+        encoded_session = jsonable_encoder(session)
         db.users.update_one(
             {"email": current_user.email},
-            {"$set": {"sessions": encoded_sessions}}
+            {"$push": {"sessions": encoded_session}}
         )
 
         return make_response(
