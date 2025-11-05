@@ -64,6 +64,8 @@ def connect_to_mongo():
         )
         # The ismaster command is cheap and does not require auth.
         mongo_client.admin.command('ismaster')
+        # MONGO_DB_NAME is validated at startup; assert for type checkers and runtime safety.
+        assert MONGO_DB_NAME is not None, "MONGO_DB_NAME must be set"
         mongo_db = mongo_client[MONGO_DB_NAME]
         print("✅ MongoDB connected successfully!")
         
