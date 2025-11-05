@@ -53,5 +53,22 @@ class User(BaseModel):
             UUID: lambda v: str(v),
         }
 
+class UserUpdate(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    middleName: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    bloodgroup: Optional[str] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    occupation: Optional[str] = None
+    location: Optional[str] = None
+    bio: Optional[str] = None
+    profile_picture_url: Optional[str] = None
+    olderSiblings: Optional[int] = None
+    youngerSiblings: Optional[int] = None
+    parental_marital_status: Optional[str] = None
+
 
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from Database.db_connection import get_mongo_db
 from models.user_model import User, Session

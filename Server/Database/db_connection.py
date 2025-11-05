@@ -1,5 +1,6 @@
 import os
 import sys
+from fastapi import HTTPException, status
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 from dotenv import load_dotenv
@@ -90,7 +91,13 @@ def get_mongo_db():
     """
     Returns the MongoDB database instance.
     This is used for dependency injection in FastAPI routes.
+    Raises an HTTPException if the database is not connected.
     """
+    if mongo_db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database connection not available. Please check the server logs for more details.",
+        )
     return mongo_db
 
 # --- Health Check Function ---
