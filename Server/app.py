@@ -17,6 +17,7 @@ from apis.resend_email.router import router as resend_email_router
 from apis.sessions.router import router as sessions_router
 from apis.games.router import router as games_router
 from apis.mood_trends.router import router as mood_trends_router
+from apis.achievements.router import router as achievements_router
 
 app = FastAPI()
 
@@ -41,6 +42,7 @@ app.include_router(resend_email_router, prefix="/api/v1")
 app.include_router(sessions_router, prefix="/api/v1")
 app.include_router(games_router, prefix="/api/v1")
 app.include_router(mood_trends_router, prefix="/api/v1")
+app.include_router(achievements_router, prefix="/api/v1")
 
 
 @app.exception_handler(RequestValidationError)

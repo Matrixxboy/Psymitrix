@@ -53,9 +53,9 @@ async def get_mood_trends(
             start_date = now - timedelta(days=7)
 
         mood_trends = [
-            MoodTrend(**trend)
+            trend
             for trend in current_user.mood_trends
-            if trend["created_at"] >= start_date
+            if trend.created_at >= start_date
         ]
 
         return make_response(

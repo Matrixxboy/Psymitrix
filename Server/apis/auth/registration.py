@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from bson.binary import Binary
 from Database.db_connection import get_mongo_db
 from models.user_auth_models import UserRegister
-from models.user_model import User
+from models.user_model import User, Achievements
 from utils.hashing import hash_password
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
@@ -35,7 +35,9 @@ async def register_user(user_data: UserRegister, db=Depends(get_mongo_db)):
         new_user = User(
             email=user_data.email,
             username=user_data.username,
-            hashed_password=hashed_pwd
+            hashed_password=hashed_pwd,
+            achievements=[Achievements(achievements=[])],
+            login_history=[]
         )
         
         user_dict = new_user.model_dump()

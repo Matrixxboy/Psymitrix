@@ -11,12 +11,12 @@ class Gender(str, Enum):
     PREFER_NOT_TO_SAY = "prefer_not_to_say"
 
 class Mood(str, Enum):
-    HAPPY = "happy" #score 10
-    SAD = "sad" #score 3
-    NEUTRAL = "neutral" #score 5
     EXCITED = "excited" #score 10
+    HAPPY = "happy" #score 8
+    CALM = "calm" #score 7
+    NEUTRAL = "neutral" #score 5
+    SAD = "sad" #score 3
     ANGRY = "angry" #score 2
-    CALM = "calm" #score 8
 
 class MoodTrend(BaseModel):
     mood_id: UUID = Field(default_factory=uuid4)
@@ -99,12 +99,12 @@ class achievementsData(BaseModel):
     )
 
 class Achievements(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
     achievements: List[achievementsData] = Field(default_factory=list)
 
     model_config = ConfigDict(
         json_encoders={
             UUID: lambda v: str(v),
-            datetime: lambda v: v.isoformat()
         },
         from_attributes=True
     )
@@ -138,9 +138,11 @@ class User(BaseModel):
     streak_updated_at: Optional[datetime] = None
     longest_streak: int = 0
     last_interaction: Optional[datetime] = None
+    last_login: Optional[datetime] = None
+    login_history: List[datetime] = []
     sessions: List[Session] = []
     games: List[Games] = []
-    achievements: List[Achievements] = []
+    achievements: List[achievementsData] = []
     mood_trends: List[MoodTrend] = []
     # admin and status flags
     is_active: bool = True
