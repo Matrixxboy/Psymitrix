@@ -58,6 +58,7 @@ def connect_to_mongo():
         mongo_client = MongoClient(
             MONGO_URI,
             tlsCAFile=certifi.where(),
+            uuidRepresentation='standard',
             serverSelectionTimeoutMS=10000  # 10-second timeout
         )
         # The ismaster command is cheap and does not require auth.
@@ -113,7 +114,7 @@ def get_vector_db_connection():
     pass
 
 # --- Debug Info ---
-if check_database_connection():
+if mongo_db is not None:
     print(f"MongoDB Connection Status: Connected to database '{MONGO_DB_NAME}'")
 else:
     print("MongoDB Connection Status: Not Connected")
