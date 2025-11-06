@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
-import { authenticateUser } from '../../../api/auth';
+import { login as authenticateUser } from '../../../api/auth';
 import LoginForm from '../components/LoginForm';
 import { FaGoogle, FaApple } from 'react-icons/fa';
 import GlassCard from '../../../components/ui/GlassCard';
@@ -17,14 +17,15 @@ const Login = () => {
     setError(null);
     try {
       const result = await authenticateUser(formData.email, formData.password);
-      
+      console.log("Login result:", result);
       if (result.success) {
-        login(result.data.user, result.data.token);
+        login(result.data.access_token); // Pass only the access token
         navigate('/');
       } else {
         setError(result.error);
       }
     } catch (err) {
+      console.error("Login page error:", err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);

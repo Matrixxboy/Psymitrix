@@ -1,34 +1,70 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { fetchUserProfile } from '../api/auth';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // User data will be fetched separately after login
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check for stored auth data on mount
+  // Check for stored auth data on mount and fetch user profile
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
-    const storedUser = localStorage.getItem('authUser');
+    const storedTokenType = localStorage.getItem('tokenType');
     
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-      setIsLoggedIn(true);
-    }
-    setLoading(false);
+    const initializeAuth = async () => {
+      if (storedToken && storedTokenType) {
+        setToken(storedToken);
+        setIsLoggedIn(true);
+        try {
+          const userProfileResult = await fetchUserProfile();
+          if (userProfileResult.success) {
+            setUser(userProfileResult.data);
+          } else {
+            console.error("Failed to fetch user profile on mount:", userProfileResult.error);
+            // Optionally clear token if profile fetch fails
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('tokenType');
+            setIsLoggedIn(false);
+            setToken(null);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile on mount:", error);
+          // Optionally clear token if profile fetch fails
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('tokenType');
+          setIsLoggedIn(false);
+          setToken(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
-  const login = (userData, authToken) => {
-    setUser(userData);
+  const login = async (authToken) => {
     setToken(authToken);
     setIsLoggedIn(true);
     
     // Persist to localStorage
     localStorage.setItem('authToken', authToken);
-    localStorage.setItem('authUser', JSON.stringify(userData));
+    localStorage.setItem('tokenType', 'Bearer'); // Store token type
+
+    // Fetch user profile immediately after login
+    try {
+      const userProfileResult = await fetchUserProfile();
+      if (userProfileResult.success) {
+        setUser(userProfileResult.data);
+      } else {
+        console.error("Failed to fetch user profile after login:", userProfileResult.error);
+        // Handle error, maybe log out or show a message
+      }
+    } catch (error) {
+      console.error("Error fetching user profile after login:", error);
+    }
   };
 
   const logout = () => {
@@ -38,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     
     // Clear localStorage
     localStorage.removeItem('authToken');
-    localStorage.removeItem('authUser');
+    localStorage.removeItem('tokenType');
   };
 
   const value = {
@@ -49,7 +85,6 @@ export const AuthProvider = ({ children }) => {
     login,
     logout
   };
-
   return (
     <AuthContext.Provider value={value}>
       {children}
@@ -64,3 +99,4 @@ export const useAuthContext = () => {
   }
   return context;
 };
+

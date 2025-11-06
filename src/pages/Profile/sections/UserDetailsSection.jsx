@@ -42,11 +42,11 @@ const UserDetailsSection = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm text-light-body dark:text-dark-body">Name</p>
-            <p className="font-semibold text-light-headings dark:text-dark-headings">{user?.name}</p>
+            <p className="font-semibold text-light-headings dark:text-dark-headings">{user.firstName}</p>
           </div>
           <div>
             <p className="text-sm text-light-body dark:text-dark-body">Email</p>
-            <p className="font-semibold text-light-headings dark:text-dark-headings">{user?.email}</p>
+            <p className="font-semibold text-light-headings dark:text-dark-headings">{user.email}</p>
           </div>
         </div>
       )}

@@ -6,9 +6,9 @@ const PersonalInformation = () => {
 
   const infoItems = [
     { title: "Gender", value: user?.gender },
-    { title: "Blood Group", value: user?.blood_group },
-    { title: "Older Siblings", value: user?.older_siblings },
-    { title: "Younger Siblings", value: user?.younger_siblings },
+    { title: "Blood Group", value: user?.bloodgroup },
+    { title: "Older Siblings", value: user?.olderSiblings },
+    { title: "Younger Siblings", value: user?.youngerSiblings },
   ];
 
   return (
