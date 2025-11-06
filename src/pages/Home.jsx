@@ -227,8 +227,8 @@ const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 items-center">
-                  <SummaryCard title="Sessions" value={user.sessions_chat_history.length} icon={FiMessageCircle} />
-                  <SummaryCard title="Assessments" value={user.sessions.length} icon={FiClipboard} />
+                  {/* <SummaryCard title="Sessions" value={user.sessions_chat_history.length} icon={FiMessageCircle} /> */}
+                  {/* <SummaryCard title="Assessments" value={user.sessions.length} icon={FiClipboard} /> */}
                   <SummaryCard title="Mood Score" value={moodScore} icon={FiHeart} />
                   <SummaryCard title="Milestones" value={user.achievements.length} icon={FiAward} />
                 </div>

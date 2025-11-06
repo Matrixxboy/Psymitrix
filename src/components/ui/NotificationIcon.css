@@ -1,0 +1,161 @@
+/* =============================
+   🔔 Notification Icon Wrapper
+   ============================= */
+.notification-icon {
+  position: relative;
+  display: inline-block;
+}
+
+/* 🔴 Notification Counter Ping */
+.notification-icon .notification-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  width: 16px;
+}
+
+.notification-icon .notification-count::before {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: rgba(255, 68, 68, 0.5);
+  border-radius: 50%;
+  animation: ping 1.3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.notification-icon .notification-count::after {
+  content: "";
+  position: relative;
+  height: 10px;
+  width: 10px;
+  background: #ff3737;
+  border-radius: 50%;
+}
+
+/* =============================
+   📦 Dropdown Container
+   ============================= */
+.notification-dropdown {
+  position: fixed;
+  top: 100%;
+  right: 0;
+  width: 320px;
+  margin-top: 10px;
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  z-index: 1000;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* 🌒 Dark Mode Support */
+.dark .notification-dropdown {
+  background: rgba(25, 25, 35, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* =============================
+   📩 Notification Items
+   ============================= */
+.notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(200, 200, 200, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.notification-item:hover {
+  background: rgba(200, 200, 255, 0.12);
+  transform: translateX(2px);
+}
+
+/* 🟦 Unseen notification styling */
+.notification-item.unseen {
+  background: rgba(59, 130, 246, 0.12);
+  border-left: 3px solid #3b82f6;
+}
+
+/* 🟩 Seen notifications (subtle tone) */
+.notification-item.seen {
+  opacity: 0.85;
+}
+
+/* =============================
+   💬 Text Styling
+   ============================= */
+.notification-item p {
+  margin: 0;
+  color: #333;
+}
+
+.dark .notification-item p {
+  color: #e5e5e5;
+}
+
+.notification-item .notification-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.notification-item .notification-message {
+  font-size: 13px;
+  color: #555;
+}
+
+.dark .notification-item .notification-message {
+  color: #aaa;
+}
+
+.notification-item .notification-time {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* =============================
+   ✨ Animations
+   ============================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* =============================
+   🌫 Scrollbar Styling
+   ============================= */
+.notification-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.25);
+  border-radius: 10px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.4);
+}

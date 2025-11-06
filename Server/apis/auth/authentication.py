@@ -25,8 +25,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db = Depends(get
     )
     email = decode_access_token(token)
     if email is None:
-        return credentials_exception
+        raise credentials_exception
     user = db.users.find_one({"email": email})
     if user is None:
-        return credentials_exception
+        raise credentials_exception
     return User(**user)

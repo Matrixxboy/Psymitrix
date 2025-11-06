@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ThemeToggler from '../custom/ThemeToggler';
+import NotificationIcon from '../ui/NotificationIcon';
 
 const Burger = ({ open, setOpen }) => (
   <button
@@ -84,6 +85,7 @@ const Layout = () => {
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             <ThemeToggler />
+            <NotificationIcon />
             <span className="hidden sm:block text-light-body dark:text-dark-body">{user?.name}</span>
             <button onClick={logout} className="hidden sm:block px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">Logout</button>
             <Burger open={menuOpen} setOpen={setMenuOpen} />

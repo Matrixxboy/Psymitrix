@@ -21,3 +21,4 @@ api.interceptors.request.use(
 export default api;
 export * from './auth.js';
 export * from './sessions.js';
+export * from './notifications.js';

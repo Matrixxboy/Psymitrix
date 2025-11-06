@@ -19,6 +19,28 @@ class NotificationRequest(BaseModel):
 class SeenRequest(BaseModel):
     NotificationID: str
 
+@router.get("/")
+def get_notifications(
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_mongo_db)
+):
+    try:
+        user = db.users.find_one({"email": current_user.email})
+        notifications = user.get("notifications", [])
+        return make_response(
+            status_code=HTTP_STATUS["OK"],
+            code=HTTP_CODE["OK"],
+            message="Notifications fetched successfully",
+            data={"notifications": notifications}
+        )
+    except Exception as e:
+        return make_response(
+            status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],
+            code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Failed to fetch notifications",
+            data={"api": "get_notifications", "error": str(e)}
+        )
+
 @router.get("/status")
 def get_notifications_status():
     return make_response(
