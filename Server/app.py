@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
-# from Database.migration import migrate_users
 
 # Import routers
 from apis.auth.router import router as auth_router
@@ -25,6 +24,7 @@ app = FastAPI()
 
 #the migration script
 # uncomment the line below to run the migration once
+# from Database.migration import migrate_users
 # migrate_users()
 
 app.add_middleware(

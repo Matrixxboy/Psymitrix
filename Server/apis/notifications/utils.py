@@ -16,24 +16,32 @@ def create_notification(user: User, type: NotificationType, notification_name: s
 
 def complete_profile_notification(user: User) -> list:
     """
-    Adds a notification to the user's notifications list indicating that their profile is complete.
+    Adds or updates a notification about profile completion status.
+    Ensures there is only one notification regarding profile status.
     """
+    # Filter out existing profile notifications
+    other_notifications = [n for n in user.notifications if n.type not in [NotificationType.PROFILE_COMPLETE, NotificationType.PROFILE_INCOMPLETE]]
+
     if user.is_edited_by_user:
-        return create_notification(
-            user=user,
+        # Add a 'complete' notification                
+        notification_message = NotificationData(
             type=NotificationType.PROFILE_COMPLETE,
             notification_name="Profile Completion",
             message="Congratulations! You have completed your profile.",
             status=NotificationStatus.completed
         )
-    else :
-        return create_notification(
-            user=user,
+        final_notifications = other_notifications + [notification_message]
+    else:
+        # Add an 'incomplete' notification
+        notification_message = NotificationData(
             type=NotificationType.PROFILE_INCOMPLETE,
             notification_name="Profile Incompletion",
             message="Please complete your profile to get the best experience.",
             status=NotificationStatus.incomplete
         )
+        final_notifications = other_notifications + [notification_message]
+
+    return [n.model_dump(mode='json') for n in final_notifications]
 
 def new_message_notification(user: User) -> list:
     """
