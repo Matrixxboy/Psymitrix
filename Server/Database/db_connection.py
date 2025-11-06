@@ -4,6 +4,8 @@ from fastapi import HTTPException, status
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
 from dotenv import load_dotenv
+from utils.response_helper import make_response
+from utils.http_constants import HTTP_STATUS , HTTP_CODE
 import certifi
 
 # --- Environment Variable Loading ---
@@ -96,9 +98,11 @@ def get_mongo_db():
     Raises an HTTPException if the database is not connected.
     """
     if mongo_db is None:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Database connection not available. Please check the server logs for more details.",
+        return make_response(
+            status_code=HTTP_STATUS["SERVICE_UNAVAILABLE"],
+            code=HTTP_CODE["SERVICE_UNAVAILABLE"],
+            message="Database connection not available. Please check the server logs for more details.",
+            data={}
         )
     return mongo_db
 

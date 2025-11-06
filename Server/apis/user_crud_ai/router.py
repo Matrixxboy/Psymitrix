@@ -58,7 +58,7 @@ async def update_user_data(user_update: UserUpdate, current_user: User = Depends
         # Update the user in the database
         db.users.update_one(
             {"email": current_user.email},
-            {"$set": update_data}
+            {"$set": {k: v.lower() if isinstance(v, str) else v for k, v in update_data.items()}}
         )
 
         # Fetch the updated user from the database

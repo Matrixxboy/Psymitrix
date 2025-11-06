@@ -110,6 +110,7 @@ class User(BaseModel):
     firstName: Optional[str] = None
     lastName: Optional[str] = None
     middleName: Optional[str] = None
+    birthdate: Optional[datetime]=None
     age: Optional[PositiveInt] = None
     gender: Optional[Gender] = None
     bloodgroup: Optional[str] = None
