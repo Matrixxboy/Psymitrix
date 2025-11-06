@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from Database.db_connection import get_mongo_db
 from models.user_auth_models import UserLogin
-from models.user_model import User, Achievements, achievementsData
+from models.user_model import User
 from utils.hashing import verify_password, create_access_token
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
@@ -33,9 +33,7 @@ async def login_user(user: UserLogin, db=Depends(get_mongo_db)):
             )
 
         if "achievements" not in existing_user_data:
-            existing_user_data["achievements"] = [Achievements(achievements=[])]
-        elif isinstance(existing_user_data["achievements"], list) and len(existing_user_data["achievements"]) > 0 and isinstance(existing_user_data["achievements"][0], dict):
-            existing_user_data["achievements"] = [Achievements(achievements=[achievementsData(**ach) for ach in existing_user_data["achievements"]])]
+            existing_user_data["achievements"] = []
 
         existing_user = User(**existing_user_data)
 

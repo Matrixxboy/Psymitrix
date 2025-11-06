@@ -98,16 +98,7 @@ class achievementsData(BaseModel):
         from_attributes=True
     )
 
-class Achievements(BaseModel):
-    id: UUID = Field(default_factory=uuid4)
-    achievements: List[achievementsData] = Field(default_factory=list)
 
-    model_config = ConfigDict(
-        json_encoders={
-            UUID: lambda v: str(v),
-        },
-        from_attributes=True
-    )
 
 class User(BaseModel):
     # login data
