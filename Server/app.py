@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
+# from Database.migration import migrate_users
 
 # Import routers
 from apis.auth.router import router as auth_router
@@ -21,6 +22,8 @@ from apis.achievements.router import router as achievements_router
 
 app = FastAPI()
 
+# migrate_users()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,14 +38,17 @@ app.include_router(user_crud_ai_router, prefix="/api/v1")
 app.include_router(interaction_crud_ai_router, prefix="/api/v1")
 app.include_router(ai_base_work_router, prefix="/api/v1")
 app.include_router(database_connection_router, prefix="/api/v1")
-app.include_router(subscription_router, prefix="/api/v1")
-app.include_router(google_login_router, prefix="/api/v1")
-app.include_router(support_router, prefix="/api/v1")
-app.include_router(resend_email_router, prefix="/api/v1")
 app.include_router(sessions_router, prefix="/api/v1")
 app.include_router(games_router, prefix="/api/v1")
 app.include_router(mood_trends_router, prefix="/api/v1")
 app.include_router(achievements_router, prefix="/api/v1")
+
+#future routers
+# will be completed later on phase 2
+app.include_router(subscription_router, prefix="/api/v1")
+app.include_router(google_login_router, prefix="/api/v1")
+app.include_router(support_router, prefix="/api/v1")
+app.include_router(resend_email_router, prefix="/api/v1")
 
 
 @app.exception_handler(RequestValidationError)
