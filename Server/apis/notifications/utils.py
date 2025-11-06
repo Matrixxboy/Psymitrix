@@ -14,6 +14,17 @@ def create_notification(user: User, type: NotificationType, notification_name: s
     new_notifications = user.notifications + [notification_message]
     return [n.model_dump(mode='json') for n in new_notifications]
 
+def update_notification_as_seen(user: User, notification_id: str) -> list:
+    """
+    Marks a notification as seen based on its ID and returns the updated list of notifications.
+    """
+    updated_notifications = []
+    for n in user.notifications:
+        if str(n.notification_id) == notification_id:
+            n.seen = True
+        updated_notifications.append(n)
+    return [n.model_dump(mode='json') for n in updated_notifications]
+
 def complete_profile_notification(user: User) -> list:
     """
     Adds or updates a notification about profile completion status.
