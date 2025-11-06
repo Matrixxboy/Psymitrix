@@ -1,35 +1,43 @@
-/* =============================
-   🔔 Notification Icon Wrapper
-   ============================= */
+/* ===========================
+   🔔 Notification Wrapper
+   =========================== */
 .notification-icon {
   position: relative;
   display: inline-block;
+  z-index: 9999;
 }
 
-/* 🔴 Notification Counter Ping */
-.notification-icon .notification-count {
+.notification-bell {
+  position: relative;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.notification-bell:hover {
+  background: rgba(100, 100, 100, 0.08);
+}
+
+/* 🔴 Unseen Ping */
+.notification-count {
   position: absolute;
   top: 0;
   right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 16px;
   width: 16px;
 }
 
-.notification-icon .notification-count::before {
-  content: "";
+.notification-ping {
   position: absolute;
   height: 100%;
   width: 100%;
-  background: rgba(255, 68, 68, 0.5);
+  background: rgba(255, 68, 68, 0.6);
   border-radius: 50%;
   animation: ping 1.3s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.75;
 }
 
-.notification-icon .notification-count::after {
-  content: "";
+.notification-dot {
   position: relative;
   height: 10px;
   width: 10px;
@@ -37,96 +45,129 @@
   border-radius: 50%;
 }
 
-/* =============================
+/* ===========================
    📦 Dropdown Container
-   ============================= */
-.notification-dropdown {
+   =========================== */
+.notification-dropdown-container {
   position: fixed;
-  top: 100%;
-  right: 0;
   width: 320px;
-  margin-top: 10px;
-  border-radius: 16px;
-  overflow: hidden;
-  backdrop-filter: blur(12px);
+  max-height: 420px;
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  z-index: 1000;
-  animation: fadeIn 0.25s ease-in-out;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  z-index: 9999;
 }
 
-/* 🌒 Dark Mode Support */
-.dark .notification-dropdown {
-  background: rgba(25, 25, 35, 0.7);
+.dark .notification-dropdown-container {
+  background: rgba(25, 25, 35, 0.8);
   border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
-/* =============================
-   📩 Notification Items
-   ============================= */
-.notification-item {
+/* ===========================
+   🧭 Header
+   =========================== */
+.notification-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(200, 200, 200, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.notification-dropdown-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.dark .notification-dropdown-header h3 {
+  color: #e8e8e8;
+}
+
+.notification-dropdown-header span {
+  font-size: 0.75rem;
+  color: #ff4d4d;
+  font-weight: 600;
+}
+
+/* ===========================
+   💬 Body + Items
+   =========================== */
+.notification-dropdown-body {
+  max-height: 360px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-item {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  transition: background 0.25s ease, transform 0.2s ease;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(200, 200, 200, 0.15);
+  text-align: left;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .notification-item:hover {
-  background: rgba(200, 200, 255, 0.12);
+  background: rgba(230, 230, 255, 0.2);
   transform: translateX(2px);
 }
 
-/* 🟦 Unseen notification styling */
 .notification-item.unseen {
   background: rgba(59, 130, 246, 0.12);
   border-left: 3px solid #3b82f6;
 }
 
-/* 🟩 Seen notifications (subtle tone) */
 .notification-item.seen {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
-/* =============================
-   💬 Text Styling
-   ============================= */
-.notification-item p {
-  margin: 0;
-  color: #333;
-}
-
-.dark .notification-item p {
-  color: #e5e5e5;
-}
-
-.notification-item .notification-title {
+.notification-title {
   font-weight: 600;
   font-size: 14px;
+  margin: 0;
+  color: #222;
 }
 
-.notification-item .notification-message {
+.notification-message {
   font-size: 13px;
   color: #555;
+  margin: 4px 0;
 }
 
-.dark .notification-item .notification-message {
+.notification-time {
+  font-size: 11px;
+  color: #888;
+}
+
+.dark .notification-title {
+  color: #f1f1f1;
+}
+
+.dark .notification-message {
   color: #aaa;
 }
 
-.notification-item .notification-time {
-  font-size: 11px;
-  color: #999;
-  margin-top: 4px;
+.dark .notification-time {
+  color: #888;
 }
 
-/* =============================
-   ✨ Animations
-   ============================= */
-@keyframes fadeIn {
+/* ===========================
+   ⚡ Animations
+   =========================== */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes slideFadeIn {
   from {
     opacity: 0;
     transform: translateY(-6px);
@@ -137,25 +178,22 @@
   }
 }
 
-@keyframes ping {
-  75%, 100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
+.animate-slideFadeIn {
+  animation: slideFadeIn 0.25s ease-in-out;
 }
 
-/* =============================
-   🌫 Scrollbar Styling
-   ============================= */
-.notification-dropdown::-webkit-scrollbar {
+/* ===========================
+   🌫 Scrollbar
+   =========================== */
+.notification-dropdown-body::-webkit-scrollbar {
   width: 6px;
 }
 
-.notification-dropdown::-webkit-scrollbar-thumb {
-  background: rgba(150, 150, 150, 0.25);
+.notification-dropdown-body::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.3);
   border-radius: 10px;
 }
 
-.notification-dropdown::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.4);
+.notification-dropdown-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.5);
 }
