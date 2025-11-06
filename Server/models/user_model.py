@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field, EmailStr, HttpUrl, PositiveInt
 from typing import Optional, List
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import datetime , date
 from enum import Enum
 
 class Gender(str, Enum):
@@ -120,15 +120,15 @@ class User(BaseModel):
     location: Optional[str] = None
     bio: Optional[str] = None
     profile_picture_url: Optional[HttpUrl] = None
-    olderSiblings: Optional[int] = None
-    youngerSiblings: Optional[int] = None
+    olderSiblings: Optional[int] = 0
+    youngerSiblings: Optional[int] = 0
     parental_marital_status: Optional[str] = None
     # user stats
     score: int = 0
     interactions: int = 0
-    streak: int = 0
+    streak: PositiveInt = 0
     streak_updated_at: Optional[datetime] = None
-    longest_streak: int = 0
+    longest_streak: PositiveInt = 0
     last_interaction: Optional[datetime] = None
     last_login: Optional[datetime] = None
     login_history: List[datetime] = []
@@ -164,6 +164,7 @@ class UserUpdate(BaseModel):
     location: Optional[str] = None
     bio: Optional[str] = None
     profile_picture_url: Optional[HttpUrl] = None
+    birthdate: Optional[datetime] = None
     olderSiblings: Optional[int] = None
     youngerSiblings: Optional[int] = None
     parental_marital_status: Optional[str] = None

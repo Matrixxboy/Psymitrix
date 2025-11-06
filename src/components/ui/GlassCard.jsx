@@ -38,7 +38,7 @@ const GlassCard = ({ children, className = '' }) => {
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       className={`glass relative rounded-3xl transition-transform duration-300 [transform-style:preserve-3d] ${className}`}
-      style={{ transform: 'perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translate3d(var(--tx, 0), var(--ty, 0), 0)' }}
+      // style={{ transform: 'perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translate3d(var(--tx, 0), var(--ty, 0), 0)' }}
     >
       <div
         className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 hover:opacity-100 transition-opacity"

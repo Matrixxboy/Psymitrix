@@ -7,6 +7,7 @@ from Database.db_connection import get_mongo_db
 
 router = APIRouter(prefix="/user_crud", tags=["User CRUD+AI"])
 
+
 @router.get("/user/status")
 def get_user_status():
     return make_response(
@@ -16,14 +17,13 @@ def get_user_status():
         data={}
     )
 
+
 @router.get("/user/me", response_model=User)
 async def read_current_user(current_user: User = Depends(get_current_user)):
     """
     Fetches the complete data for the currently authenticated user.
     """
     try:
-        # The `current_user` object is already a Pydantic model.
-        # FastAPI will automatically handle the JSON serialization, including the sessions.
         return make_response(
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],
@@ -37,16 +37,22 @@ async def read_current_user(current_user: User = Depends(get_current_user)):
             message="Failed to fetch current user",
             data={"api": "read_current_user", "error": str(e)}
         )
-        
+
+
 @router.put("/user/update", response_model=User)
-async def update_user_data(user_update: UserUpdate, current_user: User = Depends(get_current_user), db=Depends(get_mongo_db)):
+async def update_user_data(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_mongo_db)
+):
     """
-    Updates one or more fields for the currently authenticated user.
+    Updates one or more fields for the currently authenticated user,
+    preserving existing datatypes and safely formatting strings.
     """
     try:
-        # Get the update data, excluding any fields that were not set in the request
+        # Extract provided fields only
         update_data = user_update.model_dump(exclude_unset=True)
-        
+
         if not update_data:
             return make_response(
                 status_code=HTTP_STATUS["BAD_REQUEST"],
@@ -55,13 +61,53 @@ async def update_user_data(user_update: UserUpdate, current_user: User = Depends
                 data={}
             )
 
-        # Update the user in the database
-        db.users.update_one(
-            {"email": current_user.email},
-            {"$set": {k: v.lower() if isinstance(v, str) else v for k, v in update_data.items()}}
-        )
+        # Fetch the existing user to preserve field data types
+        existing_user = db.users.find_one({"email": current_user.email})
+        if not existing_user:
+            return make_response(
+                status_code=HTTP_STATUS["NOT_FOUND"],
+                code=HTTP_CODE["NOT_FOUND"],
+                message="User not found",
+                data={}
+            )
 
-        # Fetch the updated user from the database
+        LOWERCASE_FIELDS = {"email", "gender", "bloodgroup"}  # only lowercase these safely
+
+        update_fields = {}
+        for k, v in update_data.items():
+            if v is None:
+                continue  # skip nulls or empty
+
+            existing_value = existing_user.get(k)
+
+            # Preserve type based on current DB field
+            if isinstance(existing_value, int):
+                try:
+                    v = int(v)
+                except (ValueError, TypeError):
+                    pass
+
+            elif isinstance(existing_value, float):
+                try:
+                    v = float(v)
+                except (ValueError, TypeError):
+                    pass
+
+            elif isinstance(existing_value, bool):
+                if isinstance(v, str):
+                    v = v.lower() in {"true", "1", "yes", "on"}
+
+            elif isinstance(v, str):
+                v = v.strip()
+                if k in LOWERCASE_FIELDS:
+                    v = v.lower()
+
+            update_fields[k] = v
+
+        # ✅ Perform the update
+        db.users.update_one({"email": current_user.email}, {"$set": update_fields})
+
+        # Fetch updated data
         updated_user = db.users.find_one({"email": current_user.email})
 
         return make_response(
@@ -70,6 +116,7 @@ async def update_user_data(user_update: UserUpdate, current_user: User = Depends
             message="User data updated successfully",
             data=User(**updated_user).model_dump_json()
         )
+
     except Exception as e:
         return make_response(
             status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],

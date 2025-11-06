@@ -12,7 +12,6 @@ import { Link, Route, Routes } from 'react-router-dom';
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
-  console.log(typeof user);
   const [activeTab, setActiveTab] = useState('profile');
 
   return (

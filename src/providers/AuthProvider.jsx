@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchUserProfile } from '../api/auth';
+import { fetchUserProfile , updateUserData } from '../api/auth';
 
 const AuthContext = createContext();
 
@@ -67,6 +67,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUser = async (userData) => {
+    try {
+      const updateResult = await updateUserData(userData);
+      if (updateResult.success) {
+        setUser(updateResult.data);
+        return { success: true };
+      } else {
+        console.error("Failed to update user data:", updateResult.error);
+        return { success: false, error: updateResult.error };
+      }
+    } catch (error) {
+      console.error("Error updating user data:", error);
+      return { success: false, error: 'An error occurred while updating user data' };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -83,8 +99,11 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
+    updateUser,
     logout
   };
+
+
   return (
     <AuthContext.Provider value={value}>
       {children}
@@ -99,4 +118,6 @@ export const useAuthContext = () => {
   }
   return context;
 };
+
+
 

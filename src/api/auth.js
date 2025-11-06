@@ -16,10 +16,23 @@ export const login = async (email, password) => {
 export const fetchUserProfile = async () => {
   try {
     const response = await api.get(`/user_crud/user/me`);
-    console.log("Fetch User Profile response:", response);
     return { success: true, data: JSON.parse(response.data.data) }; // Access data.data because of make_response wrapper
   } catch (error) {
     console.error("Fetch User Profile API error:", error);
     return { success: false, error: error.response?.data?.message || 'Failed to fetch user profile' };
   }
 };
+
+
+export const updateUserData = async (userData) => {
+  try {
+    const response = await api.put(
+      `/user_crud/user/update`,
+      userData // Send as JSON object
+    );
+    return { success: true, data: JSON.parse(response.data.data) }; // Access data.data because of make_response wrapper
+  } catch (error) {
+    console.error("Update User Data API error:", error);
+    return { success: false, error: error.response?.data?.message || 'Failed to update user data' };
+  }
+}
