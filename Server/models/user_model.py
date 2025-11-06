@@ -31,6 +31,7 @@ class NotificationType(str, Enum):
 
 class NotificationData(BaseModel):
     notification_id: UUID = Field(default_factory=uuid4)
+    notification_name: str
     type: NotificationType
     date: datetime = Field(default_factory=datetime.utcnow)
     message: str

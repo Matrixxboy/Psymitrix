@@ -1,39 +1,51 @@
 from datetime import datetime
 from models.user_model import User, NotificationData , NotificationType , NotificationStatus
 
-def complete_profile_notification(user: User) -> None:
+def create_notification(user: User, type: NotificationType, notification_name: str, message: str, status: NotificationStatus = NotificationStatus.incomplete) -> list:
+    """
+    Creates a new notification and returns an updated list of notifications.
+    """
+    notification_message = NotificationData(
+        type=type,
+        notification_name=notification_name,
+        message=message,
+        status=status
+    )
+    new_notifications = user.notifications + [notification_message]
+    return [n.model_dump(mode='json') for n in new_notifications]
+
+def complete_profile_notification(user: User) -> list:
     """
     Adds a notification to the user's notifications list indicating that their profile is complete.
     """
     if user.is_edited_by_user:
-        notification_message = NotificationData(
+        return create_notification(
+            user=user,
             type=NotificationType.PROFILE_COMPLETE,
-            date=datetime.utcnow(),
+            notification_name="Profile Completion",
             message="Congratulations! You have completed your profile.",
-            seen=False,
             status=NotificationStatus.completed
         )
-        user.notifications.append(notification_message)
-        return user.notifications
     else :
-        notification_message = NotificationData(
+        return create_notification(
+            user=user,
             type=NotificationType.PROFILE_INCOMPLETE,
-            date=datetime.utcnow(),
+            notification_name="Profile Incompletion",
             message="Please complete your profile to get the best experience.",
-            seen=False,
             status=NotificationStatus.incomplete
         )
-        user.notifications.append(notification_message)
-        return user.notifications
 
-def new_message_notification(user: User) -> None:
+def new_message_notification(user: User) -> list:
+    """
+    Adds a notification for a new message.
+    """
     if True:  # Replace with actual condition to check for new messages
-        notification_message = NotificationData(
+        return create_notification(
+            user=user,
             type=NotificationType.NEW_MESSAGE,
-            date=datetime.utcnow(),
+            notification_name="New Message",
             message="You have received a new message.",
-            seen=False,
             status=NotificationStatus.incomplete
         )
-        user.notifications.append(notification_message)
-        return user.notifications
+    # If no new message, return the existing notifications
+    return [n.model_dump(mode='json') for n in user.notifications]
