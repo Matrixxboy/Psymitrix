@@ -197,8 +197,8 @@ const Home = () => {
               Aura listens with empathy, surfaces clinically-backed insights, and keeps you connected to the practices and people who help you heal.
             </motion.p>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-start justify-center">
-              <PrimaryButton to="/dashboard">
-                Start your first session <FiArrowRight className="inline ml-2" />
+              <PrimaryButton to="/chat">
+                Start your first chat session <FiArrowRight className="inline ml-2" />
               </PrimaryButton>
               <Link to="/blog" className="text-light-primary dark:text-dark-primary font-semibold hover:underline">
                 Explore our clinical journal
@@ -211,7 +211,7 @@ const Home = () => {
               <div className=" p-6 rounded-2xl space-y-6">
                 <div>
                   <p className="font-bold text-xl md:text-2xl text-light-headings dark:text-dark-headings mb-2">
-                    👋 Welcome back, {user ? user.name : 'Explorer'}
+                    👋 Welcome back, {user ? user.firstName : 'Explorer'}
                   </p>
                   <p className="text-sm text-light-body/80 dark:text-dark-body/80">
                     Your therapeutic companion is ready with new guidance tailored to today’s mood.
@@ -227,10 +227,10 @@ const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 items-center">
-                  <SummaryCard title="Sessions" value={sessionsCompleted} icon={FiMessageCircle} />
-                  <SummaryCard title="Assessments" value={assessmentsTaken} icon={FiClipboard} />
+                  <SummaryCard title="Sessions" value={user.sessions_chat_history.length} icon={FiMessageCircle} />
+                  <SummaryCard title="Assessments" value={user.sessions.length} icon={FiClipboard} />
                   <SummaryCard title="Mood Score" value={moodScore} icon={FiHeart} />
-                  <SummaryCard title="Milestones" value={achievementsUnlocked} icon={FiAward} />
+                  <SummaryCard title="Milestones" value={user.achievements.length} icon={FiAward} />
                 </div>
 
                 <ul className="space-y-3 text-sm text-left text-light-body dark:text-dark-body">

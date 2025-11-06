@@ -26,3 +26,8 @@ def check_and_add_streak_achievement(user: User, streak_count: int) -> bool:
     return False
 
 # You can add more achievement checking functions here in the future
+# ideas :
+# - Assessment Completed Achievement
+# - Perfect Week Achievement
+# - Perfect Month Achievement
+# - Social Contributor Achievement

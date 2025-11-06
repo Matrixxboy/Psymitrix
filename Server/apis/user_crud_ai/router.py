@@ -52,7 +52,7 @@ async def update_user_data(
     try:
         # Extract provided fields only
         update_data = user_update.model_dump(exclude_unset=True)
-
+        
         if not update_data:
             return make_response(
                 status_code=HTTP_STATUS["BAD_REQUEST"],
@@ -71,7 +71,7 @@ async def update_user_data(
                 data={}
             )
 
-        LOWERCASE_FIELDS = {"email", "gender", "bloodgroup"}  # only lowercase these safely
+        LOWERCASE_FIELDS = {"email", "gender", "bloodgroup", "parental_marital_status", "occupation", "firstName", "lastName", "middleName"}  # only lowercase these safely
 
         update_fields = {}
         for k, v in update_data.items():
@@ -104,12 +104,14 @@ async def update_user_data(
 
             update_fields[k] = v
 
+        # Mark that user has edited their data
+        update_fields["is_edited_by_user"] = True
+
         # ✅ Perform the update
         db.users.update_one({"email": current_user.email}, {"$set": update_fields})
 
         # Fetch updated data
         updated_user = db.users.find_one({"email": current_user.email})
-
         return make_response(
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],

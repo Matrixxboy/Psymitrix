@@ -18,6 +18,24 @@ class Mood(str, Enum):
     SAD = "sad" #score 3
     ANGRY = "angry" #score 2
 
+class NotificationStatus(str, Enum):
+    completed = "completed"
+    incomplete = "incomplete"
+
+class NotificationType(str, Enum):
+    PROFILE_COMPLETE = "Profile_Complete"
+    NEW_MESSAGE = "New_Message"
+    FRIEND_REQUEST = "Friend_Request"
+    ACHIEVEMENT_UNLOCKED = "Achievement_Unlocked"
+
+class NotificationData(BaseModel):
+    notification_id: UUID = Field(default_factory=uuid4)
+    type: NotificationType
+    date: datetime = Field(default_factory=datetime.utcnow)
+    message: str
+    seen: bool = False
+    status: NotificationStatus = NotificationStatus.incomplete
+
 class MoodTrend(BaseModel):
     mood_id: UUID = Field(default_factory=uuid4)
     mood: Mood
@@ -98,7 +116,19 @@ class achievementsData(BaseModel):
         from_attributes=True
     )
 
+class ChatMessage(BaseModel):
+    message_id: UUID = Field(default_factory=uuid4)
+    sender: str  # 'user' or 'bot'
+    message: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
 
+    model_config = ConfigDict(
+        json_encoders={
+            UUID: lambda v: str(v),
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
 
 class User(BaseModel):
     # login data
@@ -133,13 +163,21 @@ class User(BaseModel):
     last_login: Optional[datetime] = None
     login_history: List[datetime] = []
     sessions: List[Session] = []
+    sessions_chat_history: List[ChatMessage] = []
     games: List[Games] = []
     achievements: List[achievementsData] = []
     mood_trends: List[MoodTrend] = []
+    
+    # notifications
+    notifications: List[NotificationData] = []
+    notifications_enabled: bool = True
+    
     # admin and status flags
     is_active: bool = True
     is_verified: bool = False
     is_superuser: bool = False
+    is_edited_by_user: bool = False
+    # timestamps
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -168,6 +206,7 @@ class UserUpdate(BaseModel):
     olderSiblings: Optional[int] = None
     youngerSiblings: Optional[int] = None
     parental_marital_status: Optional[str] = None
+    is_edited_by_user: bool = False
     model_config = ConfigDict(from_attributes=True)
 
 
