@@ -1,5 +1,5 @@
 from datetime import datetime
-from models.user_model import User, NotificationData
+from models.user_model import User, NotificationData , NotificationType , NotificationStatus
 
 def complete_profile_notification(user: User) -> None:
     """
@@ -7,21 +7,21 @@ def complete_profile_notification(user: User) -> None:
     """
     if user.is_edited_by_user:
         notification_message = NotificationData(
-            type="PROFILE_COMPLETED",
+            type=NotificationType.PROFILE_COMPLETE,
             date=datetime.utcnow(),
             message="Congratulations! You have completed your profile.",
             seen=False,
-            status="complete"
+            status=NotificationStatus.completed
         )
         user.notifications.append(notification_message)
         return user.notifications
     else :
         notification_message = NotificationData(
-            type="PROFILE_INCOMPLETE",
+            type=NotificationType.PROFILE_INCOMPLETE,
             date=datetime.utcnow(),
             message="Please complete your profile to get the best experience.",
             seen=False,
-            status="incomplete"
+            status=NotificationStatus.incomplete
         )
         user.notifications.append(notification_message)
         return user.notifications
@@ -29,11 +29,11 @@ def complete_profile_notification(user: User) -> None:
 def new_message_notification(user: User) -> None:
     if True:  # Replace with actual condition to check for new messages
         notification_message = NotificationData(
-            type="NEW_MESSAGE",
+            type=NotificationType.NEW_MESSAGE,
             date=datetime.utcnow(),
             message="You have received a new message.",
             seen=False,
-            status="incomplete"
+            status=NotificationStatus.incomplete
         )
         user.notifications.append(notification_message)
         return user.notifications

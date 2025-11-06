@@ -5,7 +5,7 @@ from Database.db_connection import get_mongo_db
 from utils.response_helper import make_response
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from models.user_model import User
-from notifications.utils import complete_profile_notification
+from .utils import complete_profile_notification
 # from datetime import datetime
 # from typing import List
 
@@ -38,7 +38,7 @@ def enable_notifications(
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],
             message="Notifications enabled successfully",
-            data={"user": updated_user}
+            data={"notifications enabled": updated_user.notifications_enabled}
         )
     except Exception as e:
         return make_response(
@@ -61,12 +61,12 @@ def disable_notifications(
         )
         # Fetch the updated user data
         updated_user = db.users.find_one({"email": current_user.email})
-       
+        
         return make_response(
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],
             message="Notifications disabled successfully",
-            data={"user": updated_user}
+            data={"notifications disabled": updated_user.notifications_enabled}
         )
     except Exception as e:
         return make_response(

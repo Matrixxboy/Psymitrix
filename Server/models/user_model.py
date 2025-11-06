@@ -24,6 +24,7 @@ class NotificationStatus(str, Enum):
 
 class NotificationType(str, Enum):
     PROFILE_COMPLETE = "Profile_Complete"
+    PROFILE_INCOMPLETE = "Profile_Incomplete"
     NEW_MESSAGE = "New_Message"
     FRIEND_REQUEST = "Friend_Request"
     ACHIEVEMENT_UNLOCKED = "Achievement_Unlocked"
@@ -35,6 +36,14 @@ class NotificationData(BaseModel):
     message: str
     seen: bool = False
     status: NotificationStatus = NotificationStatus.incomplete
+    
+    model_config = ConfigDict(
+        json_encoders={
+            UUID: lambda v: str(v),
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
 
 class MoodTrend(BaseModel):
     mood_id: UUID = Field(default_factory=uuid4)

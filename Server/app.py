@@ -19,6 +19,7 @@ from apis.sessions.router import router as sessions_router
 from apis.games.router import router as games_router
 from apis.mood_trends.router import router as mood_trends_router
 from apis.achievements.router import router as achievements_router
+from apis.notifications.router import router as notifications_router
 
 app = FastAPI()
 
@@ -42,6 +43,7 @@ app.include_router(achievements_router, prefix="/api/v1")
 app.include_router(sessions_router, prefix="/api/v1")
 app.include_router(games_router, prefix="/api/v1")
 app.include_router(mood_trends_router, prefix="/api/v1")
+app.include_router(notifications_router, prefix="/api/v1")
 
 #future routers
 # will be completed later on phase 2
