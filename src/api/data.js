@@ -1,4 +1,5 @@
 import baseData from '../data/appData.json';
+import { storeSession } from './sessions';
 
 const STORAGE_KEY = 'appDataOverrides_v1';
 
@@ -54,5 +55,11 @@ export const recordAssessmentResult = async (assessmentId, score, level, answers
   });
 
   setOverrides(next);
+
+  const sessionData = {
+    tests: [{ test_name: assessmentId, score: score }]
+  };
+  await storeSession(sessionData);
+
   return deepMerge(baseData, next);
 };
