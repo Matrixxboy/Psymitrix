@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../../../components/ui/Button';
+import { saveGameData } from '../../../api/games';
+import { useAuth } from '../../../hooks/useAuth';
 
 const BreathingExercise = () => {
   const [phase, setPhase] = useState('ready'); // ready, inhale, hold, exhale
   const [count, setCount] = useState(4);
   const [cycle, setCycle] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     let interval = null;
@@ -26,10 +29,23 @@ const BreathingExercise = () => {
     setCycle(0);
   };
 
-  const stopExercise = () => {
+  const stopExercise = async () => {
     setIsActive(false);
     setPhase('ready');
     setCount(4);
+
+    if (cycle > 0) {
+      const gameData = {
+        games: [{
+          game_name: 'breathing',
+          total_score: cycle,
+          game_played: 1,
+        }],
+        total_score: cycle,
+        games_played: 1,
+      };
+      await saveGameData(gameData);
+    }
   };
 
   return (

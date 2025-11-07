@@ -3,6 +3,8 @@ import { FaPlay, FaPause, FaStop, FaStepForward } from 'react-icons/fa';
 import { FiHeadphones } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../../../components/ui/Button';
+import { saveGameData } from '../../../api/games';
+import { useAuth } from '../../../hooks/useAuth';
 
 import { GiMeditation  } from "react-icons/gi";
 import { PiHeartFill  } from "react-icons/pi";
@@ -17,6 +19,7 @@ const GuidedMeditation = () => {
   const [message, setMessage] = useState("Let's begin your calm journey...");
   const [walkthroughStep, setWalkthroughStep] = useState(0);
   const [isReady, setIsReady] = useState(false);
+  const { user } = useAuth();
 
   const timerRef = useRef(null);
   const audioRef = useRef(null);
@@ -142,7 +145,7 @@ const GuidedMeditation = () => {
     }
   };
 
-  const handleStop = () => {
+  const handleStop = async () => {
     const synth = window.speechSynthesis;
     synth.cancel();
     audioRef.current.pause();
@@ -150,6 +153,22 @@ const GuidedMeditation = () => {
     clearInterval(timerRef.current);
     setIsMeditating(false);
     setIsPlaying(false);
+
+    if (elapsedTime > 0) {
+      const gameData = {
+        games: [{
+          game_name: 'meditation',
+          total_score: elapsedTime,
+          game_played: 1,
+          total_time_played: Math.round(elapsedTime / 60)
+        }],
+        total_score: elapsedTime,
+        games_played: 1,
+        total_time_played: Math.round(elapsedTime / 60)
+      };
+      await saveGameData(gameData);
+    }
+
     setElapsedTime(0);
     setMessage("Take your time... breathe and relax 🌿");
   };

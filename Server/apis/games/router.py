@@ -12,7 +12,7 @@ router = APIRouter(prefix="/games", tags=["Games"])
 async def create_game(game: Games, current_user: User = Depends(get_current_user), db = Depends(get_mongo_db)):
     try:
         # TODO: Use an Enum for game names for more robust validation
-        game_list = ["meditation", "puzzle", "memory", "reaction_time"]
+        game_list = ["meditation", "puzzle", "memory", "reaction_time", "breathing"]
         if game.games and all(g.game_name in game_list for g in game.games):
             encoded_game = jsonable_encoder(game)
             db.users.update_one(
