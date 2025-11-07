@@ -230,7 +230,7 @@ const Home = () => {
                   {/* <SummaryCard title="Sessions" value={user.sessions_chat_history.length} icon={FiMessageCircle} /> */}
                   {/* <SummaryCard title="Assessments" value={user.sessions.length} icon={FiClipboard} /> */}
                   <SummaryCard title="Mood Score" value={moodScore} icon={FiHeart} />
-                  <SummaryCard title="Milestones" value={user.achievements.length} icon={FiAward} />
+                  {/* <SummaryCard title="Milestones" value={user.achievements.length} icon={FiAward} /> */}
                 </div>
 
                 <ul className="space-y-3 text-sm text-left text-light-body dark:text-dark-body">

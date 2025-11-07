@@ -45,7 +45,7 @@ const ProfileContent = () => {
     <>
       <div className="lg:col-span-2 ">
         <GlassCard className="p-6">
-          <h3 className="text-xl font-semibold text-light-headings dark:text-dark-headings mb-6">Personal Information</h3>
+          {/* <h3 className="text-xl font-semibold text-light-headings dark:text-dark-headings mb-6">Personal Information</h3> */}
           <PersonalInformation />
         </GlassCard>
       </div>

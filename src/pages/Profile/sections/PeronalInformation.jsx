@@ -1041,11 +1041,9 @@ const PersonalInformation = () => {
   ];
 
   return (
-    <div className="p-6 rounded-3xl bg-light-secondary/40 dark:bg-dark-secondary/30 
-      backdrop-blur-lg shadow-lg border border-light-accent/10 dark:border-dark-accent/10 
-      transition-all duration-300 hover:shadow-xl hover:border-light-accent/30 dark:hover:border-dark-accent/30">
+    <div className="p-6 rounded-3xl">
       
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-right mb-6">
         <h3 className="text-2xl font-semibold text-light-headings dark:text-dark-headings">
           Personal Information
         </h3>
@@ -1066,7 +1064,7 @@ const PersonalInformation = () => {
           {infoItems.map((item) => (
             <div
               key={item.key}
-              className="p-4 rounded-2xl bg-white/50 dark:bg-zinc-900/30 border 
+              className="p-4 rounded-2xl bg-white/50 dark:bg-white/20 border 
                 border-transparent hover:border-light-accent/30 dark:hover:border-dark-accent/30 
                 backdrop-blur-md shadow-sm hover:shadow-md transition-all duration-300"
             >

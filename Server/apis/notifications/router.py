@@ -42,13 +42,24 @@ def get_notifications(
         )
 
 @router.get("/status")
-def get_notifications_status():
-    return make_response(
-        status_code=HTTP_STATUS["OK"],
-        code=HTTP_CODE["OK"],
-        message="User Notifications API is working",
-        data={}
-    )
+def get_notifications_status(user: User = Depends(get_current_user), db=Depends(get_mongo_db)):
+    try:
+        user = db.users.find_one({"email": user.email})
+        notifications_enabled = user.get("notifications_enabled", False)
+        return make_response(
+            status_code=HTTP_STATUS["OK"],
+            code=HTTP_CODE["OK"],
+            message="Notification status fetched successfully",
+            data={"notifications_enabled": notifications_enabled}
+        )
+    except Exception as e:
+        return make_response(
+            status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],
+            code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Failed to fetch notification status",
+            data={"api": "get_notifications_status", "error": str(e)}
+        )
+    
 
 # working
 @router.post("/enable")

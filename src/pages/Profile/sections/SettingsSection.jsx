@@ -1,26 +1,41 @@
 import React from 'react';
 import { FiBell, FiMoon, FiSun, FiTarget } from 'react-icons/fi';
+import Toggle from '../../../components/ui/Toggle';
+import { useTheme } from '../../../providers/ThemeProvider';
+import { useAuth } from '../../../hooks/useAuth';
+import { enableNotifications, disableNotifications } from '../../../api/notifications';
 
 const SettingsSection = () => {
+  const { theme, toggleTheme } = useTheme();
+  const { user, updateUser } = useAuth();
 
-  const Toggle = ({ enabled }) => (
-    <div className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer ${enabled ? 'bg-light-primary dark:bg-dark-primary' : 'bg-white/30'}`}>
-      <div className={`bg-white w-5 h-5 rounded-full shadow-md transform duration-300 ease-in-out ${enabled ? 'translate-x-5' : ''}`}></div>
-    </div>
-  );
+  const handleNotificationsToggle = async () => {
+    console.log({ updateUser });
+    try {
+      const newStatus = !user.notifications_enabled;
+      if (newStatus) {
+        await enableNotifications();
+      } else {
+        await disableNotifications();
+      }
+      await updateUser({ ...user, notifications_enabled: newStatus });
+    } catch (error) {
+      console.error('Failed to update notification status', error);
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Theme Switcher */}
       <div className="flex items-center justify-between p-4 rounded-lg bg-white/20">
         <div className="flex items-center">
-          <FiMoon className="mr-4" />
+          {theme === 'dark' ? <FiSun className="mr-4" /> : <FiMoon className="mr-4" />}
           <div>
             <h4 className="font-semibold text-light-headings dark:text-dark-headings">Dark Mode</h4>
             <p className="text-sm text-light-body dark:text-dark-body">Toggle between light and dark themes.</p>
           </div>
         </div>
-        <Toggle enabled={document.documentElement.classList.contains('dark')} />
+        <Toggle enabled={theme === 'dark'} onToggle={toggleTheme} />
       </div>
 
       {/* Notifications */}
@@ -32,7 +47,7 @@ const SettingsSection = () => {
             <p className="text-sm text-light-body dark:text-dark-body">Enable or disable push notifications.</p>
           </div>
         </div>
-        <Toggle enabled={true} />
+        <Toggle enabled={user?.notifications_enabled || false} onToggle={handleNotificationsToggle} />
       </div>
 
       {/* Goal Customization */}
