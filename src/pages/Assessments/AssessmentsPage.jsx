@@ -1,141 +1,421 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FiCheckCircle, FiClipboard, FiArrowLeft } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, ArrowRight, Loader, TrendingDown } from 'lucide-react';
+import { assessmentsAPI } from '../../api/assessments';
 import GlassCard from '../../components/ui/GlassCard';
-import { getAppData, recordAssessmentResult } from '../../api/data';
 
 const AssessmentsPage = () => {
-  const [assessments, setAssessments] = useState([]);
+  const [activeTab, setActiveTab] = useState('select');
   const [selectedAssessment, setSelectedAssessment] = useState(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [results, setResults] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [responses, setResponses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [previousResults, setPreviousResults] = useState([]);
 
   useEffect(() => {
-    let mounted = true;
-    getAppData().then((data) => {
-      if (mounted) setAssessments(data.assessments || []);
-    });
-    return () => { mounted = false; };
+    loadPreviousResults();
   }, []);
 
-  const totalScore = useMemo(() => Object.values(answers).reduce((sum, v) => sum + (Number(v) || 0), 0), [answers]);
-
-  const calculateResults = (assessmentId, score) => {
-    if (assessmentId === 'phq9') {
-      if (score <= 4) return { level: 'Minimal Depression', color: 'success' };
-      if (score <= 9) return { level: 'Mild Depression', color: 'warning' };
-      if (score <= 14) return { level: 'Moderate Depression', color: 'warning' };
-      return { level: 'Severe Depression', color: 'error' };
-    } else if (assessmentId === 'gad7') {
-      if (score <= 4) return { level: 'Minimal Anxiety', color: 'success' };
-      if (score <= 9) return { level: 'Mild Anxiety', color: 'warning' };
-      if (score <= 14) return { level: 'Moderate Anxiety', color: 'warning' };
-      return { level: 'Severe Anxiety', color: 'error' };
-    }
-    return { level: 'Result', color: 'success' };
-  };
-
-  const handleAnswerSelect = (questionIndex, value) => {
-    setAnswers(prev => ({ ...prev, [questionIndex]: value }));
-    setTimeout(handleNext, 200);
-  };
-
-  const handleNext = async () => {
-    if (currentQuestion < selectedAssessment.questions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
-    } else {
-      const res = calculateResults(selectedAssessment.id, totalScore);
-      setResults({ ...res, score: totalScore, max: selectedAssessment.questions.length * 3 });
-      await recordAssessmentResult(selectedAssessment.id, totalScore, res.level, answers);
-      setIsCompleted(true);
+  const loadPreviousResults = async () => {
+    try {
+      const data = await assessmentsAPI.getAssessmentResults();
+      setPreviousResults(data?.results || []);
+    } catch (error) {
+      console.error('Failed to load previous results:', error);
     }
   };
 
-  const resetAssessment = () => {
-    setSelectedAssessment(null);
-    setCurrentQuestion(0);
-    setAnswers({});
-    setIsCompleted(false);
-    setResults(null);
+  const loadAssessment = async (type) => {
+    try {
+      setLoading(true);
+      const data = type === 'PHQ-9'
+        ? await assessmentsAPI.getPHQ9Questions()
+        : await assessmentsAPI.getGAD7Questions();
+      
+      setSelectedAssessment(type);
+      setQuestions(data.questions || []);
+      setResponses(new Array(data.questions?.length || 0).fill(0));
+      setActiveTab('questionnaire');
+    } catch (error) {
+      console.error('Failed to load assessment:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const renderResults = () => (
-    <div className="max-w-2xl mx-auto text-center">
-      <GlassCard className="p-8">
-        <FiCheckCircle className="w-16 h-16 mx-auto text-success mb-4" />
-        <h2 className="text-3xl font-bold text-light-headings dark:text-dark-headings mb-2">Assessment Complete</h2>
-        {results && (
-          <>
-            <p className={`text-2xl font-semibold text-${results.color} mb-1`}>{results.level}</p>
-            <p className="text-sm text-light-body dark:text-dark-body mb-4">Score: {results.score} / {results.max}</p>
-          </>
-        )}
-        <p className="text-light-body dark:text-dark-body mb-8">Your results have been saved to your progress page.</p>
-        <div className="space-y-4">
-          <button onClick={resetAssessment} className="w-full px-6 py-3 font-semibold rounded-lg bg-light-primary dark:bg-dark-primary text-white transition-all">Take Another Assessment</button>
-          <Link to="/dashboard" className="block w-full px-6 py-3 font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition-all">Back to Dashboard</Link>
-        </div>
-      </GlassCard>
-    </div>
-  );
-
-  const renderAssessment = () => {
-    const question = selectedAssessment.questions[currentQuestion];
-    const progress = ((currentQuestion + 1) / selectedAssessment.questions.length) * 100;
-    return (
-      <div className="max-w-2xl mx-auto">
-        <button onClick={resetAssessment} className="flex items-center gap-2 text-light-body dark:text-dark-body font-semibold mb-4">
-          <FiArrowLeft /> Back to list
-        </button>
-        <GlassCard className="p-8">
-          <div className="mb-6">
-            <p className="text-sm text-light-body dark:text-dark-body mb-2">Question {currentQuestion + 1} of {selectedAssessment.questions.length}</p>
-            <div className="w-full bg-white/20 rounded-full h-2.5"><div className="bg-light-primary dark:bg-dark-primary h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div></div>
-          </div>
-          <h2 className="text-2xl font-semibold text-light-headings dark:text-dark-headings mb-8">{question}</h2>
-          <div className="space-y-3">
-            {selectedAssessment.options.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleAnswerSelect(currentQuestion, option.value)}
-                className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 text-light-headings dark:text-dark-headings
-                  ${answers[currentQuestion] === option.value
-                    ? 'border-light-primary dark:border-dark-primary bg-light-primary/10 dark:bg-dark-primary/10'
-                    : 'border-white/30 dark:border-white/20 bg-white/20 hover:bg-white/30'}`}>
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </GlassCard>
-      </div>
-    );
+  const updateResponse = (index, value) => {
+    const newResponses = [...responses];
+    newResponses[index] = value;
+    setResponses(newResponses);
   };
 
-  const renderAssessmentList = () => (
-    <div className="max-w-5xl mx-auto">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-light-headings dark:text-dark-headings">Assessments</h1>
-        <p className="mt-2 text-lg text-light-body dark:text-dark-body">Gain insight into your mental well-being.</p>
-      </div>
-      <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
-        {assessments.map((assessment) => (
-          <GlassCard key={assessment.id} className="p-6 sm:p-8 flex flex-col">
-            <FiClipboard className="w-10 h-10 text-light-primary dark:text-dark-primary mb-4" />
-            <h3 className="text-2xl font-semibold text-light-headings dark:text-dark-headings mb-2">{assessment.title}</h3>
-            <p className="text-light-body dark:text-dark-body flex-grow mb-4">{assessment.description}</p>
-            <p className="text-sm text-light-body dark:text-dark-body mb-6">Duration: {assessment.duration}</p>
-            <button onClick={() => setSelectedAssessment(assessment)} className="w-full mt-auto px-6 py-3 font-semibold rounded-lg bg-light-primary/80 dark:bg-dark-primary/80 text-white transition-all">Start Assessment</button>
-          </GlassCard>
-        ))}
-      </div>
-    </div>
-  );
+  const submitAssessment = async () => {
+    try {
+      setLoading(true);
+      const data = await assessmentsAPI.submitAssessment(selectedAssessment, responses);
+      setResult(data);
+      setActiveTab('result');
+      loadPreviousResults();
+    } catch (error) {
+      console.error('Failed to submit assessment:', error);
+      alert('Failed to submit assessment. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getProgressPercentage = () => {
+    const answered = responses.filter(r => r !== 0).length;
+    return (answered / responses.length) * 100;
+  };
+
+  const getSeverityColor = (severity) => {
+    const colors = {
+      none: 'text-green-500',
+      minimal: 'text-blue-500',
+      mild: 'text-yellow-500',
+      moderate: 'text-orange-500',
+      moderately_severe: 'text-red-500',
+      severe: 'text-red-700'
+    };
+    return colors[severity] || 'text-gray-500';
+  };
+
+  const getSeverityBg = (severity) => {
+    const colors = {
+      none: 'bg-green-100 dark:bg-green-900/30',
+      minimal: 'bg-blue-100 dark:bg-blue-900/30',
+      mild: 'bg-yellow-100 dark:bg-yellow-900/30',
+      moderate: 'bg-orange-100 dark:bg-orange-900/30',
+      moderately_severe: 'bg-red-100 dark:bg-red-900/30',
+      severe: 'bg-red-200 dark:bg-red-900/50'
+    };
+    return colors[severity] || 'bg-gray-100 dark:bg-gray-900/30';
+  };
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 flex items-center justify-center">
-      {isCompleted ? renderResults() : selectedAssessment ? renderAssessment() : renderAssessmentList()}
+    <div className="min-h-screen bg-gradient-to-br from-light-background to-light-secondary dark:from-dark-background dark:to-dark-secondary p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold text-light-headings dark:text-dark-headings mb-3">
+            Mental Health Assessments
+          </h1>
+          <p className="text-light-body dark:text-dark-body text-lg">
+            Track your mental well-being with validated assessments
+          </p>
+        </motion.div>
+
+        <AnimatePresence mode="wait">
+          {/* Assessment Selection Tab */}
+          {activeTab === 'select' && (
+            <motion.div
+              key="select"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6"
+            >
+              {/* Assessment Cards */}
+              <div className="grid md:grid-cols-2 gap-6">
+                {[
+                  {
+                    type: 'PHQ-9',
+                    title: 'Depression Assessment',
+                    description: 'Patient Health Questionnaire (PHQ-9)',
+                    duration: '2-3 minutes',
+                    icon: '😔'
+                  },
+                  {
+                    type: 'GAD-7',
+                    title: 'Anxiety Assessment',
+                    description: 'Generalized Anxiety Disorder (GAD-7)',
+                    duration: '2-3 minutes',
+                    icon: '😰'
+                  }
+                ].map((assessment) => (
+                  <motion.div
+                    key={assessment.type}
+                    whileHover={{ scale: 1.02 }}
+                    onClick={() => loadAssessment(assessment.type)}
+                    className="cursor-pointer"
+                  >
+                    <GlassCard className="p-6 h-full flex flex-col justify-between hover:shadow-lg transition-all">
+                      <div>
+                        <div className="text-4xl mb-3">{assessment.icon}</div>
+                        <h3 className="text-2xl font-bold text-light-headings dark:text-dark-headings mb-2">
+                          {assessment.title}
+                        </h3>
+                        <p className="text-light-body dark:text-dark-body mb-3">
+                          {assessment.description}
+                        </p>
+                        <p className="text-sm text-light-body/60 dark:text-dark-body/60">
+                          ⏱️ Takes about {assessment.duration}
+                        </p>
+                      </div>
+                      <div className="mt-4 flex items-center gap-2 text-light-accent dark:text-dark-accent font-semibold">
+                        Start <ArrowRight className="w-5 h-5" />
+                      </div>
+                    </GlassCard>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Previous Results */}
+              {previousResults.length > 0 && (
+                <GlassCard className="p-6">
+                  <h3 className="text-xl font-bold text-light-headings dark:text-dark-headings mb-4">
+                    Your Previous Results
+                  </h3>
+                  <div className="space-y-3">
+                    {previousResults.slice(0, 5).map((result, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 bg-white/10 dark:bg-white/5 rounded-lg">
+                        <div>
+                          <p className="font-semibold text-light-headings dark:text-dark-headings">
+                            {result.assessment_type}
+                          </p>
+                          <p className="text-sm text-light-body/60 dark:text-dark-body/60">
+                            {new Date(result.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className={`font-bold ${getSeverityColor(result.severity_level)}`}>
+                          Score: {result.score}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </GlassCard>
+              )}
+            </motion.div>
+          )}
+
+          {/* Questionnaire Tab */}
+          {activeTab === 'questionnaire' && (
+            <motion.div
+              key="questionnaire"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <GlassCard className="p-6 md:p-8">
+                {/* Header */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <button
+                      onClick={() => {
+                        setActiveTab('select');
+                        setQuestions([]);
+                        setResponses([]);
+                      }}
+                      className="text-light-primary dark:text-dark-primary hover:opacity-70 transition-opacity"
+                    >
+                      ← Back
+                    </button>
+                    <h2 className="text-2xl font-bold text-light-headings dark:text-dark-headings">
+                      {selectedAssessment}
+                    </h2>
+                    <div className="w-12" /> {/* Spacer for centering */}
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full bg-white/20 dark:bg-white/10 rounded-full h-2 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${getProgressPercentage()}%` }}
+                      className="h-full bg-light-accent dark:bg-dark-accent"
+                    />
+                  </div>
+                  <p className="text-sm text-light-body/60 dark:text-dark-body/60 mt-2">
+                    {responses.filter(r => r !== 0).length} of {responses.length} answered
+                  </p>
+                </div>
+
+                {/* Instructions */}
+                <div className="bg-white/10 dark:bg-white/5 p-4 rounded-lg mb-6 border border-white/20">
+                  <p className="text-light-body dark:text-dark-body text-sm">
+                    <strong>Instructions:</strong> Over the last 2 weeks, how often have you been bothered by the following issues? Please rate each item from 0 (Not at all) to 3 (Nearly every day).
+                  </p>
+                </div>
+
+                {/* Questions */}
+                <div className="space-y-6">
+                  {questions.map((question, idx) => (
+                    <motion.div
+                      key={question.question_id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="space-y-2"
+                    >
+                      <label className="block font-semibold text-light-headings dark:text-dark-headings">
+                        {idx + 1}. {question.question_text}
+                      </label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {[0, 1, 2, 3].map((value) => (
+                          <button
+                            key={value}
+                            onClick={() => updateResponse(idx, value)}
+                            className={`p-3 rounded-lg transition-all ${
+                              responses[idx] === value
+                                ? 'bg-light-accent dark:bg-dark-accent text-white'
+                                : 'bg-white/10 dark:bg-white/5 text-light-body dark:text-dark-body hover:bg-white/20 dark:hover:bg-white/10'
+                            }`}
+                          >
+                            <div className="text-xl font-bold">{value}</div>
+                            <div className="text-xs mt-1">
+                              {['Not', 'Few', 'Half', 'Most'][value]}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Submit Button */}
+                <div className="mt-8 flex gap-3">
+                  <button
+                    onClick={() => {
+                      setActiveTab('select');
+                      setQuestions([]);
+                      setResponses([]);
+                    }}
+                    className="flex-1 px-6 py-3 rounded-lg bg-white/10 dark:bg-white/5 text-light-body dark:text-dark-body hover:bg-white/20 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={submitAssessment}
+                    disabled={loading || responses.every(r => r === 0)}
+                    className="flex-1 px-6 py-3 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader className="w-5 h-5 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5" />
+                        Submit Assessment
+                      </>
+                    )}
+                  </button>
+                </div>
+              </GlassCard>
+            </motion.div>
+          )}
+
+          {/* Result Tab */}
+          {activeTab === 'result' && result && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6"
+            >
+              {/* Results Card */}
+              <GlassCard className="p-6 md:p-8">
+                <div className="text-center mb-8">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 100 }}
+                    className="inline-block"
+                  >
+                    <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
+                  </motion.div>
+                  <h2 className="text-3xl font-bold text-light-headings dark:text-dark-headings mb-2">
+                    Assessment Complete!
+                  </h2>
+                </div>
+
+                {/* Score Summary */}
+                <div className={`p-6 rounded-lg ${getSeverityBg(result.severity_level)} mb-6`}>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-light-body/60 dark:text-dark-body/60 mb-1">Assessment Type</p>
+                      <p className="text-2xl font-bold text-light-headings dark:text-dark-headings">
+                        {result.assessment_type}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-light-body/60 dark:text-dark-body/60 mb-1">Total Score</p>
+                      <p className={`text-2xl font-bold ${getSeverityColor(result.severity_level)}`}>
+                        {result.total_score}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Severity Level */}
+                <div className="mb-6">
+                  <p className="text-sm text-light-body/60 dark:text-dark-body/60 mb-2">Severity Level</p>
+                  <p className={`text-xl font-bold capitalize ${getSeverityColor(result.severity_level)}`}>
+                    {result.severity_level.replace('_', ' ')}
+                  </p>
+                </div>
+
+                {/* Interpretation */}
+                <div className="bg-white/10 dark:bg-white/5 p-4 rounded-lg mb-6 border border-white/20">
+                  <h3 className="font-semibold text-light-headings dark:text-dark-headings mb-2">What This Means</h3>
+                  <p className="text-light-body dark:text-dark-body">
+                    {result.interpretation}
+                  </p>
+                </div>
+
+                {/* Recommendations */}
+                <div>
+                  <h3 className="font-semibold text-light-headings dark:text-dark-headings mb-3">
+                    Recommendations
+                  </h3>
+                  <div className="space-y-2">
+                    {result.recommendations.map((rec, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="flex gap-3 p-3 bg-white/10 dark:bg-white/5 rounded-lg"
+                      >
+                        <span className="text-light-accent dark:text-dark-accent flex-shrink-0">✓</span>
+                        <p className="text-light-body dark:text-dark-body">{rec}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </GlassCard>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setActiveTab('select');
+                    setResult(null);
+                    setQuestions([]);
+                    setResponses([]);
+                  }}
+                  className="flex-1 px-6 py-3 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-colors"
+                >
+                  Take Another Assessment
+                </button>
+                <button
+                  onClick={() => window.location.href = '/progress'}
+                  className="flex-1 px-6 py-3 rounded-lg bg-white/10 dark:bg-white/5 text-light-body dark:text-dark-body border border-white/20 hover:bg-white/20 transition-colors"
+                >
+                  View Progress
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

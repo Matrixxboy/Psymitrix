@@ -29,6 +29,7 @@ const MobileMenuContent = ({ onClose, user, logout }) => (
       <Link onClick={onClose} to="/assessments" className="w-full">Assessments</Link>
       <Link onClick={onClose} to="/games" className="w-full">Games</Link>
       <Link onClick={onClose} to="/progress" className="w-full">Progress</Link>
+      <Link onClick={onClose} to="/reports" className="w-full">Reports</Link>
       <Link onClick={onClose} to="/profile" className="w-full">Profile</Link>
 
       <hr className="w-full border-white/20 dark:border-gray-700/50" />
@@ -79,6 +80,7 @@ const Layout = () => {
             <Link to="/assessments" className="hover:text-light-primary dark:hover:text-dark-primary">Assessments</Link>
             <Link to="/games" className="hover:text-light-primary dark:hover:text-dark-primary">Games</Link>
             <Link to="/progress" className="hover:text-light-primary dark:hover:text-dark-primary">Progress</Link>
+            <Link to="/reports" className="hover:text-light-primary dark:hover:text-dark-primary">Reports</Link>
             <Link to="/profile" className="hover:text-light-primary dark:hover:text-dark-primary">Profile</Link>
           </div>
 

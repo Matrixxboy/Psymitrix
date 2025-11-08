@@ -140,6 +140,35 @@ class ChatMessage(BaseModel):
         from_attributes=True
     )
 
+class AssessmentResult(BaseModel):
+    assessment_type: str  # 'PHQ-9' or 'GAD-7'
+    score: int
+    severity_level: str  # 'minimal', 'mild', 'moderate', 'moderately_severe', 'severe'
+    date: datetime = Field(default_factory=datetime.utcnow)
+
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
+
+class MentalHealthProfile(BaseModel):
+    mental_health_history: Optional[str] = None  # e.g., "Depression, Anxiety, past therapy"
+    preferred_support_style: Optional[str] = None  # e.g., "empathetic", "solution-focused", "psychoeducational"
+    therapy_goals: Optional[List[str]] = Field(default_factory=list)  # ["Sleep improvement", "Anxiety management"]
+    past_diagnoses: Optional[List[str]] = Field(default_factory=list)
+    current_medications: Optional[List[str]] = Field(default_factory=list)
+    assessment_results: List[AssessmentResult] = Field(default_factory=list)
+    last_assessment_date: Optional[datetime] = None
+
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat() if v else None
+        },
+        from_attributes=True
+    )
+
 class User(BaseModel):
     # login data
     user_id: UUID = Field(default_factory=uuid4)
@@ -177,11 +206,14 @@ class User(BaseModel):
     games: List[Games] = []
     achievements: List[achievementsData] = []
     mood_trends: List[MoodTrend] = []
-    
+
+    # mental health profile
+    mental_health_profile: MentalHealthProfile = Field(default_factory=MentalHealthProfile)
+
     # notifications
     notifications: List[NotificationData] = []
     notifications_enabled: bool = True
-    
+
     # admin and status flags
     is_active: bool = True
     is_verified: bool = False
@@ -218,6 +250,3 @@ class UserUpdate(BaseModel):
     parental_marital_status: Optional[str] = None
     is_edited_by_user: bool = False
     model_config = ConfigDict(from_attributes=True)
-
-
-

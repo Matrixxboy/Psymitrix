@@ -9,6 +9,7 @@ import ChatPage from '../pages/Chat/ChatPage';
 import AssessmentsPage from '../pages/Assessments/AssessmentsPage';
 import GamesPage from '../pages/Games/GamesPage';
 import ProgressPage from '../pages/Progress/ProgressPage';
+import ReportsPage from '../pages/Reports/ReportsPage';
 import Layout from '../components/layout/Layout';
 import Walkthrough from '../components/onboarding/Walkthrough';
 import About from '../pages/Static/About';
@@ -119,21 +120,29 @@ const AppRoutes = () => {
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/progress" 
+          <Route
+            path="/progress"
             element={
               <ProtectedRoute>
                 <ProgressPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/profile/*" 
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <ReportsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/*"
             element={
               <ProtectedRoute>
                 <ProfilePage />
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Static Pages */}

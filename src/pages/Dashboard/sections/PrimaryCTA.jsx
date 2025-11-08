@@ -1,25 +1,76 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import GlassCard from '../../../components/ui/GlassCard';
 import { motion } from 'framer-motion';
+import { MessageSquare, CheckSquare, FileText } from 'lucide-react';
 
 const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
 };
 
-const PrimaryCTA = () => (
-    <motion.div variants={cardVariants}>
-        <GlassCard className="p-6 flex flex-col md:flex-row items-center justify-between bg-dark-primary dark:bg-light-primary">
-            <div>
-                <h2 className="text-2xl font-bold">Ready for a new session?</h2>
-                <p className="mt-1">Start a chat with Aura or try a calming activity.</p>
+const PrimaryCTA = () => {
+    const navigate = useNavigate();
+
+    return (
+        <motion.div variants={cardVariants}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* AI Chat */}
+                <GlassCard
+                    className="p-6 cursor-pointer hover:shadow-lg transition-all group"
+                    onClick={() => navigate('/chat')}
+                >
+                    <div className="flex items-start gap-3 mb-3">
+                        <div className="p-2 bg-light-accent/20 dark:bg-dark-accent/20 rounded-lg group-hover:bg-light-accent/30 dark:group-hover:bg-dark-accent/30 transition-colors">
+                            <MessageSquare className="w-6 h-6 text-light-accent dark:text-dark-accent" />
+                        </div>
+                    </div>
+                    <h3 className="text-lg font-bold text-light-headings dark:text-dark-headings mb-2">
+                        Chat with AI
+                    </h3>
+                    <p className="text-sm text-light-body dark:text-dark-body">
+                        Get support and advice from your AI psychiatrist anytime.
+                    </p>
+                </GlassCard>
+
+                {/* Assessments */}
+                <GlassCard
+                    className="p-6 cursor-pointer hover:shadow-lg transition-all group"
+                    onClick={() => navigate('/assessments')}
+                >
+                    <div className="flex items-start gap-3 mb-3">
+                        <div className="p-2 bg-light-accent/20 dark:bg-dark-accent/20 rounded-lg group-hover:bg-light-accent/30 dark:group-hover:bg-dark-accent/30 transition-colors">
+                            <CheckSquare className="w-6 h-6 text-light-accent dark:text-dark-accent" />
+                        </div>
+                    </div>
+                    <h3 className="text-lg font-bold text-light-headings dark:text-dark-headings mb-2">
+                        Assessments
+                    </h3>
+                    <p className="text-sm text-light-body dark:text-dark-body">
+                        Track your mental health with PHQ-9 and GAD-7 tests.
+                    </p>
+                </GlassCard>
+
+                {/* Reports */}
+                <GlassCard
+                    className="p-6 cursor-pointer hover:shadow-lg transition-all group"
+                    onClick={() => navigate('/reports')}
+                >
+                    <div className="flex items-start gap-3 mb-3">
+                        <div className="p-2 bg-light-accent/20 dark:bg-dark-accent/20 rounded-lg group-hover:bg-light-accent/30 dark:group-hover:bg-dark-accent/30 transition-colors">
+                            <FileText className="w-6 h-6 text-light-accent dark:text-dark-accent" />
+                        </div>
+                    </div>
+                    <h3 className="text-lg font-bold text-light-headings dark:text-dark-headings mb-2">
+                        Reports
+                    </h3>
+                    <p className="text-sm text-light-body dark:text-dark-body">
+                        View detailed insights and generate your mental health report.
+                    </p>
+                </GlassCard>
             </div>
-            <div className="mt-4 md:mt-0 flex gap-4">
-                <button className="px-6 py-3 font-semibold rounded-lg text-dark-primary dark:text-light-primary bg-black/50 dark:bg-white/60 dark:hover:bg-white/40 hover:bg-black/30 transition-all">Chat with AI</button>
-                <button className="px-6 py-3 font-semibold rounded-lg text-dark-primary dark:text-light-primary bg-black/50 dark:bg-white/60 dark:hover:bg-white/40 hover:bg-black/30 transition-all">Activities</button>
-            </div>
-        </GlassCard>
-    </motion.div>
-);
+        </motion.div>
+    );
+};
 
 export default PrimaryCTA;

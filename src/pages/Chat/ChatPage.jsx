@@ -1,257 +1,225 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Loader, Heart, MessageSquare } from 'lucide-react';
+import { aiChatAPI } from '../../api/ai_chat';
 import { useAuth } from '../../hooks/useAuth';
-
-// --- SVG Icon Components ---
-const FiSend = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-);
-const FiCpu = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-);
-const FiMenu = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-);
-const FiPlus = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-);
-const FiTrash2 = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-);
+import GlassCard from '../../components/ui/GlassCard';
 
 const ChatPage = () => {
-   const [inputMessage, setInputMessage] = useState("");
-  const textareaRef = useRef(null);
-
-  // Auto-expand textarea height
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  }, [inputMessage]);
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (inputMessage.trim()) handleSendMessage(inputMessage);
-      setInputMessage("");
-    }
-  };
   const { user } = useAuth();
-  const getInitialMessage = () => `Hello ${user?.name || 'there'}, I'm PsyMitrix AI, your personal AI companion. I'm here to listen and help you work through whatever is on your mind. How are you feeling today?`;
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const messagesEndRef = useRef(null);
 
-  const [sessions, setSessions] = useState([
-    { id: 1, title: 'Welcome Chat', messages: [{ id: 1, role: 'model', content: getInitialMessage() }] }
-  ]);
-  const [activeSessionId, setActiveSessionId] = useState(1);
-  const [isTyping, setIsTyping] = useState(false);
-  const [error, setError] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  const activeSession = useMemo(() => sessions.find(s => s.id === activeSessionId), [sessions, activeSessionId]);
-
-  const generateAIResponse = async (history) => {
-    setIsTyping(true);
-    setError(null);
-    const apiKey = ""; 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-    
-    const systemPrompt = "You are PsyMitrix AI, a personal AI companion... Keep your responses conversational and concise, typically 1-3 sentences.";
-
-    const payload = {
-        contents: history.map(msg => ({ role: msg.role, parts: [{ text: msg.content }] })),
-        systemInstruction: { parts: [{ text: systemPrompt }] },
+  // Load chat history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const data = await aiChatAPI.getChatHistory(20);
+        if (data?.messages) {
+          setMessages(data.messages.map(msg => ({
+            id: msg.message_id,
+            sender: msg.sender,
+            content: msg.message,
+            timestamp: msg.timestamp
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
+      } finally {
+        setLoadingHistory(false);
+      }
     };
 
+    loadHistory();
+  }, []);
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    // Add user message to chat
+    const userMessage = {
+      id: Date.now(),
+      sender: 'user',
+      content: input,
+      timestamp: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
     try {
-        const response = await fetch(apiUrl, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-        });
-        if (!response.ok) throw new Error(`API error: ${response.statusText}`);
-        const result = await response.json();
-        const candidate = result.candidates?.[0];
-        if (candidate?.content?.parts?.[0]?.text) {
-            return candidate.content.parts[0].text;
-        } else {
-            throw new Error("Received an invalid response from the AI.");
-        }
-    } catch (e) {
-        console.error(e);
-        setError("I'm having trouble connecting right now. Please try again in a moment.");
-        return null;
-    } finally {
-        setIsTyping(false);
-    }
-  };
-  
-  const updateSessionMessages = (sessionId, newMessages) => {
-    setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, messages: newMessages } : s));
-  };
-  
-  const handleSendMessage = async (messageContent) => {
-    if (!messageContent.trim() || !activeSession) return;
-
-    const userMessage = { id: Date.now(), role: 'user', content: messageContent };
-    const updatedMessages = [...activeSession.messages, userMessage];
-    updateSessionMessages(activeSessionId, updatedMessages);
-    setInputMessage('');
-    
-    const aiResponseContent = await generateAIResponse(updatedMessages);
-
-    if (aiResponseContent) {
-        const aiMessage = { id: Date.now() + 1, role: 'model', content: aiResponseContent };
-        updateSessionMessages(activeSessionId, [...updatedMessages, aiMessage]);
-    }
-  };
-
-  const handleNewChat = () => {
-      const newSessionId = Date.now();
-      const newSession = {
-          id: newSessionId,
-          title: `New Chat - ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
-          messages: [{ id: 1, role: 'model', content: getInitialMessage() }]
+      const response = await aiChatAPI.sendMessage(input);
+      const aiMessage = {
+        id: response.message_id,
+        sender: 'bot',
+        content: response.ai_response,
+        timestamp: response.timestamp,
+        analysis: response.analysis
       };
-      setSessions(prev => [...prev, newSession]);
-      setActiveSessionId(newSessionId);
-      setIsSidebarOpen(false);
-  };
-  
-  const handleDeleteSession = (e, sessionIdToDelete) => {
-    e.stopPropagation(); 
-    
-    const newSessions = sessions.filter(s => s.id !== sessionIdToDelete);
-
-    if (activeSessionId === sessionIdToDelete) {
-        if (newSessions.length > 0) {
-            setActiveSessionId(newSessions[0].id);
-        } else {
-            const newSessionId = Date.now();
-            const welcomeSession = {
-                id: newSessionId,
-                title: 'Welcome Chat',
-                messages: [{ id: 1, role: 'model', content: getInitialMessage() }]
-            };
-            setSessions([welcomeSession]);
-            setActiveSessionId(newSessionId);
-            return; 
-        }
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage = {
+        id: Date.now() + 1,
+        sender: 'bot',
+        content: 'I encountered an issue processing your message. Please try again.',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
     }
-    setSessions(newSessions);
   };
 
-
-
-  const Sidebar = () => (
-    <aside className={`absolute md:relative mb-0 z-20 w-64 h-full bg-white/10 dark:bg-gray-800/50 glass rounded-tr-3xl rounded-br-3xl rounded-tl-none rounded-bl-none border-r border-white/10 dark:border-gray-700/50 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-4 border-b border-gray-300/7010 dark:border-gray-700/50">
-            <button onClick={handleNewChat} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-light-primary/80 dark:bg-dark-primary/80 text-white hover:bg-light-primary dark:hover:bg-dark-primary transition-colors">
-                <FiPlus/> New Chat
-            </button>
-        </div>
-        <nav className="flex-1 overflow-y-auto p-2 space-y-1">
-            {sessions.map(session => (
-                <div key={session.id} onClick={() => { setActiveSessionId(session.id); setIsSidebarOpen(false); }}
-                   className={`group flex items-center justify-between p-2 rounded-lg text-sm cursor-pointer ${activeSessionId === session.id ? 'bg-white/20 dark:bg-gray-700' : 'hover:bg-white/10 dark:hover:bg-gray-700/50'}`}>
-                    <span className="truncate pr-2">{session.title}</span>
-                    <button onClick={(e) => handleDeleteSession(e, session.id)} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-opacity">
-                      <FiTrash2 className="w-4 h-4"/>
-                    </button>
-                </div>
-            ))}
-        </nav>
-    </aside>
-  );
+  const handleClearHistory = async () => {
+    if (window.confirm('Are you sure you want to clear the chat history?')) {
+      try {
+        await aiChatAPI.clearChatHistory();
+        setMessages([]);
+      } catch (error) {
+        console.error('Failed to clear history:', error);
+      }
+    }
+  };
 
   return (
-    <div className="mt-[30px]  font-sans text-light-body dark:text-dark-body flex items-center justify-center">
-      <div className="flex h-full w-full sm:h-[90vh] shadow-2xl overflow-hidden backdrop-blur-2xl border border-white/10 dark:border-gray-700/50">
-        <Sidebar/>
-        <main className="flex-1 flex flex-col h-full ">
-          <header className="flex items-center p-4 border-b border-gray-300/70 dark:border-gray-700/80 backdrop-blur-sm">
-              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden mr-4 p-2 rounded-md hover:bg-white/10">
-                  <FiMenu/>
-              </button>
-              <h1 className="text-lg font-semibold text-light-headings dark:text-dark-headings truncate">{activeSession?.title || 'Chat'}</h1>
-          </header>
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            <div className="max-w-3xl mx-auto">
-              {activeSession?.messages.length <= 1 && (
-                <div className="text-center p-8 my-8">
-                    <div className="inline-block p-4 bg-light-secondary/80 dark:bg-dark-secondary/80 rounded-full mb-4 animate-fade-in-up">
-                        <FiCpu className="w-10 h-10 text-white"/>
-                    </div>
-                    <h2 className="text-2xl font-bold text-light-headings dark:text-dark-headings animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                        Session with PsyMitrix AI
-                    </h2>
-                    <p className="mt-2 text-md text-light-body dark:text-dark-body max-w-md mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                        This is a safe space to explore your thoughts. Start by telling me what's on your mind, or try a suggested prompt.
-                    </p>
-                </div>
-              )}
-              {activeSession?.messages.map((message) => (
-                <div key={message.id} className={`flex items-end gap-3 my-4 animate-fade-in-up ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  {message.role === 'model' && (
-                    <div className="w-8 h-8 rounded-full bg-light-secondary/80 dark:bg-dark-secondary/80 flex-shrink-0 flex items-center justify-center text-white"><FiCpu className="w-5 h-5"/></div>
-                  )}
-                  <div className={`max-w-[80%] md:max-w-[70%] p-4 rounded-2xl shadow-md ${message.role === 'user' ? 'bg-light-primary/90 dark:bg-dark-primary/90 text-white rounded-br-lg' : 'bg-white/50 dark:bg-gray-700/50 text-light-headings dark:text-dark-headings rounded-bl-lg'}`}>
-                    <p className="text-base whitespace-pre-wrap">{message.content}</p>
-                  </div>
-                </div>
-              ))}
-              {isTyping && (
-                <div className="flex items-end gap-3 my-4 justify-start">
-                  <div className="w-8 h-8 rounded-full bg-light-secondary/80 dark:bg-dark-secondary/80 flex-shrink-0 flex items-center justify-center text-white"><FiCpu className="w-5 h-5"/></div>
-                  <div className="p-4 rounded-2xl shadow-md bg-white/50 dark:bg-gray-700/50">
-                    <div className="flex space-x-1.5">
-                      <div className="w-2 h-2 bg-light-body dark:bg-dark-body rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-light-body dark:bg-dark-body rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-light-body dark:bg-dark-body rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {error && <div className="text-center text-red-500 text-sm py-4">{error}</div>}
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-light-background to-light-secondary dark:from-dark-background dark:to-dark-secondary p-4 md:p-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <Heart className="w-8 h-8 text-light-accent dark:text-dark-accent animate-heartbeat" />
+            <h1 className="text-4xl font-bold text-light-headings dark:text-dark-headings">
+              Your AI Psychiatrist
+            </h1>
           </div>
-          <footer className="bg-light-background/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-white/10 dark:border-gray-700/50 p-4">
-            <div className="max-w-3xl mx-auto">
-              <div className="relative flex items-end w-full">
-      <textarea
-        ref={textareaRef}
-        value={inputMessage}
-        onChange={(e) => setInputMessage(e.target.value)}
-        onKeyDown={handleKeyPress}
-        placeholder="Share what's on your mind..."
-        className="w-full min-h-14 max-h-48 pl-4 pr-16 py-3 resize-none rounded-xl bg-gray-100 border-gray-200 
-        dark:bg-gray-800/80 text-light-headings dark:text-dark-headings 
-        placeholder:text-light-body/70 dark:placeholder:text-dark-body/70 
-        border border-white/30 dark:border-gray-700 
-        focus:outline-none focus:ring-2 focus:ring-light-primary dark:focus:ring-dark-primary 
-        shadow-md transition-all overflow-hidden"
-        rows="1"
-      />
-      <button
-        onClick={() => {
-          if (inputMessage.trim()) handleSendMessage(inputMessage);
-          setInputMessage("");
-        }}
-        disabled={!inputMessage.trim() || isTyping}
-        className="absolute right-3 bottom-3 w-10 h-10 rounded-full flex items-center justify-center 
-        bg-light-primary dark:bg-dark-primary text-white transition-all 
-        hover:bg-light-primary/80 dark:hover:bg-dark-primary/80 
-        disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
-      >
-        <FiSend className="w-5 h-5" />
-      </button>
-    </div>
-            </div>
-          </footer>
-        </main>
+          <p className="text-light-body dark:text-dark-body text-lg">
+            A safe space to share your thoughts and feelings
+          </p>
+        </motion.div>
+
+        {/* Chat Container */}
+        <GlassCard className="h-[500px] md:h-[600px] flex flex-col overflow-hidden">
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <AnimatePresence>
+              {loadingHistory ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader className="w-8 h-8 animate-spin text-light-primary dark:text-dark-primary" />
+                </div>
+              ) : messages.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center h-full text-center"
+                >
+                  <MessageSquare className="w-16 h-16 text-light-secondary dark:text-dark-secondary mb-4 opacity-50" />
+                  <p className="text-light-body dark:text-dark-body text-lg">
+                    Start a conversation whenever you're ready. I'm here to listen and support you.
+                  </p>
+                </motion.div>
+              ) : (
+                messages.map((message, index) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs px-4 py-3 rounded-lg ${
+                        message.sender === 'user'
+                          ? 'bg-light-accent dark:bg-dark-accent text-white rounded-br-none'
+                          : 'bg-white/30 dark:bg-white/10 text-light-body dark:text-dark-body border border-white/20 rounded-bl-none'
+                      }`}
+                    >
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      {message.analysis && message.analysis.severity_level === 'critical' && (
+                        <div className="mt-2 pt-2 border-t border-white/20">
+                          <p className="text-xs font-semibold text-red-300">⚠️ Crisis Support</p>
+                          <p className="text-xs mt-1">If you're in crisis, please contact 988 (Suicide & Crisis Lifeline)</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </AnimatePresence>
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-white/20 dark:bg-white/10" />
+
+          {/* Input Area */}
+          <div className="p-4 space-y-3">
+            {loading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center gap-2 text-light-body dark:text-dark-body text-sm"
+              >
+                <Loader className="w-4 h-4 animate-spin" />
+                <span>Thinking...</span>
+              </motion.div>
+            )}
+            <form onSubmit={handleSendMessage} className="flex gap-2">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Share what's on your mind..."
+                disabled={loading}
+                className="flex-1 px-4 py-2 rounded-lg bg-white/20 dark:bg-white/10 text-light-body dark:text-dark-body placeholder-light-body/50 dark:placeholder-dark-body/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-light-accent dark:focus:ring-dark-accent disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={loading || !input.trim()}
+                className="px-4 py-2 bg-light-accent dark:bg-dark-accent text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </form>
+            
+            {messages.length > 0 && (
+              <button
+                onClick={handleClearHistory}
+                className="w-full text-xs text-light-body/60 dark:text-dark-body/60 hover:text-light-body dark:hover:text-dark-body transition-colors"
+              >
+                Clear conversation history
+              </button>
+            )}
+          </div>
+        </GlassCard>
+
+        {/* Info Box */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-6 p-4 bg-white/10 dark:bg-white/5 border border-white/20 rounded-lg"
+        >
+          <p className="text-sm text-light-body dark:text-dark-body">
+            <strong>💡 Tip:</strong> This AI assistant provides supportive guidance based on evidence-based mental health practices. For serious mental health concerns, please reach out to a licensed professional.
+          </p>
+        </motion.div>
       </div>
     </div>
   );
 };
 
 export default ChatPage;
-
