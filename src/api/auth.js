@@ -1,4 +1,4 @@
-import api from '../api';
+import api from './index';
 
 export const login = async (email, password) => {
   try {
@@ -12,6 +12,20 @@ export const login = async (email, password) => {
   } catch (error) {
     console.error("Login API error:", error);
     return { success: false, error: error.response?.data?.message || 'Login failed' }; // Access data.message
+  }
+};
+
+export const register = async (email, username, password) => {
+  try {
+    const response = await api.post(
+      `/auth/register`,
+      { email, username, password }
+    );
+    localStorage.setItem('authToken', response.data.data.access_token);
+    localStorage.setItem('tokenType', response.data.data.token_type);
+    return { success: true, data: response.data.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || 'Registration failed' };
   }
 };
 
