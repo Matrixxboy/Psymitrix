@@ -19,6 +19,9 @@ from apis.games.router import router as games_router
 from apis.mood_trends.router import router as mood_trends_router
 from apis.achievements.router import router as achievements_router
 from apis.notifications.router import router as notifications_router
+from apis.ai_chat.router import router as ai_chat_router
+from apis.assessments.router import router as assessments_router
+from apis.mental_health_reports.router import router as mental_health_reports_router
 
 app = FastAPI()
 
