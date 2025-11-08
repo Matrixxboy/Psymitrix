@@ -1,13 +1,14 @@
 import os
 from typing import Tuple, List, Dict, Optional
 from langchain.chains import RetrievalQA
-from langchain.llms import HuggingFaceHub
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
 import json
 from datetime import datetime
+from chromadb.config import Settings
 
 # Initialize HuggingFace API
 HF_API_TOKEN = "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"
@@ -46,7 +47,8 @@ def initialize_vector_store():
             texts=MENTAL_HEALTH_KNOWLEDGE,
             embedding=embeddings,
             persist_directory="./chroma_db",
-            collection_name="mental_health"
+            collection_name="mental_health",
+            client_settings=Settings(anonymized_telemetry=False)
         )
         return vector_store
     except Exception as e:
@@ -76,9 +78,9 @@ async def get_ai_response(
             vector_store = initialize_vector_store()
         
         # Initialize HuggingFace LLM
-        llm = HuggingFaceHub(
+        llm = HuggingFaceEndpoint(
             repo_id="mistralai/Mistral-7B-Instruct-v0.1",
-            model_kwargs={"temperature": 0.7, "max_length": 512},
+            model_kwargs={"temperature": 0.7, "max_new_tokens": 512},
             huggingfacehub_api_token=HF_API_TOKEN
         )
         

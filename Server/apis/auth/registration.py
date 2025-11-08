@@ -6,6 +6,7 @@ from models.user_model import User
 from utils.hashing import hash_password
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
+from utils.hashing import create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -45,10 +46,17 @@ async def register_user(user_data: UserRegister, db=Depends(get_mongo_db)):
         user_dict["user_id"] = Binary.from_uuid(new_user.user_id)
         db.users.insert_one(user_dict)
         
+        access_token = create_access_token(data={"sub": user_data.email})
+        data = {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user_id": str(new_user.user_id)
+        }
+
         return make_response(
             status_code=HTTP_STATUS["CREATED"], 
             message="User registered successfully", 
-            data={"msg": "User registered successfully", "user_id": str(new_user.user_id)}, 
+            data=data, 
             code=HTTP_CODE["CREATED"]
         )
     except Exception as e:

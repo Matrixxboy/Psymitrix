@@ -59,7 +59,7 @@ async def download_report(
     Download a generated mental health report
     """
     try:
-        file_path = os.path.join(tempfile.gettempdir(), f"{current_user.user_id}_{file_name}")
+        file_path = os.path.join(tempfile.gettempdir(), file_name)
         
         if not os.path.exists(file_path):
             raise HTTPException(status_code=404, detail="Report file not found")
