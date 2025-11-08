@@ -6,6 +6,7 @@ import PieChart from '../../components/charts/PieChart';
 import GlassCard from '../../components/ui/GlassCard';
 import { getAppData } from '../../api/data';
 import Achievements from './Achievements';
+import {useAuth} from '../../hooks/useAuth';
 
 // Minimal inline icons
 const FiTrendingUp = (props) => (
@@ -55,6 +56,7 @@ const StatCard = ({ icon: Icon, value, label }) => (
 );
 
 const ProgressPage = () => {
+  const { user } = useAuth();
   const [timeframe, setTimeframe] = useState('month');
   const [progress, setProgress] = useState(null);
 
@@ -70,7 +72,7 @@ const ProgressPage = () => {
 
   const stats = useMemo(() => progress?.stats || { avgMood: 0, habitRate: 0, daysStreak: 0, achievementsCount: 0 }, [progress]);
   const chartData = useMemo(() => progress?.[timeframe] || { moodTrend: {}, wellnessBalance: {}, habitConsistency: {}, activityBreakdown: {} }, [progress, timeframe]);
-
+  const userAchievements = user?.achievements || [];
   // **IMPROVEMENT**: Add a loading state
   if (!progress) {
     return (
@@ -92,7 +94,7 @@ const ProgressPage = () => {
   );
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="mt-[50px] min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
       <main className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-light-headings dark:text-dark-headings">Your Growth Journey</h1>
@@ -102,8 +104,9 @@ const ProgressPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard icon={FiTrendingUp} value={stats.avgMood.toFixed(1)} label="Avg. Mood" />
           <StatCard icon={FiCheckSquare} value={`${stats.habitRate}%`} label="Habit Rate" />
-          <StatCard icon={FiStar} value={stats.daysStreak} label="Days Streak" />
-          <StatCard icon={FiAward} value={stats.achievementsCount} label="Achievements" />
+          <StatCard icon={FiStar} value={user.streak} label="Days Streak" />
+          <StatCard icon={FiStar} value={user.longest_streak} label="Longest Streak" />
+          <StatCard icon={FiAward} value={userAchievements.length} label="Achievements" />
         </div>
 
         <div className="mb-8 flex justify-center gap-3">

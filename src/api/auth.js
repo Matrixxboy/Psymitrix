@@ -1,25 +1,40 @@
-import appData from '../data/appData.json';
+import api from '../api';
 
-// Mock authentication API
-export const authenticateUser = async (email, password) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  const user = appData.user;
-
-  // Check credentials (in a real app, use a secure password comparison)
-  if (email === user.email && password === user.passwordHash) { // Using a placeholder password
-    return {
-      success: true,
-      data: {
-        token: 'mock-jwt-token-12345',
-        user: user,
-      },
-    };
-  } else {
-    return {
-      success: false,
-      error: 'Invalid email or password',
-    };
+export const login = async (email, password) => {
+  try {
+    const response = await api.post(
+      `/auth/login`,
+      { email, password } // Send as JSON object
+    );
+    localStorage.setItem('authToken', response.data.data.access_token);
+    localStorage.setItem('tokenType', response.data.data.token_type);
+    return { success: true, data: response.data.data }; // Access data.data because of make_response wrapper
+  } catch (error) {
+    console.error("Login API error:", error);
+    return { success: false, error: error.response?.data?.message || 'Login failed' }; // Access data.message
   }
 };
+
+export const fetchUserProfile = async () => {
+  try {
+    const response = await api.get(`/user_crud/user/me`);
+    return { success: true, data: JSON.parse(response.data.data) }; // Access data.data because of make_response wrapper
+  } catch (error) {
+    console.error("Fetch User Profile API error:", error);
+    return { success: false, error: error.response?.data?.message || 'Failed to fetch user profile' };
+  }
+};
+
+
+export const updateUserData = async (userData) => {
+  try {
+    const response = await api.put(
+      `/user_crud/user/update`,
+      userData // Send as JSON object
+    );
+    return { success: true, data: JSON.parse(response.data.data) }; // Access data.data because of make_response wrapper
+  } catch (error) {
+    console.error("Update User Data API error:", error);
+    return { success: false, error: error.response?.data?.message || 'Failed to update user data' };
+  }
+}

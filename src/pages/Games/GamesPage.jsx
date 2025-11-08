@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { FiWind, FiZap, FiArrowLeft } from 'react-icons/fi';   // feather icons
-import { FaPuzzlePiece } from 'react-icons/fa';                // font awesome
+import { FaPuzzlePiece, FaSpa } from 'react-icons/fa';                // font awesome
 import BreathingExercise from './mini-games/BreathingExercise';
 import FocusPuzzle from './mini-games/FocusPuzzle';
 import MemoryChallenge from './mini-games/MemoryChallenge';
+import GuidedMeditation from './mini-games/GuidedMeditation';
 
 const GamesPage = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -17,19 +18,27 @@ const GamesPage = () => {
       component: <BreathingExercise />
     },
     {
-      id: 'focus',
-      title: 'Focus Puzzle',
-      description: 'A simple puzzle to help you focus and enter a state of flow.',
-      icon: <FaPuzzlePiece />,   // ✅ from Font Awesome
-      component: <FocusPuzzle />
+      id: 'meditation',
+      title: 'Guided Meditation',
+      description: 'A guided meditation to help you relax and find inner peace.',
+      icon: <FaSpa />,
+      component: <GuidedMeditation />
     },
-    {
-      id: 'memory',
-      title: 'Memory Challenge',
-      description: 'A light-hearted memory game to sharpen your mind.',
-      icon: <FiZap />,
-      component: <MemoryChallenge />
-    },
+    // {
+    //   id: 'focus',
+    //   title: 'Focus Puzzle',
+    //   description: 'A simple puzzle to help you focus and enter a state of flow.',
+    //   icon: <FaPuzzlePiece />,   // ✅ from Font Awesome
+    //   component: <FocusPuzzle />
+    // },
+    // {
+    //   id: 'memory',
+    //   title: 'Memory Challenge',
+    //   description: 'A light-hearted memory game to sharpen your mind.',
+    //   icon: <FiZap />,
+    //   component: <MemoryChallenge />
+    // },
+    
   ];
 
   const GlassCard = ({ children, className = '' }) => (
@@ -39,7 +48,7 @@ const GamesPage = () => {
   );
 
   const renderGameList = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pt-[50px]">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-light-headings dark:text-dark-headings">Calming Games</h1>
         <p className="mt-2 text-lg text-light-body dark:text-dark-body">Engage your mind and find your center.</p>
@@ -54,7 +63,7 @@ const GamesPage = () => {
             <p className="text-light-body dark:text-dark-body flex-grow mb-6">{game.description}</p>
             <button
               onClick={() => setSelectedGame(game)}
-              className="w-full mt-auto px-6 py-3 font-semibold rounded-lg bg-white/20 hover:bg-white/30 transition-all text-light-headings dark:text-dark-headings"
+              className="w-full mt-auto px-6 py-3 font-semibold rounded-lg bg-light-headings/20 dark:bg-white/20 hover:bg-white/30 transition-all text-light-headings dark:text-dark-headings"
             >
               Play
             </button>

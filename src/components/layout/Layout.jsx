@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ThemeToggler from '../custom/ThemeToggler';
+import NotificationIcon from '../ui/NotificationIcon';
 
 const Burger = ({ open, setOpen }) => (
   <button
@@ -21,8 +22,8 @@ const Burger = ({ open, setOpen }) => (
 );
 
 const MobileMenuContent = ({ onClose, user, logout }) => (
-  <div className="glass-panel">
-    <div className="flex flex-col items-start p-2 space-y-3">
+  <div className="glass-panel mt-10">
+    <div className="flex flex-col items-start p-2 space-y-3 ">
       <Link onClick={onClose} to="/dashboard" className="w-full">Dashboard</Link>
       <Link onClick={onClose} to="/chat" className="w-full">AI Chat</Link>
       <Link onClick={onClose} to="/assessments" className="w-full">Assessments</Link>
@@ -65,7 +66,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar (use the .glass utility) */}
-      <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4">
+      <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4 m-5" style={{ overflow: 'visible' }}>
         <div className="relative max-w-7xl mx-auto flex justify-between items-center">
           <Link to="/" className="text-2xl font-extrabold tracking-tight text-light-headings dark:text-dark-headings">
             <span className="inline-block transform will-change-transform [text-shadow:0_2px_12px_rgba(108,99,255,0.35)]">PsyMitrix</span>
@@ -84,6 +85,7 @@ const Layout = () => {
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             <ThemeToggler />
+            <NotificationIcon />
             <span className="hidden sm:block text-light-body dark:text-dark-body">{user?.name}</span>
             <button onClick={logout} className="hidden sm:block px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">Logout</button>
             <Burger open={menuOpen} setOpen={setMenuOpen} />
@@ -100,7 +102,7 @@ const Layout = () => {
       </main>
 
       {/* Footer (unchanged) */}
-      <footer className="bg-white/50 dark:bg-white/5 backdrop-blur-xl border-t border-white/30 dark:border-white/10 shadow-lg  p-8 mt-12">
+      <footer className="bg-white/50 dark:bg-white/5 backdrop-blur-xl border-t border-white/30 dark:border-white/10 shadow-lg  p-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-light-body dark:text-dark-body">
           {/* Brand */}
           <div>

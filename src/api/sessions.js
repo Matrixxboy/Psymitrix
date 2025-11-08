@@ -1,3 +1,5 @@
+import api from './index';
+
 // Mock mental health sessions API
 export const getMentalHealthSessions = async () => {
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -110,4 +112,15 @@ const generateRecommendations = (assessmentData) => {
   }
   
   return recommendations;
+};
+
+export const storeSession = async (sessionData) => {
+  try {
+    const response = await api.post('/sessions/store', sessionData);
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error('Error storing session:', error);
+    const errorMessage = error.response?.data?.message || error.message || 'An error occurred while storing the session';
+    return { success: false, error: errorMessage };
+  }
 };
