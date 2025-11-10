@@ -22,6 +22,7 @@ from apis.notifications.router import router as notifications_router
 from apis.ai_chat.router import router as ai_chat_router
 from apis.assessments.router import router as assessments_router
 from apis.mental_health_reports.router import router as mental_health_reports_router
+from apis.ai_analytics.router import router as ai_analytics_router
 
 app = FastAPI()
 
