@@ -153,6 +153,22 @@ class AssessmentResult(BaseModel):
         from_attributes=True
     )
 
+class WellnessMetric(BaseModel):
+    date: datetime = Field(default_factory=datetime.utcnow)
+    daily_wellness_score: Optional[int] = None  # 0-100
+    activity_minutes: Optional[int] = None  # minutes of physical activity
+    sleep_hours: Optional[float] = None  # hours of sleep
+    stress_level: Optional[int] = None  # 1-10 scale
+    water_intake: Optional[int] = None  # glasses of water
+    meditation_minutes: Optional[int] = None  # meditation practice
+
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
+
 class MentalHealthProfile(BaseModel):
     mental_health_history: Optional[str] = None  # e.g., "Depression, Anxiety, past therapy"
     preferred_support_style: Optional[str] = None  # e.g., "empathetic", "solution-focused", "psychoeducational"
@@ -161,6 +177,7 @@ class MentalHealthProfile(BaseModel):
     current_medications: Optional[List[str]] = Field(default_factory=list)
     assessment_results: List[AssessmentResult] = Field(default_factory=list)
     last_assessment_date: Optional[datetime] = None
+    wellness_metrics: List[WellnessMetric] = Field(default_factory=list)
 
     model_config = ConfigDict(
         json_encoders={
