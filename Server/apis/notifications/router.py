@@ -16,8 +16,7 @@ class NotificationRequest(BaseModel):
     message: str
     status: NotificationStatus = NotificationStatus.incomplete
 
-class SeenRequest(BaseModel):
-    NotificationID: str
+
 
 @router.get("/")
 def get_notifications(
@@ -169,14 +168,14 @@ def clear_notifications(
             data={"api": "clear_notifications", "error": str(e)}
         )
 
-@router.post("/notifications-seen")
+@router.post("/{notification_id}/seen")
 def mark_notifications_as_seen(
-    request: SeenRequest,
+    notification_id: str,
     current_user: User = Depends(get_current_user),
     db=Depends(get_mongo_db)
 ):
     try:
-        notification_call = update_notification_as_seen(current_user, request.NotificationID)
+        notification_call = update_notification_as_seen(current_user, notification_id)
         db.users.update_one(
             {"email": current_user.email},
             {"$set": {"notifications": notification_call}}

@@ -11,7 +11,7 @@ def check_and_add_achievement(user: User, achievement_name: str, description: st
         achievement = achievementsData(
             achievement_name=achievement_name,
             description=description,
-            date_achieved=datetime.utcnow()
+            date_earned=datetime.utcnow()
         )
         user.achievements.append(achievement)
         return True

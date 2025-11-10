@@ -9,6 +9,8 @@ from Database.db_connection import get_mongo_db
 from .report_generator import generate_mental_health_report
 import tempfile
 import os
+from utils.response_helper import make_response
+from utils.http_constants import HTTP_CODE , HTTP_STATUS
 
 router = APIRouter(prefix="/reports", tags=["Mental Health Reports"])
 
@@ -34,7 +36,7 @@ async def generate_report(
             include_assessments=request.include_assessments,
             include_mood_trends=request.include_mood_trends,
             include_recommendations=request.include_recommendations,
-            date_range_days=request.date_range_days
+            date_range_days=request
         )
         
         return {
@@ -84,11 +86,16 @@ async def get_mental_health_analysis(
         
         analysis = calculate_mental_health_analysis(current_user)
         
-        return {
-            "status_code": 200,
-            "code": "OK",
-            "message": "Mental health analysis retrieved",
-            "data": analysis
-        }
+        return make_response(
+            status_code=HTTP_STATUS.OK,
+            code= HTTP_CODE["OK"],
+            message="Mental health analysis retrieved",
+            data= analysis
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return make_response(
+            status_code=HTTP_STATUS.INTERNAL_SERVER_ERROR,
+            code= HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Mental health analysis error",
+            data= analysis
+        )

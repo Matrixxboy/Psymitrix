@@ -92,7 +92,7 @@ const ReportsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-light-background to-light-secondary dark:from-dark-background dark:to-dark-secondary p-4 md:p-8 flex items-center justify-center mt-[50px]">
+      <div className="min-h-screen  p-4 md:p-8 flex items-center justify-center mt-[50px]">
         <div className="flex flex-col items-center gap-4">
           <Loader className="w-12 h-12 animate-spin text-light-accent dark:text-dark-accent" />
           <p className="text-light-body dark:text-dark-body">Generating your mental health report...</p>
@@ -103,7 +103,7 @@ const ReportsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-light-background to-light-secondary dark:from-dark-background dark:to-dark-secondary p-4 md:p-8 flex items-center justify-center mt-[50px]">
+      <div className="min-h-screen  p-4 md:p-8 flex items-center justify-center mt-[50px]">
         <GlassCard className="p-6 max-w-md">
           <p className="text-red-500 text-center">{error}</p>
           <button
@@ -118,7 +118,7 @@ const ReportsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-light-background to-light-secondary dark:from-dark-background dark:to-dark-secondary p-4 md:p-8 mt-[50px]">
+    <div className="min-h-screen p-4 md:p-8 mt-[50px]">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div

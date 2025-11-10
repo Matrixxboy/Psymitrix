@@ -170,6 +170,17 @@ class WellnessMetric(BaseModel):
         from_attributes=True
     )
 
+class SleepData(BaseModel):
+    sleep_hours: float
+    date: Optional[datetime] = Field(default_factory=datetime.utcnow)
+
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
+
 class MentalHealthProfile(BaseModel):
     mental_health_history: Optional[str] = None  # e.g., "Depression, Anxiety, past therapy"
     preferred_support_style: Optional[str] = None  # e.g., "empathetic", "solution-focused", "psychoeducational"

@@ -17,203 +17,24 @@ import InsightCard from './sections/InsightCard';
 import DashboardSkeleton from './sections/DashboardSkeleton';
 import ChartCard from './ChartCard';
 import GlassCard from '../../components/ui/GlassCard';
-
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  return hour < 12
-    ? "Good morning"
-    : hour < 17
-    ? "Good afternoon"
-    : "Good evening";
-};
-
-const getMoodScore = (mood) => {
-  const moodScores = {
-    'excited': 10,
-    'happy': 8,
-    'calm': 7,
-    'neutral': 5,
-    'sad': 3,
-    'angry': 2
-  };
-  return moodScores[mood] || 5;
-};
-
-const filterDataByTimeframe = (data, timeframe = 'month') => {
-  if (!data || data.length === 0) return [];
-  
-  const now = new Date();
-  let cutoffDate;
-  
-  if (timeframe === 'week') {
-    cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  } else if (timeframe === 'year') {
-    cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-  } else {
-    cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  }
-
-  return data.filter(item => {
-    try {
-      const itemDate = new Date(item.created_at);
-      return itemDate >= cutoffDate;
-    } catch {
-      return true;
-    }
-  });
-};
-
-const processMoodTrendsData = (moodTrends, timeframe = 'month') => {
-  const filteredMoods = filterDataByTimeframe(moodTrends, timeframe);
-  
-  if (filteredMoods.length === 0) {
-    return { labels: [], values: [] };
-  }
-
-  const labels = filteredMoods.map(trend => {
-    const date = new Date(trend.created_at);
-    if (timeframe === 'week') {
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
-    } else if (timeframe === 'month') {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-    }
-  });
-
-  const values = filteredMoods.map(trend => getMoodScore(trend.mood));
-
-  return { labels, values };
-};
-
-const calculateWellnessBalance = (user) => {
-  if (!user?.mental_health_profile?.assessment_results || user.mental_health_profile.assessment_results.length === 0) {
-    return {
-      labels: ["Stress", "Sleep", "Mood", "Energy", "Focus"],
-      datasets: [
-        {
-          label: "This Week",
-          data: [5, 5, 5, 5, 5]
-        },
-        {
-          label: "Last Week",
-          data: [5, 5, 5, 5, 5]
-        }
-      ]
-    };
-  }
-
-  // Calculate based on assessment data
-  const recentAssessments = filterDataByTimeframe(user.mental_health_profile.assessment_results, 'month');
-  
-  let stressScore = 5;
-  let moodScore = 5;
-  let focusScore = 5;
-
-  if (recentAssessments.length > 0) {
-    const latestGAD7 = recentAssessments.find(a => a.assessment_type === 'GAD-7');
-    const latestPHQ9 = recentAssessments.find(a => a.assessment_type === 'PHQ-9');
-
-    // GAD7 (anxiety/stress) - convert score to 1-10 scale (lower is better)
-    if (latestGAD7) {
-      stressScore = 10 - Math.min(latestGAD7.score, 9);
-    }
-
-    // PHQ9 - affects mood score
-    if (latestPHQ9) {
-      moodScore = 10 - Math.min(latestPHQ9.score, 9);
-    }
-
-    focusScore = moodScore; // Correlation between mood and focus
-  }
-
-  // Get sleep and activity from wellness metrics
-  let sleepScore = 5;
-  let energyScore = 5;
-
-  if (user.mental_health_profile?.wellness_metrics && user.mental_health_profile.wellness_metrics.length > 0) {
-    const latestMetric = user.mental_health_profile.wellness_metrics[user.mental_health_profile.wellness_metrics.length - 1];
-    
-    if (latestMetric.sleep_hours) {
-      // 7-9 hours is optimal (score 10)
-      sleepScore = Math.max(1, Math.min(10, Math.round((latestMetric.sleep_hours / 8) * 10)));
-    }
-
-    if (latestMetric.daily_wellness_score) {
-      energyScore = Math.round((latestMetric.daily_wellness_score || 0) / 10);
-    }
-  }
-
-  return {
-    labels: ["Stress", "Sleep", "Mood", "Energy", "Focus"],
-    datasets: [
-      {
-        label: "Current",
-        data: [10 - stressScore, sleepScore, moodScore, energyScore, focusScore]
-      },
-      {
-        label: "Average",
-        data: [5, 5, 5, 5, 5]
-      }
-    ]
-  };
-};
-
-const calculateActivityBreakdown = (user) => {
-  if (!user?.games || user.games.length === 0) {
-    return {
-      value: 0,
-      label: "No activities yet"
-    };
-  }
-
-  const totalGameTime = user.games.reduce((sum, game) => sum + (game.total_time_played || 0), 0);
-  const weeklyGoal = 150; // minutes per week
-  const percentage = Math.min(100, Math.round((totalGameTime / weeklyGoal) * 100));
-
-  return {
-    value: percentage,
-    label: `${percentage}% of weekly goal (${totalGameTime}min)`
-  };
-};
-
-const generateConsistencyData = (moodTrends) => {
-  // Generate heatmap data from mood trends
-  if (!moodTrends || moodTrends.length === 0) {
-    return [];
-  }
-
-  const data = [];
-  const now = new Date();
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split('T')[0];
-
-    const moodForDay = moodTrends.find(m => {
-      const moodDate = new Date(m.created_at).toISOString().split('T')[0];
-      return moodDate === dateStr;
-    });
-
-    // If there's a mood entry, value is 0.8 (tracked), otherwise 0.3 (not tracked)
-    data.push({
-      date: dateStr,
-      value: moodForDay ? 0.8 : 0.3
-    });
-  }
-
-  return data;
-};
+import SleepTracker from '../../components/wellness/SleepTracker';
+import {
+  getGreeting,
+  getMoodScore,
+  filterDataByTimeframe,
+  processMoodTrendsData,
+  calculateWellnessBalance,
+  calculateActivityBreakdown,
+  generateConsistencyData,
+} from '../../utils/dataProcessing';
 
 const TimeframeButton = ({ label, value, selected, onClick }) => (
   <button
     onClick={onClick}
-    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-      selected
-        ? 'bg-light-primary dark:bg-dark-primary text-white shadow-md'
-        : 'bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-headings dark:text-dark-headings hover:bg-light-secondary/30 dark:hover:bg-dark-secondary/30'
-    }`}
+    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${selected
+      ? 'bg-light-primary dark:bg-dark-primary text-white shadow-md'
+      : 'bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-headings dark:text-dark-headings hover:bg-light-secondary/30 dark:hover:bg-dark-secondary/30'
+      }`}
   >
     {label}
   </button>
@@ -335,8 +156,12 @@ const DashboardPage = () => {
     visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
   };
 
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
   return (
-    <div className="min-h-screen text-light-body dark:text-dark-body p-4 sm:p-6 lg:p-8 mt-[50px]">
+    <div className="min-h-screen text-light-body dark:text-dark-body p-4 sm:p-6 lg:p-8 mt-[90px]">
       <main className="max-w-7xl mx-auto">
         <DashboardHeader user={user} greeting={getGreeting()} />
 
@@ -375,26 +200,26 @@ const DashboardPage = () => {
         >
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6 flex flex-col">
-            <motion.div variants={itemVariants}>
+            {/* <motion.div variants={itemVariants}>
               <PrimaryCTA />
-            </motion.div>
+            </motion.div> */}
 
             {/* Wellness Metrics Cards */}
             <motion.div variants={itemVariants}>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <MetricCard 
+                <MetricCard
                   title="Avg Mood"
                   value={data.avgMoodScore}
                   icon={FiZap}
                   subtitle={`${data.moodEntries} entries`}
                 />
-                <MetricCard 
+                <MetricCard
                   title="Current Streak"
                   value={`${user?.streak || 0} days`}
                   icon={FiTrendingUp}
                   subtitle={`Best: ${user?.longest_streak || 0}`}
                 />
-                <MetricCard 
+                <MetricCard
                   title="Assessments"
                   value={user?.mental_health_profile?.assessment_results?.length || 0}
                   icon={FiCheckSquare}
@@ -402,7 +227,12 @@ const DashboardPage = () => {
                 />
               </div>
             </motion.div>
-
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="mt-8">
+              <SleepTracker
+                wellnessMetrics={user?.mental_health_profile?.wellness_metrics || []}
+                onSleepDataAdded={user}
+              />
+            </motion.div>
             {/* Mood Trend Chart */}
             <motion.div variants={itemVariants}>
               <ChartCard title={`Mood Trend (${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)})`} icon={FiBarChart2}>
@@ -473,6 +303,7 @@ const DashboardPage = () => {
                 </GlassCard>
               </motion.div>
             )}
+
           </div>
 
           {/* Right Column */}

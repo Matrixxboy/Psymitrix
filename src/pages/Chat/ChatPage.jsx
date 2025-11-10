@@ -194,7 +194,7 @@ const ChatPage = () => {
   const latestMood = user?.mood_trends?.[0]?.mood || 'not tracked';
 
   return (
-    <div className="flex flex-col bg-gradient-to-b pt-[90px] px-3 py-6 md:px-8 min-h-screen">
+    <div className="flex flex-col bg-gradient-to-b mt-[90px] px-3 py-6 md:px-8 min-h-screen">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
