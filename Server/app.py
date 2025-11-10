@@ -51,6 +51,7 @@ app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(ai_chat_router, prefix="/api/v1")
 app.include_router(assessments_router, prefix="/api/v1")
 app.include_router(mental_health_reports_router, prefix="/api/v1")
+app.include_router(ai_analytics_router, prefix="/api/v1")
 
 #future routers
 # will be completed later on phase 2
