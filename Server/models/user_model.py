@@ -153,6 +153,22 @@ class AssessmentResult(BaseModel):
         from_attributes=True
     )
 
+class WellnessMetric(BaseModel):
+    date: datetime = Field(default_factory=datetime.utcnow)
+    daily_wellness_score: Optional[int] = None  # 0-100
+    activity_minutes: Optional[int] = None  # minutes of physical activity
+    sleep_hours: Optional[float] = None  # hours of sleep
+    stress_level: Optional[int] = None  # 1-10 scale
+    water_intake: Optional[int] = None  # glasses of water
+    meditation_minutes: Optional[int] = None  # meditation practice
+
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
+
 class MentalHealthProfile(BaseModel):
     mental_health_history: Optional[str] = None  # e.g., "Depression, Anxiety, past therapy"
     preferred_support_style: Optional[str] = None  # e.g., "empathetic", "solution-focused", "psychoeducational"
@@ -161,9 +177,46 @@ class MentalHealthProfile(BaseModel):
     current_medications: Optional[List[str]] = Field(default_factory=list)
     assessment_results: List[AssessmentResult] = Field(default_factory=list)
     last_assessment_date: Optional[datetime] = None
+    wellness_metrics: List[WellnessMetric] = Field(default_factory=list)
 
     model_config = ConfigDict(
         json_encoders={
+            datetime: lambda v: v.isoformat() if v else None
+        },
+        from_attributes=True
+    )
+
+class GoalProgress(BaseModel):
+    goal_id: UUID = Field(default_factory=uuid4)
+    goal_title: str
+    description: Optional[str] = None
+    target_value: float
+    current_value: float = 0.0
+    progress_percentage: float = 0.0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    target_date: Optional[datetime] = None
+    is_completed: bool = False
+
+    model_config = ConfigDict(
+        json_encoders={
+            UUID: lambda v: str(v),
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
+
+class HabitTracking(BaseModel):
+    habit_id: UUID = Field(default_factory=uuid4)
+    habit_name: str
+    frequency: str  # daily, weekly, monthly
+    completion_rate: float = 0.0  # 0-100
+    streak_days: int = 0
+    last_completed: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    model_config = ConfigDict(
+        json_encoders={
+            UUID: lambda v: str(v),
             datetime: lambda v: v.isoformat() if v else None
         },
         from_attributes=True
@@ -206,6 +259,11 @@ class User(BaseModel):
     games: List[Games] = []
     achievements: List[achievementsData] = []
     mood_trends: List[MoodTrend] = []
+
+    # wellness & goals
+    goals_progress: List[GoalProgress] = Field(default_factory=list)
+    habit_tracking: List[HabitTracking] = Field(default_factory=list)
+    daily_wellness_score: Optional[int] = None  # 0-100
 
     # mental health profile
     mental_health_profile: MentalHealthProfile = Field(default_factory=MentalHealthProfile)

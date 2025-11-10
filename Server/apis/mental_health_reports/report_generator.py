@@ -1,509 +1,318 @@
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, Table, TableStyle, KeepTogether
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT, TA_JUSTIFY
 from datetime import datetime, timedelta
 import tempfile
 import os
-from io import BytesIO
-import json
-from typing import Optional, Dict, List
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle, PageBreak
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-from models.user_model import User, Mood
-from datetime import date as date_class
+from typing import Optional, Dict, Any, List
+import statistics
 
-def calculate_age(birthdate) -> int:
-    """Calculate age from birthdate"""
-    if not birthdate:
-        return None
-    today = date_class.today()
-    return today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
-
-def get_birth_season_analysis(birthdate) -> Dict:
-    """Get birth season characteristics based on research"""
-    if not birthdate:
-        return {"season": "Unknown", "characteristics": []}
-    
-    month = birthdate.month
-    
-    # Birth season characteristics based on numerology and research
-    seasons = {
-        "Winter (Dec-Feb)": {
-            "months": [12, 1, 2],
-            "characteristics": [
-                "Often show introspective and philosophical nature",
-                "May have higher creative potential",
-                "Winter births associated with resilience",
-                "Research suggests potential for leadership qualities"
-            ]
-        },
-        "Spring (Mar-May)": {
-            "months": [3, 4, 5],
-            "characteristics": [
-                "Often display optimism and enthusiasm",
-                "Spring births show higher extraversion",
-                "Associated with new beginnings and growth mindset",
-                "Research suggests better mood stability during spring births"
-            ]
-        },
-        "Summer (Jun-Aug)": {
-            "months": [6, 7, 8],
-            "characteristics": [
-                "Often show warmth and social connectedness",
-                "Summer births associated with positive affect",
-                "Higher social engagement capacity",
-                "Research indicates better stress resilience"
-            ]
-        },
-        "Autumn (Sep-Nov)": {
-            "months": [9, 10, 11],
-            "characteristics": [
-                "Often display analytical and practical thinking",
-                "Autumn births show organizational strengths",
-                "Associated with preparation and planning abilities",
-                "Research suggests good emotional regulation"
-            ]
-        }
+def get_mood_score(mood: str) -> int:
+    """Convert mood string to numeric score"""
+    mood_scores = {
+        'excited': 10,
+        'happy': 8,
+        'calm': 7,
+        'neutral': 5,
+        'sad': 3,
+        'angry': 2
     }
-    
-    for season, data in seasons.items():
-        if month in data["months"]:
-            return {"season": season, "characteristics": data["characteristics"]}
-    
-    return {"season": "Unknown", "characteristics": []}
+    return mood_scores.get(mood, 5)
 
-def get_blood_group_analysis(bloodgroup: Optional[str]) -> Dict:
-    """Get blood group personality characteristics based on Japanese research"""
-    if not bloodgroup:
-        return {"blood_group": "Unknown", "traits": [], "compatibility": []}
-    
-    # Japanese blood type theory (popular psychology, not scientifically validated)
-    blood_type_profiles = {
-        "A": {
-            "traits": [
-                "Conscientious and responsible",
-                "Detail-oriented and methodical",
-                "Perfectionist tendencies",
-                "Good at planning and organization",
-                "May experience higher anxiety in uncertain situations"
-            ],
-            "strengths": ["Reliability", "Patience", "Organization"],
-            "growth_areas": ["Flexibility", "Risk-taking", "Spontaneity"]
-        },
-        "B": {
-            "traits": [
-                "Creative and flexible",
-                "Independent and individualistic",
-                "Adaptable to change",
-                "Passionate about interests",
-                "May struggle with structure"
-            ],
-            "strengths": ["Creativity", "Adaptability", "Optimism"],
-            "growth_areas": ["Consistency", "Following through", "Teamwork"]
-        },
-        "AB": {
-            "traits": [
-                "Balanced and thoughtful",
-                "Both analytical and creative",
-                "Reserved yet sociable",
-                "Deep thinking capacity",
-                "May appear contradictory"
-            ],
-            "strengths": ["Balance", "Intelligence", "Diplomacy"],
-            "growth_areas": ["Decision-making", "Commitment", "Emotional expression"]
-        },
-        "O": {
-            "traits": [
-                "Outgoing and social",
-                "Passionate and confident",
-                "Natural leaders",
-                "Enthusiastic and energetic",
-                "May lack patience"
-            ],
-            "strengths": ["Leadership", "Confidence", "Enthusiasm"],
-            "growth_areas": ["Patience", "Focus", "Sensitivity to others"]
-        }
-    }
-    
-    return blood_type_profiles.get(bloodgroup, {"blood_group": "Unknown", "traits": [], "strengths": [], "growth_areas": []})
-
-def get_birth_order_analysis(older_siblings: Optional[int], younger_siblings: Optional[int]) -> Dict:
-    """Get personality analysis based on Frank Salloway and Kevin Leman's birth order theory"""
-    
-    older_count = older_siblings or 0
-    younger_count = younger_siblings or 0
-    
-    # Determine birth order position
-    if older_count == 0 and younger_count == 0:
-        position = "Only Child"
-        traits = [
-            "Often mature and responsible beyond years",
-            "May have high expectations of self",
-            "Strong focus on achievement",
-            "Can be a perfectionist",
-            "May struggle with sharing or group dynamics"
-        ]
-    elif older_count == 0:
-        position = "Firstborn/Eldest"
-        traits = [
-            "Natural leadership inclinations",
-            "Responsible and reliable",
-            "Achievement-oriented",
-            "May be overly critical of self and others",
-            "Often serves as role model for siblings"
-        ]
-    elif younger_count == 0:
-        position = "Youngest Child"
-        traits = [
-            "Often more relaxed and outgoing",
-            "May be attention-seeking",
-            "Creative and less rule-bound",
-            "Good at interpersonal relationships",
-            "May struggle with self-discipline"
-        ]
-    else:
-        position = "Middle Child"
-        traits = [
-            "Often peacemakers and diplomats",
-            "May feel overlooked or neglected",
-            "Strong negotiation skills",
-            "Independent and flexible",
-            "Often have many friends outside family"
-        ]
-    
-    return {
-        "birth_order": position,
-        "traits": traits,
-        "sibling_dynamics": {
-            "older_siblings": older_count,
-            "younger_siblings": younger_count,
-            "total_siblings": older_count + younger_count
-        }
-    }
-
-def calculate_mental_health_analysis(user: User) -> Dict:
+def calculate_mental_health_analysis(user: Any) -> Dict[str, Any]:
     """Calculate comprehensive mental health analysis"""
     
-    analysis = {
-        "personal_profile": {
-            "age": calculate_age(user.birthdate),
-            "gender": user.gender,
-            "occupation": user.occupation,
-            "location": user.location
+    # Get latest mood
+    latest_mood = user.mood_trends[-1].mood if user.mood_trends else "Not tracked"
+    
+    # Get assessment scores
+    latest_phq9 = None
+    latest_gad7 = None
+    phq9_history = []
+    gad7_history = []
+    
+    for result in user.mental_health_profile.assessment_results:
+        if result.assessment_type == "PHQ-9":
+            phq9_history.append(result)
+            latest_phq9 = result
+        elif result.assessment_type == "GAD-7":
+            gad7_history.append(result)
+            latest_gad7 = result
+    
+    # Calculate mood trends
+    mood_scores = [get_mood_score(m.mood) for m in user.mood_trends[-30:]] if user.mood_trends else []
+    avg_mood = statistics.mean(mood_scores) if mood_scores else 5
+    
+    # Generate insights
+    insights = {
+        "profile_summary": {
+            "name": user.firstName or user.username,
+            "email": user.email,
+            "report_date": datetime.utcnow().strftime("%B %d, %Y"),
+            "age": user.age,
+            "gender": user.gender
         },
-        "assessment_summary": {},
-        "mood_trends": {},
-        "lifestyle_factors": {
-            "engagement_level": "High" if user.interactions > 20 else "Medium" if user.interactions > 5 else "Low",
-            "total_interactions": user.interactions,
-            "session_count": len(user.sessions)
+        "mood_analysis": {
+            "latest_mood": latest_mood,
+            "average_mood_score": round(avg_mood, 2),
+            "mood_entries_this_month": len([m for m in user.mood_trends if m.created_at >= datetime.utcnow() - timedelta(days=30)]),
+            "trend": "Improving" if len(mood_scores) > 1 and statistics.mean(mood_scores[-7:]) > statistics.mean(mood_scores[:7]) else "Stable" if len(mood_scores) <= 1 else "Declining"
         },
-        "research_based_insights": {}
+        "assessment_scores": {
+            "phq9": {
+                "latest": latest_phq9.score if latest_phq9 else None,
+                "severity": latest_phq9.severity_level if latest_phq9 else None,
+                "last_taken": latest_phq9.date.strftime("%B %d, %Y") if latest_phq9 else "Never"
+            },
+            "gad7": {
+                "latest": latest_gad7.score if latest_gad7 else None,
+                "severity": latest_gad7.severity_level if latest_gad7 else None,
+                "last_taken": latest_gad7.date.strftime("%B %d, %Y") if latest_gad7 else "Never"
+            }
+        },
+        "engagement": {
+            "total_sessions": len(user.sessions_chat_history),
+            "total_assessments": len(user.mental_health_profile.assessment_results),
+            "current_streak": user.streak,
+            "longest_streak": user.longest_streak,
+            "achievements": len(user.achievements)
+        },
+        "recommendations": [
+            "Schedule regular check-ins with AI psychiatrist for consistent mental health support",
+            "Complete assessments monthly to track progress and identify patterns",
+            "Practice at least one wellness activity daily from the suggested list",
+            "Consider professional consultation if scores increase significantly",
+            "Maintain mood tracking for better insights into your emotional patterns"
+        ],
+        "wellness_metrics": {
+            "sleep_hours": None,
+            "activity_minutes": None,
+            "stress_level": None,
+            "daily_wellness_score": None
+        }
     }
     
-    # Assessment summary
-    if user.mental_health_profile.assessment_results:
-        phq9_scores = [a.score for a in user.mental_health_profile.assessment_results if a.assessment_type == "PHQ-9"]
-        gad7_scores = [a.score for a in user.mental_health_profile.assessment_results if a.assessment_type == "GAD-7"]
-        
-        if phq9_scores:
-            analysis["assessment_summary"]["phq9"] = {
-                "latest_score": phq9_scores[-1],
-                "average_score": sum(phq9_scores) / len(phq9_scores),
-                "trend": "improving" if len(phq9_scores) > 1 and phq9_scores[-1] < phq9_scores[-2] else "declining" if len(phq9_scores) > 1 and phq9_scores[-1] > phq9_scores[-2] else "stable"
-            }
-        
-        if gad7_scores:
-            analysis["assessment_summary"]["gad7"] = {
-                "latest_score": gad7_scores[-1],
-                "average_score": sum(gad7_scores) / len(gad7_scores),
-                "trend": "improving" if len(gad7_scores) > 1 and gad7_scores[-1] < gad7_scores[-2] else "declining" if len(gad7_scores) > 1 and gad7_scores[-1] > gad7_scores[-2] else "stable"
-            }
+    # Add wellness metrics if available
+    if user.mental_health_profile.wellness_metrics:
+        latest_metric = user.mental_health_profile.wellness_metrics[-1]
+        insights["wellness_metrics"]["sleep_hours"] = latest_metric.sleep_hours
+        insights["wellness_metrics"]["activity_minutes"] = latest_metric.activity_minutes
+        insights["wellness_metrics"]["stress_level"] = latest_metric.stress_level
+        insights["wellness_metrics"]["daily_wellness_score"] = latest_metric.daily_wellness_score
     
-    # Mood trends
-    if user.mood_trends:
-        mood_counts = {}
-        for mood in user.mood_trends[-30:]:
-            mood_counts[mood.mood] = mood_counts.get(mood.mood, 0) + 1
-        
-        analysis["mood_trends"] = {
-            "most_common_mood": max(mood_counts, key=mood_counts.get) if mood_counts else None,
-            "mood_distribution": mood_counts,
-            "last_recorded": user.mood_trends[-1].mood if user.mood_trends else None
-        }
-    
-    # Research-based insights
-    analysis["research_based_insights"]["birth_season"] = get_birth_season_analysis(user.birthdate)
-    analysis["research_based_insights"]["blood_type"] = get_blood_group_analysis(user.bloodgroup)
-    analysis["research_based_insights"]["birth_order"] = get_birth_order_analysis(user.olderSiblings, user.youngerSiblings)
-    
-    return analysis
-
-def create_assessment_chart(user: User) -> Image:
-    """Create a chart of assessment scores over time"""
-    plt.figure(figsize=(10, 5))
-    
-    phq9_scores = [(a.date, a.score) for a in user.mental_health_profile.assessment_results if a.assessment_type == "PHQ-9"]
-    gad7_scores = [(a.date, a.score) for a in user.mental_health_profile.assessment_results if a.assessment_type == "GAD-7"]
-    
-    if phq9_scores:
-        dates, scores = zip(*phq9_scores)
-        plt.plot(dates, scores, marker='o', label='PHQ-9 (Depression)', color='#A5645A', linewidth=2)
-    
-    if gad7_scores:
-        dates, scores = zip(*gad7_scores)
-        plt.plot(dates, scores, marker='s', label='GAD-7 (Anxiety)', color='#E1A79E', linewidth=2)
-    
-    plt.title("Mental Health Assessment Scores Over Time", fontsize=14, fontweight='bold')
-    plt.xlabel("Date", fontsize=12)
-    plt.ylabel("Score", fontsize=12)
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    
-    img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=100, bbox_inches='tight')
-    img_buffer.seek(0)
-    plt.close()
-    
-    return img_buffer
-
-def create_mood_chart(user: User) -> Image:
-    """Create a chart of mood distribution"""
-    plt.figure(figsize=(10, 5))
-    
-    mood_counts = {}
-    for mood in user.mood_trends[-30:]:
-        mood_counts[mood.mood] = mood_counts.get(mood.mood, 0) + 1
-    
-    if mood_counts:
-        moods = list(mood_counts.keys())
-        counts = list(mood_counts.values())
-        colors_map = {
-            "excited": "#27AE60",
-            "happy": "#F2C94C",
-            "calm": "#A5645A",
-            "neutral": "#4A433F",
-            "sad": "#EB5757",
-            "angry": "#8B0000"
-        }
-        bar_colors = [colors_map.get(m, "#999999") for m in moods]
-        
-        plt.bar(moods, counts, color=bar_colors)
-        plt.title("Mood Distribution (Last 30 Days)", fontsize=14, fontweight='bold')
-        plt.xlabel("Mood", fontsize=12)
-        plt.ylabel("Frequency", fontsize=12)
-        plt.xticks(rotation=45)
-        plt.grid(True, alpha=0.3, axis='y')
-        plt.tight_layout()
-    
-    img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=100, bbox_inches='tight')
-    img_buffer.seek(0)
-    plt.close()
-    
-    return img_buffer
+    return insights
 
 def generate_mental_health_report(
-    user: User,
+    user: Any,
     include_assessments: bool = True,
     include_mood_trends: bool = True,
     include_recommendations: bool = True,
-    date_range_days: Optional[int] = 30
+    date_range_days: int = 30
 ) -> str:
     """
-    Generate a comprehensive mental health PDF report
+    Generate a comprehensive PDF mental health report
     """
     
-    # Calculate analysis
-    analysis = calculate_mental_health_analysis(user)
-    
-    # Create PDF
+    # Create PDF file
     temp_dir = tempfile.gettempdir()
-    pdf_filename = f"{user.user_id}_mental_health_report_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.pdf"
-    pdf_path = os.path.join(temp_dir, pdf_filename)
+    filename = f"mental_health_report_{user.user_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.pdf"
+    filepath = os.path.join(temp_dir, filename)
     
-    doc = SimpleDocTemplate(pdf_path, pagesize=letter)
-    story = []
+    # Create PDF document
+    doc = SimpleDocTemplate(filepath, pagesize=letter)
     styles = getSampleStyleSheet()
+    story = []
     
     # Custom styles
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=24,
+        fontSize=28,
         textColor=colors.HexColor('#A5645A'),
-        spaceAfter=30,
-        alignment=TA_CENTER
+        spaceAfter=6,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
     )
     
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
         fontSize=16,
-        textColor=colors.HexColor('#4B2F2A'),
+        textColor=colors.HexColor('#A5645A'),
         spaceAfter=12,
-        spaceBefore=12
+        spaceBefore=12,
+        fontName='Helvetica-Bold'
     )
     
+    body_style = ParagraphStyle(
+        'CustomBody',
+        parent=styles['BodyText'],
+        fontSize=11,
+        spaceAfter=8,
+        alignment=TA_JUSTIFY,
+        fontName='Helvetica'
+    )
+    
+    # Get analysis
+    analysis = calculate_mental_health_analysis(user)
+    
     # Title
-    story.append(Paragraph("Mental Health Report", title_style))
-    story.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%B %d, %Y at %I:%M %p')}", styles['Normal']))
+    story.append(Paragraph("PsyMitrix Mental Health Report", title_style))
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Report Info
+    report_info = f"Report Date: {analysis['profile_summary']['report_date']}"
+    story.append(Paragraph(report_info, body_style))
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Executive Summary
+    story.append(Paragraph("Executive Summary", heading_style))
+    summary_text = f"""
+    This comprehensive mental health report provides an overview of your psychological well-being 
+    based on data collected through the PsyMitrix platform. The report includes mood tracking, 
+    standardized assessment results, engagement metrics, and personalized recommendations for 
+    continued wellness.
+    <br/><br/>
+    <b>Key Findings:</b><br/>
+    • Current Mood: {analysis['mood_analysis']['latest_mood']}<br/>
+    • Average Mood Score (Last 30 Days): {analysis['mood_analysis']['average_mood_score']}/10<br/>
+    • Mood Trend: {analysis['mood_analysis']['trend']}<br/>
+    • Current Streak: {analysis['engagement']['current_streak']} days<br/>
+    """
+    story.append(Paragraph(summary_text, body_style))
     story.append(Spacer(1, 0.3*inch))
     
-    # User Information
-    story.append(Paragraph("Personal Information", heading_style))
-    user_info = [
-        ["Name:", f"{user.firstName} {user.lastName}"],
-        ["Age:", str(analysis["personal_profile"]["age"])],
-        ["Gender:", str(analysis["personal_profile"]["gender"])],
-        ["Occupation:", str(analysis["personal_profile"]["occupation"])],
-        ["Member Since:", user.created_at.strftime("%B %d, %Y")]
-    ]
-    user_table = Table(user_info, colWidths=[2*inch, 4*inch])
-    user_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#F4F4F2')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.grey)
-    ]))
-    story.append(user_table)
+    # Mood Analysis
+    if include_mood_trends:
+        story.append(Paragraph("Mood Analysis", heading_style))
+        
+        mood_trends = user.mood_trends[-30:] if user.mood_trends else []
+        mood_text = f"""
+        You have logged {len(mood_trends)} mood entries in the past 30 days. 
+        Your average mood score is {analysis['mood_analysis']['average_mood_score']}/10, 
+        indicating a {analysis['mood_analysis']['trend'].lower()} trend.
+        <br/><br/>
+        <b>Mood Distribution:</b><br/>
+        """
+        
+        if mood_trends:
+            mood_counts = {}
+            for m in mood_trends:
+                mood_counts[m.mood] = mood_counts.get(m.mood, 0) + 1
+            
+            for mood, count in sorted(mood_counts.items(), key=lambda x: x[1], reverse=True):
+                percentage = (count / len(mood_trends)) * 100
+                mood_text += f"• {mood.capitalize()}: {count} times ({percentage:.1f}%)<br/>"
+        
+        story.append(Paragraph(mood_text, body_style))
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Assessment Results
+    if include_assessments:
+        story.append(Paragraph("Assessment Results", heading_style))
+        
+        phq9_data = analysis['assessment_scores']['phq9']
+        gad7_data = analysis['assessment_scores']['gad7']
+        
+        assessment_text = f"""
+        <b>PHQ-9 (Depression Screening):</b><br/>
+        • Latest Score: {phq9_data['latest'] or 'Not yet assessed'}<br/>
+        • Severity Level: {phq9_data['severity'] or 'N/A'}<br/>
+        • Last Taken: {phq9_data['last_taken']}<br/>
+        <br/>
+        <b>GAD-7 (Anxiety Screening):</b><br/>
+        • Latest Score: {gad7_data['latest'] or 'Not yet assessed'}<br/>
+        • Severity Level: {gad7_data['severity'] or 'N/A'}<br/>
+        • Last Taken: {gad7_data['last_taken']}<br/>
+        """
+        
+        story.append(Paragraph(assessment_text, body_style))
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Wellness Metrics
+    story.append(Paragraph("Wellness Metrics", heading_style))
+    
+    wellness = analysis['wellness_metrics']
+    wellness_text = f"""
+    <b>Recent Wellness Data:</b><br/>
+    • Sleep Hours: {wellness['sleep_hours'] or 'Not tracked'}<br/>
+    • Physical Activity (minutes): {wellness['activity_minutes'] or 'Not tracked'}<br/>
+    • Stress Level: {wellness['stress_level'] or 'Not tracked'}<br/>
+    • Daily Wellness Score: {wellness['daily_wellness_score'] or 'Not tracked'}<br/>
+    """
+    story.append(Paragraph(wellness_text, body_style))
     story.append(Spacer(1, 0.3*inch))
     
-    # Assessment Summary
-    if include_assessments and analysis["assessment_summary"]:
-        story.append(Paragraph("Assessment Summary", heading_style))
-        
-        assessment_data = []
-        if "phq9" in analysis["assessment_summary"]:
-            phq9 = analysis["assessment_summary"]["phq9"]
-            assessment_data.append([
-                "PHQ-9 (Depression)",
-                f"Latest: {phq9['latest_score']}",
-                f"Avg: {phq9['average_score']:.1f}",
-                phq9['trend'].capitalize()
-            ])
-        
-        if "gad7" in analysis["assessment_summary"]:
-            gad7 = analysis["assessment_summary"]["gad7"]
-            assessment_data.append([
-                "GAD-7 (Anxiety)",
-                f"Latest: {gad7['latest_score']}",
-                f"Avg: {gad7['average_score']:.1f}",
-                gad7['trend'].capitalize()
-            ])
-        
-        if assessment_data:
-            assessment_table = Table([["Assessment", "Latest Score", "Average", "Trend"]] + assessment_data)
-            assessment_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#A5645A')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-                ('GRID', (0, 0), (-1, -1), 1, colors.grey)
-            ]))
-            story.append(assessment_table)
-            story.append(Spacer(1, 0.3*inch))
-        
-        # Assessment chart
-        try:
-            chart_img = create_assessment_chart(user)
-            img = Image(chart_img, width=6*inch, height=3*inch)
-            story.append(img)
-            story.append(Spacer(1, 0.2*inch))
-        except:
-            pass
+    # Engagement Summary
+    story.append(Paragraph("Your Engagement", heading_style))
     
-    # Mood Trends
-    if include_mood_trends and analysis["mood_trends"]:
-        story.append(PageBreak())
-        story.append(Paragraph("Mood Trends", heading_style))
-        
-        mood_data = [
-            ["Most Common Mood:", str(analysis["mood_trends"].get("most_common_mood", "N/A")).capitalize()],
-            ["Last Recorded Mood:", str(analysis["mood_trends"].get("last_recorded", "N/A")).capitalize()],
-        ]
-        mood_table = Table(mood_data, colWidths=[2*inch, 4*inch])
-        mood_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#F4F4F2')),
-            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.grey)
-        ]))
-        story.append(mood_table)
-        story.append(Spacer(1, 0.2*inch))
-        
-        # Mood chart
-        try:
-            mood_chart_img = create_mood_chart(user)
-            img = Image(mood_chart_img, width=6*inch, height=3*inch)
-            story.append(img)
-            story.append(Spacer(1, 0.2*inch))
-        except:
-            pass
-    
-    # Research-Based Insights
-    story.append(PageBreak())
-    story.append(Paragraph("Research-Based Insights", heading_style))
-    
-    # Birth Season
-    birth_season = analysis["research_based_insights"]["birth_season"]
-    if birth_season["season"] != "Unknown":
-        story.append(Paragraph(f"Birth Season: {birth_season['season']}", styles['Heading3']))
-        for char in birth_season["characteristics"]:
-            story.append(Paragraph(f"• {char}", styles['Normal']))
-        story.append(Spacer(1, 0.1*inch))
-    
-    # Blood Type
-    blood_type = analysis["research_based_insights"]["blood_type"]
-    if blood_type.get("blood_group") != "Unknown":
-        story.append(Paragraph(f"Blood Type Profile: {blood_type['blood_group']}", styles['Heading3']))
-        story.append(Paragraph("Characteristics:", styles['Normal']))
-        for trait in blood_type.get("traits", []):
-            story.append(Paragraph(f"• {trait}", styles['Normal']))
-        story.append(Paragraph("Strengths:", styles['Normal']))
-        for strength in blood_type.get("strengths", []):
-            story.append(Paragraph(f"• {strength}", styles['Normal']))
-        story.append(Spacer(1, 0.1*inch))
-    
-    # Birth Order
-    birth_order = analysis["research_based_insights"]["birth_order"]
-    story.append(Paragraph(f"Birth Order: {birth_order['birth_order']}", styles['Heading3']))
-    for trait in birth_order["traits"]:
-        story.append(Paragraph(f"• {trait}", styles['Normal']))
-    story.append(Spacer(1, 0.1*inch))
+    engagement = analysis['engagement']
+    engagement_text = f"""
+    • Total Chat Sessions: {engagement['total_sessions']}<br/>
+    • Assessments Completed: {engagement['total_assessments']}<br/>
+    • Current Streak: {engagement['current_streak']} days<br/>
+    • Longest Streak: {engagement['longest_streak']} days<br/>
+    • Achievements Unlocked: {engagement['achievements']}<br/>
+    """
+    story.append(Paragraph(engagement_text, body_style))
+    story.append(Spacer(1, 0.3*inch))
     
     # Recommendations
     if include_recommendations:
-        story.append(PageBreak())
-        story.append(Paragraph("Recommendations", heading_style))
+        story.append(Paragraph("Personalized Recommendations", heading_style))
         
-        recommendations = [
-            "1. Continue regular mental health assessments to track progress",
-            "2. Engage with the AI psychiatrist assistant for daily support and guidance",
-            "3. Maintain consistent mood tracking for pattern identification",
-            "4. Practice self-care activities: exercise, sleep, and social connection",
-            "5. Consider professional mental health support if symptoms persist",
-            "6. Use breathing and mindfulness techniques during moments of stress",
-            "7. Keep this report confidential and secure"
-        ]
+        recommendations_text = "<b>To continue improving your mental health:</b><br/>"
+        for i, rec in enumerate(analysis['recommendations'], 1):
+            recommendations_text += f"{i}. {rec}<br/>"
         
-        for rec in recommendations:
-            story.append(Paragraph(rec, styles['Normal']))
+        story.append(Paragraph(recommendations_text, body_style))
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Important Information
+    story.append(PageBreak())
+    story.append(Paragraph("Important Information", heading_style))
+    
+    important_text = """
+    <b>Understanding This Report:</b><br/>
+    This report is generated based on self-reported mood data and standardized assessment tools. 
+    It is designed to support your mental health journey and track your progress over time.
+    <br/><br/>
+    <b>Crisis Support:</b><br/>
+    If you are experiencing a mental health crisis or having thoughts of self-harm, 
+    please contact emergency services or a crisis hotline immediately. 
+    This platform is not a substitute for professional mental health care.
+    <br/><br/>
+    <b>Data Privacy:</b><br/>
+    Your mental health information is encrypted and stored securely. 
+    This report is confidential and should be treated accordingly. 
+    You can share this with healthcare providers to support collaborative care.
+    <br/><br/>
+    <b>Regular Check-ins:</b><br/>
+    We recommend completing assessments monthly and maintaining consistent mood tracking 
+    for the most accurate analysis of your mental health trends.
+    <br/><br/>
+    <b>Disclaimer:</b><br/>
+    PsyMitrix AI is designed to support mental health, not replace professional care. 
+    Always consult with licensed healthcare providers for diagnosis and treatment plans.
+    """
+    story.append(Paragraph(important_text, body_style))
+    story.append(Spacer(1, 0.3*inch))
+    
+    # Footer
+    story.append(Spacer(1, 0.5*inch))
+    footer_text = f"<i>Report generated on {datetime.utcnow().strftime('%B %d, %Y at %H:%M %Z')}</i>"
+    story.append(Paragraph(footer_text, ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.grey,
+        alignment=TA_CENTER
+    )))
     
     # Build PDF
     doc.build(story)
     
-    return pdf_path
+    return filepath
