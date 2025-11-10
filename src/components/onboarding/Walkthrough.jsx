@@ -11,7 +11,7 @@ const Walkthrough = () => {
 
   const steps = useMemo(() => ([
     { icon: <FiHeart />, title: 'A Safe Space for Your Mind', desc: 'Psymitrix is a gentle, private, and supportive environment where you are in control of your mental wellness journey.' },
-    { icon: <FiMessageCircle />, title: 'Empathetic AI Chat', desc: 'Chat with Aura, an AI companion that understands you, offers support, and suggests helpful exercises.' },
+    { icon: <FiMessageCircle />, title: 'Empathetic AI Chat', desc: 'Chat with Shvayam, an AI companion that understands you, offers support, and suggests helpful exercises.' },
     { icon: <FiBarChart2 />, title: 'Track Mood & Progress', desc: 'Use daily check-ins, assessments, and journals to measure your growth and celebrate your progress.' },
     { icon: <FiPlayCircle />, title: 'Relax with Calming Games', desc: 'Unwind and refocus with a selection of calming games and guided breathing exercises designed to soothe your mind.' },
     { icon: <FiGrid />, title: 'Your Personal Dashboard', desc: 'Visualize your healing journey with soft, encouraging visuals and get a clear overview of your progress.' }

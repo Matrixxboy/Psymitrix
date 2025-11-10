@@ -4,7 +4,8 @@ from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from models.user_model import User, UserUpdate
 from apis.auth.authentication import get_current_user
 from Database.db_connection import get_mongo_db
-
+from apis.database_connection.cleanup import cleanup_user_chromadb_collection
+import json 
 router = APIRouter(prefix="/user_crud", tags=["User CRUD+AI"])
 
 
@@ -28,7 +29,7 @@ async def read_current_user(current_user: User = Depends(get_current_user)):
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],
             message="Current user fetched successfully",
-            data=current_user.model_dump_json()
+            data=json.loads(current_user.model_dump_json())
         )
     except Exception as e:
         return make_response(
@@ -125,4 +126,43 @@ async def update_user_data(
             code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
             message="Failed to update user data",
             data={"api": "update_user_data", "error": str(e)}
+        )
+
+@router.delete("/user/delete")
+async def delete_user(
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_mongo_db)
+):
+    """
+    Deletes the currently authenticated user's account and all associated data.
+    """
+    try:
+        user_id = str(current_user.user_id)
+        
+        # Delete user from MongoDB
+        delete_result = db.users.delete_one({"email": current_user.email})
+        
+        if delete_result.deleted_count == 0:
+            return make_response(
+                status_code=HTTP_STATUS["NOT_FOUND"],
+                code=HTTP_CODE["NOT_FOUND"],
+                message="User not found for deletion",
+                data={}
+            )
+            
+        # Cleanup ChromaDB data
+        cleanup_user_chromadb_collection(user_id)
+        
+        return make_response(
+            status_code=HTTP_STATUS["OK"],
+            code=HTTP_CODE["OK"],
+            message="User account deleted successfully",
+            data={}
+        )
+    except Exception as e:
+        return make_response(
+            status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],
+            code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Failed to delete user account",
+            data={"api": "delete_user", "error": str(e)}
         )

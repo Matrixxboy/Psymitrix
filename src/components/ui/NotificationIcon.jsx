@@ -16,8 +16,12 @@ const NotificationIcon = () => {
 
   useEffect(() => {
     if (!user?.notifications_enabled) return;
+
     const fetchNotifications = async () => {
-      setLoading(true);
+      // Only show loader on initial fetch
+      if (notifications.length === 0) {
+        setLoading(true);
+      }
       try {
         const response = await getNotifications();
         const data = response?.data?.data?.notifications || [];
@@ -29,7 +33,12 @@ const NotificationIcon = () => {
         setLoading(false);
       }
     };
-    fetchNotifications();
+
+    fetchNotifications(); // Initial fetch
+
+    const intervalId = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
   }, [user]);
 
   useEffect(() => {

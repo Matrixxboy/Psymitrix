@@ -1,169 +1,270 @@
 import os
-from typing import Tuple, List, Dict, Optional
-from langchain.chains import RetrievalQA
-from langchain_huggingface import HuggingFaceEndpoint
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.prompts import PromptTemplate
-from langchain.memory import ConversationBufferMemory
-import json
+import shutil
+from typing import Tuple, List, Dict
 from datetime import datetime
+import torch
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    pipeline,
+    BitsAndBytesConfig
+)
+import chromadb
 from chromadb.config import Settings
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+from dotenv import load_dotenv
+load_dotenv()
+# ===========================
+# CONFIGURATION
+# ===========================
 
-# Initialize HuggingFace API
-HF_API_TOKEN = "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"
+HF_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = HF_API_TOKEN
 
-# Mental health knowledge base for Chroma
-MENTAL_HEALTH_KNOWLEDGE = [
-    "Cognitive Behavioral Therapy (CBT) helps identify and change negative thought patterns and behaviors.",
-    "Depression is characterized by persistent sadness, loss of interest, and changes in sleep or appetite.",
-    "Anxiety disorders involve excessive worry that interferes with daily functioning.",
-    "Mindfulness and meditation can reduce anxiety and improve emotional regulation.",
-    "Regular exercise has been shown to improve mood and reduce symptoms of depression and anxiety.",
-    "Sleep hygiene includes maintaining consistent sleep schedules and avoiding screens before bed.",
-    "Social support is crucial for mental health recovery and resilience.",
-    "Professional help from therapists or counselors should be sought for severe mental health conditions.",
-    "Breathing exercises like 4-7-8 breathing can help manage acute anxiety.",
-    "Journaling can help process emotions and identify thought patterns.",
-    "Boundary setting is important for protecting mental health in relationships.",
-    "Self-compassion is as important as treating others with kindness.",
-    "Crisis resources: National Suicide Prevention Lifeline 988, Crisis Text Line text HOME to 741741",
-]
+CHROMA_PATH = "./chroma_db"
+MODEL_NAME = "Matrixxboy/PsyMitrix_psychiatrist"
+EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
-# Initialize vector store (Chroma)
-vector_store = None
+# ===========================
+# INITIALIZATION
+# ===========================
 
-def initialize_vector_store():
-    """Initialize Chroma vector store with mental health knowledge"""
-    global vector_store
+def initialize_local_llm():
+    """Load PsyMitrix model with automatic 4-bit fallback."""
     try:
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        print(f"[INFO] Loading your model: {MODEL_NAME}")
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
+
+        try:
+            # Try full FP16 first
+            model = AutoModelForCausalLM.from_pretrained(
+                MODEL_NAME,
+                torch_dtype=torch.float16,
+                device_map="auto",
+                trust_remote_code=True,
+                low_cpu_mem_usage=True
+            )
+            print("[INFO] Model loaded in FP16 successfully.")
+        except RuntimeError as oom_error:
+            print("[WARN] Out of memory loading in FP16 — switching to 4-bit quantization.")
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_quant_type="nf4"
+            )
+            model = AutoModelForCausalLM.from_pretrained(
+                MODEL_NAME,
+                device_map="auto",
+                quantization_config=bnb_config,
+                trust_remote_code=True,
+                low_cpu_mem_usage=True
+            )
+
+        llm_pipeline = pipeline(
+            "text-generation",
+            model=model,
+            tokenizer=tokenizer,
+            torch_dtype=torch.float16,
+            device_map="auto",
+            temperature=0.6,
+            top_p=0.9,
+            repetition_penalty=1.1
         )
-        
-        # Create or load vector store
-        vector_store = Chroma.from_texts(
-            texts=MENTAL_HEALTH_KNOWLEDGE,
-            embedding=embeddings,
-            persist_directory="./chroma_db",
-            collection_name="mental_health",
-            client_settings=Settings(anonymized_telemetry=False)
-        )
-        return vector_store
+        print("[INFO] PsyMitrix LLM loaded and ready.")
+        return llm_pipeline
+
     except Exception as e:
-        print(f"Error initializing vector store: {e}")
+        print(f"[ERROR] Failed to load model: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
-async def get_ai_response(
-    user_message: str,
-    user_context: Dict,
-    conversation_history: List[Dict]
-) -> Tuple[str, Dict]:
-    """
-    Generate AI response with context-aware mental health advice
-    
-    Args:
-        user_message: The user's message
-        user_context: Dictionary with user's mental health info
-        conversation_history: Previous conversation messages
-    
-    Returns:
-        Tuple of (ai_response, analysis_dict)
-    """
+
+def initialize_chroma_client():
+    """Initialize ChromaDB client."""
     try:
-        # Initialize vector store if not already done
-        global vector_store
-        if vector_store is None:
-            vector_store = initialize_vector_store()
-        
-        # Initialize HuggingFace LLM
-        llm = HuggingFaceEndpoint(
-            repo_id="mistralai/Mistral-7B-Instruct-v0.1",
-            model_kwargs={"temperature": 0.7, "max_new_tokens": 512},
-            huggingfacehub_api_token=HF_API_TOKEN
-        )
-        
-        # Initialize embeddings
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-        
-        # Create retrieval chain
-        retrieval_qa = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=vector_store.as_retriever(search_kwargs={"k": 3}),
-            return_source_documents=False
-        )
-        
-        # Build context prompt
-        context_prompt = f"""You are a compassionate, empathetic AI psychiatrist assistant. Your role is to:
-1. Listen actively and validate the user's feelings
-2. Provide evidence-based mental health advice
-3. Suggest coping strategies appropriate to their situation
-4. Recognize warning signs and recommend professional help when needed
-5. Be warm, non-judgmental, and supportive
-
-User Context:
-- Mental Health History: {user_context.get('mental_health_history', 'Not specified')}
-- Recent Mood: {user_context.get('recent_mood', 'Not recorded')}
-- Age: {user_context.get('age', 'Not specified')}
-- Gender: {user_context.get('gender', 'Not specified')}
-- Recent Assessments: {json.dumps(user_context.get('recent_assessments', []), indent=2)}
-
-Conversation History (last 3 messages):
-"""
-        
-        # Add recent conversation history
-        for msg in conversation_history[-3:]:
-            context_prompt += f"\n{msg['role'].upper()}: {msg['content']}"
-        
-        context_prompt += f"\n\nUser's current message: {user_message}"
-        context_prompt += "\n\nProvide a supportive, evidence-based response that acknowledges their feelings, offers practical advice, and maintains therapeutic boundaries. Keep response concise (2-3 sentences max)."
-        
-        # Get retrieval-augmented response
-        response = retrieval_qa.run(context_prompt)
-        
-        # Analyze sentiment and severity
-        analysis = analyze_message(user_message, user_context)
-        
-        return response.strip(), analysis
-        
+        settings = Settings(anonymized_telemetry=False)
+        return chromadb.PersistentClient(path=CHROMA_PATH, settings=settings)
     except Exception as e:
-        # Fallback response if AI service fails
-        fallback_response = f"I'm here to listen. It sounds like you're going through something challenging. Could you tell me more about what's on your mind? I'm here to help."
-        return fallback_response, {"error": str(e)}
+        print(f"[ERROR] Failed to init Chroma: {e}")
+        return None
 
-def analyze_message(message: str, user_context: Dict) -> Dict:
-    """
-    Analyze user message for emotional content and mental health indicators
-    """
-    analysis = {
-        "severity_level": "low",
-        "emotional_keywords": [],
-        "recommended_action": "continue_support"
-    }
-    
-    # Keywords for different severity levels
-    crisis_keywords = ["suicide", "kill myself", "self harm", "overdose", "want to die", "end it all"]
-    severe_keywords = ["depressed", "anxious", "panic", "overwhelming", "can't cope", "hopeless"]
-    moderate_keywords = ["sad", "worried", "stressed", "tired", "frustrated", "lonely"]
-    
-    message_lower = message.lower()
-    
-    # Check for crisis indicators
-    if any(keyword in message_lower for keyword in crisis_keywords):
-        analysis["severity_level"] = "critical"
-        analysis["recommended_action"] = "crisis_resources"
-        analysis["emotional_keywords"] = crisis_keywords
-    elif any(keyword in message_lower for keyword in severe_keywords):
-        analysis["severity_level"] = "severe"
-        analysis["recommended_action"] = "professional_help"
-    elif any(keyword in message_lower for keyword in moderate_keywords):
-        analysis["severity_level"] = "moderate"
-        analysis["recommended_action"] = "continue_support"
-    
-    analysis["timestamp"] = datetime.utcnow().isoformat()
-    
-    return analysis
+
+local_llm_pipeline = initialize_local_llm()
+chroma_client = initialize_chroma_client()
+
+# ===========================
+# KNOWLEDGE BASE
+# ===========================
+
+MENTAL_HEALTH_KNOWLEDGE = [
+    "Cognitive Behavioral Therapy helps people reframe negative thinking patterns.",
+    "Mindfulness reduces anxiety by focusing awareness on the present moment.",
+    "Depression often involves persistent sadness, loss of motivation, and low energy.",
+    "Regular exercise, nutrition, and social connection improve mental well-being.",
+    "If you are in crisis or thinking about self-harm, please reach out for help immediately.",
+]
+
+vector_store = None
+user_vector_stores = {}
+
+# ===========================
+# VECTOR STORE MANAGEMENT
+# ===========================
+
+def initialize_vector_store():
+    global vector_store
+    if not chroma_client:
+        return None
+    try:
+        embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+        vector_store = Chroma(
+            client=chroma_client,
+            collection_name="psy_health",
+            embedding_function=embeddings
+        )
+        if vector_store._collection.count() == 0:
+            vector_store.add_texts(MENTAL_HEALTH_KNOWLEDGE)
+            print("[INFO] Added base knowledge to ChromaDB.")
+        return vector_store
+    except Exception as e:
+        print(f"[ERROR] Vector store init failed: {e}")
+        return None
+
+
+def get_user_vector_store(user_id: str):
+    if user_id in user_vector_stores:
+        return user_vector_stores[user_id]
+    try:
+        embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+        name = f"user_{user_id.replace('-', '_')}_mem"
+        store = Chroma(client=chroma_client, collection_name=name, embedding_function=embeddings)
+        user_vector_stores[user_id] = store
+        return store
+    except Exception as e:
+        print(f"[ERROR] User vector store error: {e}")
+        return None
+
+
+def add_message_to_user_history(uid, msg, resp):
+    store = get_user_vector_store(uid)
+    if store:
+        text = f"[{datetime.utcnow().isoformat()}] USER: {msg}\nAI: {resp}"
+        try:
+            store.add_texts([text])
+        except Exception as e:
+            print(f"[WARN] Could not add message: {e}")
+
+# ===========================
+# ANALYSIS
+# ===========================
+
+def analyze_message(message: str, ctx: Dict) -> Dict:
+    crisis = ["suicide", "kill myself", "self harm", "end my life"]
+    severe = ["hopeless", "panic", "worthless"]
+    moderate = ["sad", "lonely", "worried", "tired"]
+    msg = message.lower()
+    lvl, action = "low", "continue_support"
+    if any(k in msg for k in crisis): lvl, action = "critical", "provide_crisis_resources"
+    elif any(k in msg for k in severe): lvl, action = "severe", "suggest_professional_help"
+    elif any(k in msg for k in moderate): lvl, action = "moderate", "offer_emotional_support"
+    return {"severity_level": lvl, "recommended_action": action, "timestamp": datetime.utcnow().isoformat()}
+
+# ===========================
+# RESPONSE GENERATION
+# ===========================
+
+import re
+import json
+
+async def get_ai_response(user_id: str, user_message: str, user_context: Dict, conversation_history: List[Dict]) -> Tuple[str, Dict]:
+    """Generate empathetic, context-aware mental health responses."""
+
+    if not local_llm_pipeline:
+        return (
+            "I’m here for you. Please remember, you’re not alone in this.",
+            {"error": "Model not loaded"},
+        )
+
+    try:
+        assessments_summary = "No recent assessments."
+        if user_context.get("recent_assessments"):
+            assessments_summary = "\n".join(
+                [f"- {a['type']}: {a['score']} ({a['severity']})"
+                 for a in user_context["recent_assessments"]]
+            )
+
+        history = "\n".join(
+            [f"{m['role'].upper()}: {m['content']}"
+             for m in conversation_history[-3:]]
+        )
+
+        # ✅ Updated prompt: instruct model to give plain text
+        prompt = f"""
+You are PsyMitrix — a professional, compassionate AI psychiatrist.
+Respond like a warm, caring human — not as code, JSON, or a program output.
+Write directly to the user in natural language (no JSON, quotes, or code fences).
+
+User Mood: {user_context.get('recent_mood', 'N/A')}
+Assessments:
+{assessments_summary}
+
+Recent Chat:
+{history}
+
+User says: "{user_message}"
+
+Your compassionate natural-language reply:
+"""
+
+        outputs = local_llm_pipeline(
+            prompt,
+            max_new_tokens=200,
+            temperature=0.7,
+            do_sample=True,
+            top_p=0.9
+        )
+
+        reply = outputs[0]["generated_text"].replace(prompt, "").strip()
+
+        # ✅ Clean up: remove code fences, JSON, print(), etc.
+        reply = re.sub(r"```.*?```", "", reply, flags=re.DOTALL).strip()
+        reply = re.sub(r"^json", "", reply, flags=re.IGNORECASE).strip()
+
+        # Try parsing JSON and extracting message
+        try:
+            data = json.loads(reply)
+            if isinstance(data, dict) and "response" in data:
+                reply = data["response"]
+            elif isinstance(data, list) and "response" in data[0]:
+                reply = data[0]["response"]
+        except json.JSONDecodeError:
+            # Not JSON — continue normally
+            pass
+
+        # Final cleanup
+        reply = re.sub(r"^(response|output|answer|text)[:\s-]*", "", reply, flags=re.IGNORECASE).strip()
+        reply = reply.strip('"\'')
+
+        if not reply:
+            reply = "It’s okay to ask for help. I’m listening — what’s been troubling you?"
+
+        add_message_to_user_history(user_id, user_message, reply)
+
+        analysis = analyze_message(user_message, user_context)
+        return reply, analysis
+
+    except Exception as e:
+        print(f"[ERROR] Response generation failed: {e}")
+        return (
+            "That sounds difficult. I’m here for you — let’s take it one step at a time.",
+            {"error": str(e)},
+        )
+
+# ===========================
+# STARTUP
+# ===========================
+
+initialize_vector_store()
+print("[READY ✅] PsyMitrix AI initialized successfully.")

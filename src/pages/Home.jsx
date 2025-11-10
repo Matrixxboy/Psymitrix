@@ -79,7 +79,7 @@ const featureHighlights = [
     icon: FiMessageCircle,
     title: 'Therapeutic Conversations',
     description:
-      'Daily check-ins with Aura feel like speaking to a compassionate psychiatrist, blending CBT, ACT, and supportive reflection in language that meets you where you are.',
+      'Daily check-ins with Shvayam feel like speaking to a compassionate psychiatrist, blending CBT, ACT, and supportive reflection in language that meets you where you are.',
   },
   {
     icon: FiClipboard,
@@ -106,7 +106,7 @@ const journeySteps = [
     icon: FiCpu,
     title: 'Interpret & Prioritise',
     description:
-      'Aura synthesises findings into measurable insights, highlighting concerns that need attention and the protective factors already working for you.',
+      'Shvayam synthesises findings into measurable insights, highlighting concerns that need attention and the protective factors already working for you.',
   },
   {
     icon: FiHeart,
@@ -138,7 +138,7 @@ const blogHighlights = [
     slug: 'ai-psychiatrist-introduction',
     title: 'How PsyMitrix balances AI psychiatry with human empathy',
     excerpt:
-      'Explore the blended care framework that keeps Aura clinically anchored, culturally aware, and deeply compassionate in every conversation.',
+      'Explore the blended care framework that keeps Shvayam clinically anchored, culturally aware, and deeply compassionate in every conversation.',
     readingTime: '6 min read',
   },
   {
@@ -187,14 +187,14 @@ const Home = () => {
               Trusted AI psychiatrist for guided, human-centred care
             </motion.div>
             <motion.h1 variants={fadeInUp} className={`text-5xl md:text-6xl pt-auto font-bold mb-6 ${gradientText}`}>
-              Meet PsyMitrix, your always-on AI psychiatrist
+              PsyMitrix: Your Always-On Partner Platform for Mental Wellness.
             </motion.h1>
             
             <motion.p
               variants={fadeInUp}
               className="text-xl md:text-2xl text-light-body dark:text-dark-body max-w-xl mx-auto mt-2 lg:mx-0 mb-10 leading-relaxed"
             >
-              Aura listens with empathy, surfaces clinically-backed insights, and keeps you connected to the practices and people who help you heal.
+              Shvayam listens with empathy, surfaces clinically-backed insights, and keeps you connected to the practices and people who help you heal.
             </motion.p>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-start justify-center">
               <PrimaryButton to="/chat">
@@ -318,7 +318,7 @@ const Home = () => {
           <motion.div variants={fadeInUp} className="space-y-6 my-20 md:my-28">
             <h2 className={`text-4xl font-bold ${gradientText}`}>Built with clinicians, ready for your care team</h2>
             <p className="text-lg text-light-body dark:text-dark-body leading-relaxed">
-              PsyMitrix was co-designed with psychiatrists, psychologists, and lived-experience advisors. Aura keeps the warmth of human care while managing the continuity tasks that often fall through the cracks.
+              PsyMitrix was co-designed with psychiatrists, psychologists, and lived-experience advisors. Shvayam keeps the warmth of human care while managing the continuity tasks that often fall through the cracks.
             </p>
             <ul className="space-y-4 text-light-body dark:text-dark-body text-left">
               <li className="flex items-start gap-3">
@@ -417,7 +417,7 @@ const Home = () => {
                 variants={fadeInUp}
                 className="text-xl text-light-body dark:text-dark-body max-w-2xl mx-auto mb-8 leading-relaxed"
               >
-                Within minutes, Aura can run your baseline assessment, surface immediate recommendations, and schedule your next guided reflections.
+                Within minutes, Shvayam can run your baseline assessment, surface immediate recommendations, and schedule your next guided reflections.
               </motion.p>
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <PrimaryButton to="/dashboard">Launch PsyMitrix</PrimaryButton>

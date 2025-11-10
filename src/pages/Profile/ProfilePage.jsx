@@ -19,7 +19,7 @@ const ProfilePage = () => {
       <main className="max-w-6xl mx-auto">
         <Breadcrumb />
         <div className="text-center my-12">
-          <img src={`${user?.avatarUrl}`} alt="Avatar" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white/30 shadow-lg"/>
+          <img src={`${user?.profile_picture_url}`} alt="Avatar" className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-white/30 shadow-lg"/>
           <h1 className="text-4xl font-bold text-light-headings dark:text-dark-headings">{user?.firstName} {user?.lastName}</h1>
           <p className="mt-2 text-lg text-light-body dark:text-dark-body">Manage your profile and preferences</p>
         </div>

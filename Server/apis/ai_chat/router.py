@@ -6,8 +6,10 @@ from datetime import datetime
 from models.user_model import User, ChatMessage
 from apis.auth.authentication import get_current_user
 from Database.db_connection import get_mongo_db
-from .ai_service import get_ai_response, initialize_vector_store
+from .ai_service import get_ai_response
 import json
+from utils.response_helper import make_response
+from utils.http_constants import HTTP_STATUS, HTTP_CODE
 
 router = APIRouter(prefix="/ai_chat", tags=["AI Chat"])
 
@@ -31,10 +33,12 @@ async def send_message(
     """
     Send a message to the AI psychiatrist and get a contextual response
     """
+    print("SEND_MESSAGE ENDPOINT CALLED")
     try:
+        user_id = str(current_user.user_id)
         # Initialize vector store with user's mental health context
         user_context = {
-            "user_id": str(current_user.user_id),
+            "user_id": user_id,
             "mental_health_history": current_user.mental_health_profile.mental_health_history or "Not specified",
             "recent_mood": current_user.mood_trends[-1].mood if current_user.mood_trends else "Not recorded",
             "age": current_user.age,
@@ -53,6 +57,7 @@ async def send_message(
         
         # Get AI response with context
         ai_response, analysis = await get_ai_response(
+            user_id=user_id,
             user_message=request.message,
             user_context=user_context,
             conversation_history=[
@@ -93,19 +98,26 @@ async def send_message(
                 }
             }
         )
-        
-        return ChatResponse(
+        data =  ChatResponse(
             message_id=str(ai_msg.message_id),
             user_message=request.message,
             ai_response=ai_response,
             timestamp=ai_msg.timestamp.isoformat(),
             analysis=analysis
         )
+        return make_response(
+            status_code=200,
+            code="OK",
+            message="AI response generated successfully",
+            data=data.model_dump()
+        )
         
     except Exception as e:
-        raise HTTPException(
+        return make_response(
             status_code=500,
-            detail=f"Error processing message: {str(e)}"
+            code="ERROR",
+            message=f"Error processing message: {str(e)}",
+            data={}
         )
 
 @router.get("/history")

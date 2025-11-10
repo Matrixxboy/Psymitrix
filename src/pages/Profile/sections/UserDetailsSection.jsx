@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../hooks/useAuth';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 
 const UserDetailsSection = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, loading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    username: user?.username || '',
-    email: user?.email || '',
+    username: '',
+    email: '',
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username || '',
+        email: user.email || '',
+      });
+    }
+  }, [user]);
 
   // handle input change
   const handleChange = (e) => {
@@ -47,6 +56,10 @@ const UserDetailsSection = () => {
       console.error('Failed to update user:', err);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -100,13 +113,13 @@ const UserDetailsSection = () => {
           <div>
             <p className="text-sm text-light-body dark:text-dark-body">Username</p>
             <p className="font-semibold text-light-headings dark:text-dark-headings">
-              {user.username}
+              {user?.username}
             </p>
           </div>
           <div>
             <p className="text-sm text-light-body dark:text-dark-body">Email</p>
             <p className="font-semibold text-light-headings dark:text-dark-headings">
-              {user.email}
+              {user?.email}
             </p>
           </div>
         </div>
