@@ -27,25 +27,50 @@ const getGreeting = () => {
     : "Good evening";
 };
 
-const processMoodTrends = (moodTrends, timeframe = 'month') => {
-  if (!moodTrends || moodTrends.length === 0) {
-    return { labels: [], values: [] };
-  }
+const getMoodScore = (mood) => {
+  const moodScores = {
+    'excited': 10,
+    'happy': 8,
+    'calm': 7,
+    'neutral': 5,
+    'sad': 3,
+    'angry': 2
+  };
+  return moodScores[mood] || 5;
+};
 
+const filterDataByTimeframe = (data, timeframe = 'month') => {
+  if (!data || data.length === 0) return [];
+  
   const now = new Date();
   let cutoffDate;
   
   if (timeframe === 'week') {
-    cutoffDate = new Date(now.setDate(now.getDate() - 7));
+    cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   } else if (timeframe === 'year') {
-    cutoffDate = new Date(now.setFullYear(now.getFullYear() - 1));
+    cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
   } else {
-    cutoffDate = new Date(now.setDate(now.getDate() - 30));
+    cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   }
 
-  const filtered = moodTrends.filter(trend => new Date(trend.created_at) >= cutoffDate);
+  return data.filter(item => {
+    try {
+      const itemDate = new Date(item.created_at);
+      return itemDate >= cutoffDate;
+    } catch {
+      return true;
+    }
+  });
+};
 
-  const labels = filtered.map(trend => {
+const processMoodTrendsData = (moodTrends, timeframe = 'month') => {
+  const filteredMoods = filterDataByTimeframe(moodTrends, timeframe);
+  
+  if (filteredMoods.length === 0) {
+    return { labels: [], values: [] };
+  }
+
+  const labels = filteredMoods.map(trend => {
     const date = new Date(trend.created_at);
     if (timeframe === 'week') {
       return date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -56,18 +81,129 @@ const processMoodTrends = (moodTrends, timeframe = 'month') => {
     }
   });
 
-  const moodScores = {
-    'excited': 10,
-    'happy': 8,
-    'calm': 7,
-    'neutral': 5,
-    'sad': 3,
-    'angry': 2
-  };
-
-  const values = filtered.map(trend => moodScores[trend.mood]);
+  const values = filteredMoods.map(trend => getMoodScore(trend.mood));
 
   return { labels, values };
+};
+
+const calculateWellnessBalance = (user) => {
+  if (!user?.mental_health_profile?.assessment_results || user.mental_health_profile.assessment_results.length === 0) {
+    return {
+      labels: ["Stress", "Sleep", "Mood", "Energy", "Focus"],
+      datasets: [
+        {
+          label: "This Week",
+          data: [5, 5, 5, 5, 5]
+        },
+        {
+          label: "Last Week",
+          data: [5, 5, 5, 5, 5]
+        }
+      ]
+    };
+  }
+
+  // Calculate based on assessment data
+  const recentAssessments = filterDataByTimeframe(user.mental_health_profile.assessment_results, 'month');
+  
+  let stressScore = 5;
+  let moodScore = 5;
+  let focusScore = 5;
+
+  if (recentAssessments.length > 0) {
+    const latestGAD7 = recentAssessments.find(a => a.assessment_type === 'GAD-7');
+    const latestPHQ9 = recentAssessments.find(a => a.assessment_type === 'PHQ-9');
+
+    // GAD7 (anxiety/stress) - convert score to 1-10 scale (lower is better)
+    if (latestGAD7) {
+      stressScore = 10 - Math.min(latestGAD7.score, 9);
+    }
+
+    // PHQ9 - affects mood score
+    if (latestPHQ9) {
+      moodScore = 10 - Math.min(latestPHQ9.score, 9);
+    }
+
+    focusScore = moodScore; // Correlation between mood and focus
+  }
+
+  // Get sleep and activity from wellness metrics
+  let sleepScore = 5;
+  let energyScore = 5;
+
+  if (user.mental_health_profile?.wellness_metrics && user.mental_health_profile.wellness_metrics.length > 0) {
+    const latestMetric = user.mental_health_profile.wellness_metrics[user.mental_health_profile.wellness_metrics.length - 1];
+    
+    if (latestMetric.sleep_hours) {
+      // 7-9 hours is optimal (score 10)
+      sleepScore = Math.max(1, Math.min(10, Math.round((latestMetric.sleep_hours / 8) * 10)));
+    }
+
+    if (latestMetric.daily_wellness_score) {
+      energyScore = Math.round((latestMetric.daily_wellness_score || 0) / 10);
+    }
+  }
+
+  return {
+    labels: ["Stress", "Sleep", "Mood", "Energy", "Focus"],
+    datasets: [
+      {
+        label: "Current",
+        data: [10 - stressScore, sleepScore, moodScore, energyScore, focusScore]
+      },
+      {
+        label: "Average",
+        data: [5, 5, 5, 5, 5]
+      }
+    ]
+  };
+};
+
+const calculateActivityBreakdown = (user) => {
+  if (!user?.games || user.games.length === 0) {
+    return {
+      value: 0,
+      label: "No activities yet"
+    };
+  }
+
+  const totalGameTime = user.games.reduce((sum, game) => sum + (game.total_time_played || 0), 0);
+  const weeklyGoal = 150; // minutes per week
+  const percentage = Math.min(100, Math.round((totalGameTime / weeklyGoal) * 100));
+
+  return {
+    value: percentage,
+    label: `${percentage}% of weekly goal (${totalGameTime}min)`
+  };
+};
+
+const generateConsistencyData = (moodTrends) => {
+  // Generate heatmap data from mood trends
+  if (!moodTrends || moodTrends.length === 0) {
+    return [];
+  }
+
+  const data = [];
+  const now = new Date();
+
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+
+    const moodForDay = moodTrends.find(m => {
+      const moodDate = new Date(m.created_at).toISOString().split('T')[0];
+      return moodDate === dateStr;
+    });
+
+    // If there's a mood entry, value is 0.8 (tracked), otherwise 0.3 (not tracked)
+    data.push({
+      date: dateStr,
+      value: moodForDay ? 0.8 : 0.3
+    });
+  }
+
+  return data;
 };
 
 const TimeframeButton = ({ label, value, selected, onClick }) => (
@@ -99,7 +235,7 @@ const DashboardPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('month');
-  const [mood, setMood] = useState(5);
+  const [mood, setMood] = useState('');
   const [aiInsights, setAiInsights] = useState(null);
   const [recommendations, setRecommendations] = useState(null);
 
@@ -107,24 +243,46 @@ const DashboardPage = () => {
     const fetchData = async () => {
       if (user) {
         try {
-          const moodTrend = processMoodTrends(user.mood_trends, timeframe);
-          
+          // Process all data from user object
+          const moodTrend = processMoodTrendsData(user.mood_trends || [], timeframe);
+          const activityBreakdown = calculateActivityBreakdown(user);
+          const wellnessBalance = calculateWellnessBalance(user);
+          const consistency = generateConsistencyData(user.mood_trends || []);
+
+          // Calculate average mood
+          const filteredMoods = filterDataByTimeframe(user.mood_trends || [], timeframe);
+          const avgMoodScore = filteredMoods.length > 0
+            ? (filteredMoods.reduce((sum, m) => sum + getMoodScore(m.mood), 0) / filteredMoods.length).toFixed(1)
+            : 'N/A';
+
           const mapped = {
             moodTrend: moodTrend,
-            activityBreakdown: { value: 68, label: "Weekly Goal" },
-            wellnessBalance: { labels: ["Stress", "Sleep", "Mood", "Energy", "Focus"], datasets: [{ label: "This Week", data: [6, 5, 7, 6, 5] }, { label: "Last Week", data: [5, 6, 6, 5, 6] }] },
-            consistency: [{ date: "2025-01-01", value: 0.7 }, { date: "2025-01-02", value: 0.3 }, { date: "2025-01-03", value: 0.9 }],
-            dailyInsight: { title: "Mental Health Status", text: "Your mood has been stable with positive trends. Keep up the consistency!" },
-            suggestions: { activities: [{ title: "Breathing Exercise", details: "5 min" }, { title: "Mindful Walk", details: "15 min" }], tests: [{ title: "Anxiety Score (GAD-7)", details: "Quick check-in" }] },
+            activityBreakdown: activityBreakdown,
+            wellnessBalance: wellnessBalance,
+            consistency: consistency,
+            avgMoodScore: avgMoodScore,
+            moodEntries: filteredMoods.length,
+            dailyInsight: {
+              title: "Mental Health Status",
+              text: filteredMoods.length > 0
+                ? `You've logged ${filteredMoods.length} mood entries. Your average mood is ${avgMoodScore}/10. Keep tracking for better insights!`
+                : "Start tracking your mood to see personalized insights"
+            },
+            suggestions: {
+              activities: [
+                { title: "Breathing Exercise", details: "5 min" },
+                { title: "Mindful Walk", details: "15 min" }
+              ]
+            }
           };
-          
+
           setData(mapped);
 
           // Fetch AI insights
           try {
             const insightsResponse = await axios.get(
               `/api/v1/ai_analytics/insights?timeframe=${timeframe}`,
-              { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+              { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
             );
             if (insightsResponse.data?.data) {
               setAiInsights(insightsResponse.data.data);
@@ -137,7 +295,7 @@ const DashboardPage = () => {
           try {
             const recsResponse = await axios.get(
               `/api/v1/recommendations/personalized`,
-              { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+              { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
             );
             if (recsResponse.data?.data) {
               setRecommendations(recsResponse.data.data);
@@ -145,7 +303,6 @@ const DashboardPage = () => {
           } catch (err) {
             console.log('Recommendations not available yet');
           }
-
         } catch (error) {
           console.error('Error fetching dashboard data:', error);
         } finally {
@@ -156,6 +313,13 @@ const DashboardPage = () => {
 
     fetchData();
   }, [user, timeframe]);
+
+  const handleMoodSaved = (newMood) => {
+    // Refresh data after mood is saved
+    if (user) {
+      setMood('');
+    }
+  };
 
   if (loading || !data) {
     return <DashboardSkeleton />;
@@ -220,19 +384,19 @@ const DashboardPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <MetricCard 
                   title="Avg Mood"
-                  value={data.moodTrend.values.length > 0 ? Math.round(data.moodTrend.values.reduce((a, b) => a + b, 0) / data.moodTrend.values.length) : 'N/A'}
+                  value={data.avgMoodScore}
                   icon={FiZap}
-                  subtitle={`${data.moodTrend.values.length} entries`}
+                  subtitle={`${data.moodEntries} entries`}
                 />
                 <MetricCard 
                   title="Current Streak"
-                  value={`${user.streak} days`}
+                  value={`${user?.streak || 0} days`}
                   icon={FiTrendingUp}
-                  subtitle={`Best: ${user.longest_streak}`}
+                  subtitle={`Best: ${user?.longest_streak || 0}`}
                 />
                 <MetricCard 
                   title="Assessments"
-                  value={user.mental_health_profile.assessment_results.length}
+                  value={user?.mental_health_profile?.assessment_results?.length || 0}
                   icon={FiCheckSquare}
                   subtitle="Total completed"
                 />
@@ -243,7 +407,13 @@ const DashboardPage = () => {
             <motion.div variants={itemVariants}>
               <ChartCard title={`Mood Trend (${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)})`} icon={FiBarChart2}>
                 <div className="h-64">
-                  <LineChart {...data.moodTrend} />
+                  {data.moodTrend.values.length > 0 ? (
+                    <LineChart {...data.moodTrend} />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-light-body/60 dark:text-dark-body/60">
+                      No mood data yet. Start tracking your mood!
+                    </div>
+                  )}
                 </div>
               </ChartCard>
             </motion.div>
@@ -253,7 +423,14 @@ const DashboardPage = () => {
               <motion.div variants={itemVariants} className="flex">
                 <ChartCard title="Activity Breakdown" icon={FiActivity} className="w-full">
                   <div className="h-64 flex items-center justify-center">
-                    <DonutChart {...data.activityBreakdown} />
+                    {user?.games && user.games.length > 0 ? (
+                      <DonutChart value={data.activityBreakdown.value} label={data.activityBreakdown.label} />
+                    ) : (
+                      <div className="text-center text-light-body/60 dark:text-dark-body/60">
+                        <p className="text-sm">No activity data yet</p>
+                        <p className="text-xs mt-1">Start games or activities to see breakdown</p>
+                      </div>
+                    )}
                   </div>
                 </ChartCard>
               </motion.div>
@@ -303,12 +480,18 @@ const DashboardPage = () => {
             <InsightCard {...data.dailyInsight} icon={<FiZap />} itemVariants={itemVariants} />
 
             <motion.div variants={itemVariants}>
-              <MoodTracker mood={mood} setMood={setMood} />
+              <MoodTracker mood={mood} setMood={setMood} onMoodSaved={handleMoodSaved} />
             </motion.div>
 
             <motion.div variants={itemVariants}>
               <ChartCard title="Consistency" icon={FiCalendar}>
-                <HeatmapCalendar data={data.consistency} />
+                {data.consistency.length > 0 ? (
+                  <HeatmapCalendar data={data.consistency} />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-light-body/60 dark:text-dark-body/60">
+                    No data yet
+                  </div>
+                )}
               </ChartCard>
             </motion.div>
 
