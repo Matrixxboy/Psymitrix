@@ -25,27 +25,47 @@ def get_mood_score(mood: str) -> int:
 def calculate_mental_health_analysis(user: Any) -> Dict[str, Any]:
     """Calculate comprehensive mental health analysis"""
     
+    # Get user data over the last 30 days
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    
+    # Filter mood trends for the last 30 days
+    mood_trends_30_days = [m for m in user.mood_trends if m.created_at >= thirty_days_ago]
+    
     # Get latest mood
-    latest_mood = user.mood_trends[-1].mood if user.mood_trends else "Not tracked"
+    latest_mood = mood_trends_30_days[-1].mood if mood_trends_30_days else "Not tracked"
     
     # Get assessment scores
     latest_phq9 = None
     latest_gad7 = None
-    phq9_history = []
-    gad7_history = []
     
-    for result in user.mental_health_profile.assessment_results:
-        if result.assessment_type == "PHQ-9":
-            phq9_history.append(result)
+    for result in sorted(user.mental_health_profile.assessment_results, key=lambda x: x.date, reverse=True):
+        if result.assessment_type == "PHQ-9" and not latest_phq9:
             latest_phq9 = result
-        elif result.assessment_type == "GAD-7":
-            gad7_history.append(result)
+        elif result.assessment_type == "GAD-7" and not latest_gad7:
             latest_gad7 = result
     
     # Calculate mood trends
-    mood_scores = [get_mood_score(m.mood) for m in user.mood_trends[-30:]] if user.mood_trends else []
+    mood_scores = [get_mood_score(m.mood) for m in mood_trends_30_days]
     avg_mood = statistics.mean(mood_scores) if mood_scores else 5
     
+    # Wellness metrics over the last 30 days
+    wellness_metrics_30_days = [
+        m for m in user.mental_health_profile.wellness_metrics 
+        if m.date >= thirty_days_ago.date()
+    ]
+    
+    # Calculate average wellness metrics
+    if wellness_metrics_30_days:
+        avg_sleep = statistics.mean([m.sleep_hours for m in wellness_metrics_30_days if m.sleep_hours is not None])
+        avg_activity = statistics.mean([m.activity_minutes for m in wellness_metrics_30_days if m.activity_minutes is not None])
+        avg_stress = statistics.mean([m.stress_level for m in wellness_metrics_30_days if m.stress_level is not None])
+        avg_wellness_score = statistics.mean([m.daily_wellness_score for m in wellness_metrics_30_days if m.daily_wellness_score is not None])
+    else:
+        avg_sleep, avg_activity, avg_stress, avg_wellness_score = None, None, None, None
+
+    # Get the most recent wellness metric for "current" values
+    latest_wellness_metric = user.mental_health_profile.wellness_metrics[-1] if user.mental_health_profile.wellness_metrics else None
+
     # Generate insights
     insights = {
         "profile_summary": {
@@ -58,7 +78,7 @@ def calculate_mental_health_analysis(user: Any) -> Dict[str, Any]:
         "mood_analysis": {
             "latest_mood": latest_mood,
             "average_mood_score": round(avg_mood, 2),
-            "mood_entries_this_month": len([m for m in user.mood_trends if m.created_at >= datetime.utcnow() - timedelta(days=30)]),
+            "mood_entries_this_month": len(mood_scores),
             "trend": "Improving" if len(mood_scores) > 1 and statistics.mean(mood_scores[-7:]) > statistics.mean(mood_scores[:7]) else "Stable" if len(mood_scores) <= 1 else "Declining"
         },
         "assessment_scores": {
@@ -88,20 +108,20 @@ def calculate_mental_health_analysis(user: Any) -> Dict[str, Any]:
             "Maintain mood tracking for better insights into your emotional patterns"
         ],
         "wellness_metrics": {
-            "sleep_hours": None,
-            "activity_minutes": None,
-            "stress_level": None,
-            "daily_wellness_score": None
+            "current": {
+                "sleep_hours": latest_wellness_metric.sleep_hours if latest_wellness_metric else None,
+                "activity_minutes": latest_wellness_metric.activity_minutes if latest_wellness_metric else None,
+                "stress_level": latest_wellness_metric.stress_level if latest_wellness_metric else None,
+                "daily_wellness_score": latest_wellness_metric.daily_wellness_score if latest_wellness_metric else None
+            },
+            "average_30_days": {
+                "sleep_hours": round(avg_sleep, 1) if avg_sleep is not None else None,
+                "activity_minutes": round(avg_activity) if avg_activity is not None else None,
+                "stress_level": round(avg_stress, 1) if avg_stress is not None else None,
+                "daily_wellness_score": round(avg_wellness_score, 1) if avg_wellness_score is not None else None
+            }
         }
     }
-    
-    # Add wellness metrics if available
-    if user.mental_health_profile.wellness_metrics:
-        latest_metric = user.mental_health_profile.wellness_metrics[-1]
-        insights["wellness_metrics"]["sleep_hours"] = latest_metric.sleep_hours
-        insights["wellness_metrics"]["activity_minutes"] = latest_metric.activity_minutes
-        insights["wellness_metrics"]["stress_level"] = latest_metric.stress_level
-        insights["wellness_metrics"]["daily_wellness_score"] = latest_metric.daily_wellness_score
     
     return insights
 
@@ -236,12 +256,19 @@ def generate_mental_health_report(
     story.append(Paragraph("Wellness Metrics", heading_style))
     
     wellness = analysis['wellness_metrics']
+    current_wellness = wellness['current']
+    avg_wellness = wellness['average_30_days']
+
+    def format_wellness_value(current, avg):
+        avg_str = f"(Avg: {avg})" if avg is not None else ""
+        return f"{current or 'Not tracked'} {avg_str}"
+
     wellness_text = f"""
-    <b>Recent Wellness Data:</b><br/>
-    • Sleep Hours: {wellness['sleep_hours'] or 'Not tracked'}<br/>
-    • Physical Activity (minutes): {wellness['activity_minutes'] or 'Not tracked'}<br/>
-    • Stress Level: {wellness['stress_level'] or 'Not tracked'}<br/>
-    • Daily Wellness Score: {wellness['daily_wellness_score'] or 'Not tracked'}<br/>
+    <b>Recent Wellness Data (Last 30 Days):</b><br/>
+    • Sleep Hours: {format_wellness_value(current_wellness['sleep_hours'], avg_wellness['sleep_hours'])}<br/>
+    • Physical Activity (minutes): {format_wellness_value(current_wellness['activity_minutes'], avg_wellness['activity_minutes'])}<br/>
+    • Stress Level (1-10): {format_wellness_value(current_wellness['stress_level'], avg_wellness['stress_level'])}<br/>
+    • Daily Wellness Score (1-100): {format_wellness_value(current_wellness['daily_wellness_score'], avg_wellness['daily_wellness_score'])}<br/>
     """
     story.append(Paragraph(wellness_text, body_style))
     story.append(Spacer(1, 0.3*inch))
