@@ -97,5 +97,5 @@ async def get_mental_health_analysis(
             status_code=HTTP_STATUS.INTERNAL_SERVER_ERROR,
             code= HTTP_CODE["INTERNAL_SERVER_ERROR"],
             message="Mental health analysis error",
-            data= analysis
+            data=f"error : {e}"
         )

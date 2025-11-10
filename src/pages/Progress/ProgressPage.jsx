@@ -276,7 +276,7 @@ const ProgressPage = () => {
             subtitle="Unlocked"
           />
         </motion.div>
-        <div className='grid grid-rows-5 lg:grid-rows-3'>
+        <div className=''>
           {/* ====================== MAIN ANALYTICS ====================== */}
           <div className="row-span-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2  gap-8 mb-12">
             {/* Mood Trend */}
@@ -316,8 +316,6 @@ const ProgressPage = () => {
                 </div>
               </ChartCard>
             </motion.div>
-
-           
           </div>
 
           {/* ====================== BOTTOM SECTION ====================== */}
@@ -353,7 +351,7 @@ const ProgressPage = () => {
             </motion.div>
           </div>
 
-          <div className='row-span-1 grid grid-cols-1 gap-8'>
+          <div className='row-span-1 grid grid-cols-1 gap-8 mt-14'>
                   {/* Achievements */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible">
               <ChartCard title="Recent Achievements" icon={FiAward}>

@@ -51,17 +51,36 @@ def calculate_mental_health_analysis(user: Any) -> Dict[str, Any]:
     # Wellness metrics over the last 30 days
     wellness_metrics_30_days = [
         m for m in user.mental_health_profile.wellness_metrics 
-        if m.date >= thirty_days_ago.date()
+        if m.date >= thirty_days_ago
     ]
     
     # Calculate average wellness metrics
     if wellness_metrics_30_days:
-        avg_sleep = statistics.mean([m.sleep_hours for m in wellness_metrics_30_days if m.sleep_hours is not None])
-        avg_activity = statistics.mean([m.activity_minutes for m in wellness_metrics_30_days if m.activity_minutes is not None])
-        avg_stress = statistics.mean([m.stress_level for m in wellness_metrics_30_days if m.stress_level is not None])
-        avg_wellness_score = statistics.mean([m.daily_wellness_score for m in wellness_metrics_30_days if m.daily_wellness_score is not None])
+        sleep_hours_data = [m.sleep_hours for m in wellness_metrics_30_days if m.sleep_hours is not None]
+        avg_sleep = statistics.mean(sleep_hours_data) if sleep_hours_data else None
+
+        activity_minutes_data = [m.activity_minutes for m in wellness_metrics_30_days if m.activity_minutes is not None]
+        avg_activity = statistics.mean(activity_minutes_data) if activity_minutes_data else None
+
+        stress_level_data = [m.stress_level for m in wellness_metrics_30_days if m.stress_level is not None]
+        avg_stress = statistics.mean(stress_level_data) if stress_level_data else None
+
+        daily_wellness_score_data = [m.daily_wellness_score for m in wellness_metrics_30_days if m.daily_wellness_score is not None]
+        avg_wellness_score = statistics.mean(daily_wellness_score_data) if daily_wellness_score_data else None
     else:
         avg_sleep, avg_activity, avg_stress, avg_wellness_score = None, None, None, None
+
+    # Determine mood trend
+    mood_trend = "Stable"
+    if len(mood_scores) >= 2:
+        half = len(mood_scores) // 2
+        if half > 0 and len(mood_scores) - half > 0:
+            older_avg = statistics.mean(mood_scores[:half])
+            recent_avg = statistics.mean(mood_scores[half:])
+            if recent_avg > older_avg:
+                mood_trend = "Improving"
+            elif recent_avg < older_avg:
+                mood_trend = "Declining"
 
     # Get the most recent wellness metric for "current" values
     latest_wellness_metric = user.mental_health_profile.wellness_metrics[-1] if user.mental_health_profile.wellness_metrics else None
@@ -79,7 +98,7 @@ def calculate_mental_health_analysis(user: Any) -> Dict[str, Any]:
             "latest_mood": latest_mood,
             "average_mood_score": round(avg_mood, 2),
             "mood_entries_this_month": len(mood_scores),
-            "trend": "Improving" if len(mood_scores) > 1 and statistics.mean(mood_scores[-7:]) > statistics.mean(mood_scores[:7]) else "Stable" if len(mood_scores) <= 1 else "Declining"
+            "trend": mood_trend
         },
         "assessment_scores": {
             "phq9": {

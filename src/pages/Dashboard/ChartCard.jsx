@@ -14,7 +14,7 @@ const ChartCard = ({ title, icon: Icon, children }) => (
         <Icon className="mr-3 text-light-primary dark:text-dark-primary"/>
         {title}
       </h3>
-      <div className="h-full min-h-[200px]">
+      <div className="h-full ">
         {children}
       </div>
     </GlassCard>
