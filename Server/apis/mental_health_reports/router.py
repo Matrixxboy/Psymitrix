@@ -36,21 +36,30 @@ async def generate_report(
             include_assessments=request.include_assessments,
             include_mood_trends=request.include_mood_trends,
             include_recommendations=request.include_recommendations,
-            date_range_days=request
+            date_range_days=request.date_range_days if request.date_range_days is not None else 30
         )
-        
-        return {
-            "status_code": 200,
-            "code": "OK",
-            "message": "Report generated successfully",
-            "data": {
+        data = {
                 "file_name": os.path.basename(pdf_file),
                 "file_path": pdf_file,
                 "generated_at": datetime.utcnow().isoformat()
             }
-        }
+        return make_response(
+            status_code=HTTP_STATUS.OK,
+            code = HTTP_CODE["OK"],
+            message="Report Generated successfully",
+            data=data,
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        data = {
+            "api":"Generate",
+            "error":f"{e}"
+        }
+        return make_response(
+            status_code=HTTP_STATUS.INTERNAL_SERVER_ERROR,
+            code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Report Generating error.",
+            data=data
+        )
 
 @router.get("/download/{file_name}")
 async def download_report(
