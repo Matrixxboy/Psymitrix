@@ -723,30 +723,56 @@ def generate_mental_health_report(
     story.append(Spacer(1, 0.2*inch))
     
     # --- Engagement Summary ---
-    story.append(Paragraph("Your Engagement", heading_style))
-    
+    story.append(Paragraph("🎯 Your Engagement & Progress", heading_style))
+    story.append(Paragraph("Your commitment to mental wellness tracking is essential for meaningful progress. Here's how engaged you've been recently.", body_style))
+    story.append(Spacer(1, 0.15*inch))
+
     engagement = analysis['engagement']
+
+    # Calculate engagement level
+    engagement_score = (engagement['current_streak'] / max(engagement['longest_streak'], 1)) * 100
+    if engagement_score >= 80:
+        engagement_level = "🔥 Excellent"
+    elif engagement_score >= 50:
+        engagement_level = "📈 Good"
+    else:
+        engagement_level = "⚠️ Needs Improvement"
+
     engagement_data = [
-        [Paragraph('Total Chat Sessions', body_style), Paragraph(str(engagement['total_sessions']), body_style)],
-        [Paragraph('Assessments Completed', body_style), Paragraph(str(engagement['total_assessments']), body_style)],
-        [Paragraph('Current Streak', body_style), Paragraph(f"**{engagement['current_streak']} days**", body_style)],
-        [Paragraph('Longest Streak', body_style), Paragraph(f"{engagement['longest_streak']} days", body_style)],
-        [Paragraph('Achievements Unlocked', body_style), Paragraph(str(engagement['achievements']), body_style)],
+        ["Engagement Metric", "Your Data", "Progress Indicator"],
+        ["💬 Total Chat Sessions", str(engagement['total_sessions']), "✅" if engagement['total_sessions'] >= 5 else "—"],
+        ["📋 Assessments Completed", str(engagement['total_assessments']), "✅" if engagement['total_assessments'] >= 2 else "—"],
+        ["🔥 Current Streak", f"{engagement['current_streak']} days", engagement_level],
+        ["🏆 Longest Streak", f"{engagement['longest_streak']} days", "🌟 Best Effort"],
+        ["🎖️ Achievements Unlocked", str(engagement['achievements']), "✅" if engagement['achievements'] >= 1 else "—"],
     ]
-    
+
     engagement_table_style = TableStyle([
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('BACKGROUND', (0, 0), (-1, -1), COLOR_BACKGROUND),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+        ('TOPPADDING', (0, 0), (-1, -1), 7),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+        ('GRID', (0, 0), (-1, -1), 0.75, COLOR_ACCENT),
     ])
 
-    engagement_table = Table(engagement_data, colWidths=[3*inch, 3*inch])
+    engagement_table = Table(engagement_data, colWidths=[2*inch, 1.2*inch, 2*inch])
     engagement_table.setStyle(engagement_table_style)
     story.append(engagement_table)
-    story.append(Paragraph("Instruction: High engagement (long streaks and high session counts) correlates with better tracking compliance and more comprehensive data for analysis.", instruction_style))
-    story.append(Spacer(1, 0.3*inch))
+
+    engagement_insight = f"""
+    <b>Your Engagement Insight:</b><br/>
+    Your current engagement level is <b>{engagement_level}</b>. Consistent daily check-ins help build mental wellness momentum.
+    Try to maintain your streak and celebrate milestones! 🎉
+    """
+    story.append(Paragraph(engagement_insight, instruction_style))
+    story.append(Spacer(1, 0.2*inch))
     
     # --- Recommendations ---
     if include_recommendations:
