@@ -412,33 +412,64 @@ def generate_mental_health_report(
     story.append(PageBreak())
     
     # --- How to Read Your Report ---
-    story.append(Paragraph("How to Read Your Report", heading_style))
+    story.append(Paragraph("📖 How to Read Your Report", heading_style))
     story.append(Paragraph("""
-    This section provides context for interpreting the data and visualizations within this report. 
+    This section provides context for interpreting the data and visualizations within this report.
     Understanding the metrics is key to a meaningful mental wellness journey.
     """, body_style))
-    
-    story.append(Paragraph("Understanding Mood Scores", sub_heading_style))
+    story.append(Spacer(1, 0.15*inch))
+
+    story.append(Paragraph("1️⃣ Understanding Mood Scores", sub_heading_style))
+    mood_guide_data = [
+        ["Score", "Mood", "Indicator"],
+        ["10", "Excited", "✅ Excellent energy & enthusiasm"],
+        ["8", "Happy", "✅ Positive & content"],
+        ["7", "Calm", "✅ Peaceful & relaxed"],
+        ["5", "Neutral", "⚪ Balanced state"],
+        ["3", "Sad", "⚠️ Down or melancholic"],
+        ["2", "Angry", "❌ Irritated or frustrated"],
+    ]
+
+    mood_table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 0.5, COLOR_ACCENT),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+    ])
+
+    mood_table = Table(mood_guide_data, colWidths=[0.8*inch, 1.2*inch, 3*inch])
+    mood_table.setStyle(mood_table_style)
+    story.append(mood_table)
+    story.append(Spacer(1, 0.2*inch))
+
+    story.append(Paragraph("2️⃣ Interpreting Assessment Scores", sub_heading_style))
     story.append(Paragraph("""
-    Mood scores are on a scale of 1 to 10: **10 (Excited)**, **8 (Happy)**, **7 (Calm)**, **5 (Neutral)**, 
-    **3 (Sad)**, and **2 (Angry)**. The **Average Mood Score** reflects your emotional well-being over 
-    the past 30 days. Higher scores indicate a more positive emotional state.
+    <b>PHQ-9 (Depression)</b> and <b>GAD-7 (Anxiety)</b> are clinically validated assessment tools.
+    Higher scores indicate more symptoms. Severity ranges: <b>Minimal (0-4)</b>, <b>Mild (5-9)</b>,
+    <b>Moderate (10-14)</b>, <b>Moderately Severe (15-19)</b>, <b>Severe (20+)</b>.
+    These are screening tools, not clinical diagnoses—always consult a healthcare provider.
     """, body_style))
-    
-    story.append(Paragraph("Interpreting Assessment Scores", sub_heading_style))
-    story.append(Paragraph("""
-    **PHQ-9 (Depression) and GAD-7 (Anxiety)** scores are standardized screenings. A higher score 
-    indicates a greater level of symptom severity (e.g., Minimal, Mild, Moderate, Severe). 
-    These are screening tools, not clinical diagnoses.
-    """, body_style))
-    
-    story.append(Paragraph("Wellness Metrics (Averages)", sub_heading_style))
-    story.append(Paragraph("""
-    The 30-day averages for Sleep, Activity, and Stress provide a baseline. 
-    **Target values** are typically **7-9 hours of sleep**, **30+ minutes of activity**, 
-    and a **Stress Level of 3 or less** (on a 1-10 scale).
-    """, body_style))
-    story.append(Spacer(1, 0.3*inch))
+    story.append(Spacer(1, 0.15*inch))
+
+    story.append(Paragraph("3️⃣ Wellness Metrics & Targets", sub_heading_style))
+    wellness_targets_data = [
+        ["Metric", "Target Range", "Current 30-Day Avg"],
+        ["Sleep Hours", "7-9 hours/night", f"{analysis['wellness_metrics']['average_30_days']['sleep_hours'] or 'N/A'} hrs"],
+        ["Activity", "30+ minutes/day", f"{analysis['wellness_metrics']['average_30_days']['activity_minutes'] or 'N/A'} min"],
+        ["Stress Level", "1-3 (out of 10)", f"{analysis['wellness_metrics']['average_30_days']['stress_level'] or 'N/A'}"],
+        ["Wellness Score", "75-100%", f"{analysis['wellness_metrics']['average_30_days']['daily_wellness_score'] or 'N/A'}%"],
+    ]
+
+    wellness_table = Table(wellness_targets_data, colWidths=[1.5*inch, 2*inch, 2.5*inch])
+    wellness_table.setStyle(mood_table_style)
+    story.append(wellness_table)
+    story.append(Spacer(1, 0.2*inch))
     
     # --- Executive Summary ---
     story.append(Paragraph("Executive Summary", heading_style))
