@@ -19,6 +19,7 @@ class AdminPermission(str, Enum):
 
 class Admin(BaseModel):
     admin_id: UUID = Field(default_factory=uuid4)
+    user_type:str="admin"
     email: EmailStr
     username: str
     hashed_password: str

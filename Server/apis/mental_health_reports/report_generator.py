@@ -1,5 +1,5 @@
 from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, Table, TableStyle, KeepTogether, RectBg
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, Table, TableStyle, KeepTogether
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
@@ -14,12 +14,12 @@ from reportlab.graphics.shapes import Drawing, Rect, String
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.charts.spider import SpiderChart
 from reportlab.graphics.charts.piecharts import Pie
-from reportlab.graphics.charts.barcharts import VerticalBarChart
+# from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.axes import XCategoryAxis, YValueAxis
 from reportlab.graphics.widgets.markers import makeMarker
-from reportlab.lib.colors import HexColor, Color
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.colors import HexColor
+# from reportlab.pdfbase import pdfmetrics
+# from reportlab.pdfbase.ttfonts import TTFont
 
 def get_mood_score(mood: str) -> int:
     mood_scores = {
@@ -298,7 +298,6 @@ def generate_mental_health_report(
         spaceAfter=12,
         spaceBefore=16,
         fontName='Helvetica-Bold',
-        textColor=COLOR_PRIMARY,
         borderColor=COLOR_ACCENT,
         borderWidth=1,
         borderPadding=6

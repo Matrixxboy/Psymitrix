@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader, Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import axios from 'axios';
 import { motion } from 'framer-motion';
+import { loginAdmin } from '../../api';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -28,16 +28,18 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/v1/admin/login', formData);
+      const response = await loginAdmin(formData.email, formData.password);
       
-      if (response.data?.data?.access_token) {
+      if (response.success) {
         // Store token and admin info
-        localStorage.setItem('adminToken', response.data.data.access_token);
-        localStorage.setItem('adminInfo', JSON.stringify(response.data.data.admin));
+        localStorage.setItem('adminToken', response.data.access_token);
+        localStorage.setItem('adminInfo', JSON.stringify(response.data.admin));
         localStorage.setItem('tokenType', 'Bearer');
         
         // Redirect to admin dashboard
         navigate('/admin/dashboard');
+      } else {
+        setError(response.error);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');

@@ -237,6 +237,7 @@ class HabitTracking(BaseModel):
 class User(BaseModel):
     # login data
     user_id: UUID = Field(default_factory=uuid4)
+    user_type: str = "user"
     email: EmailStr
     username: str
     hashed_password: str

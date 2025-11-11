@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
+import json
 
 # Import routers
 from apis.auth.router import router as auth_router
@@ -78,10 +79,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         error_messages.append(f"{loc}: {msg}")
 
     return make_response(
-        status_code=HTTP_STATUS["BAD_REQUEST"],
-        code=HTTP_CODE["VALIDATION"],
+        status_code=HTTP_STATUS.BAD_REQUEST,
+        code=HTTP_CODE["BAD_REQUEST"],
         message="Validation error",
-        data={"errors": error_messages}
+        data={"errors": json.dumps(error_messages)}
     )
 
 @app.get("/")

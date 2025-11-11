@@ -19,7 +19,7 @@ from .vector_db_management import (
     clear_vector_db
 )
 from typing import Optional
-
+import json
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 # ==================== AUTHENTICATION ====================
@@ -73,20 +73,13 @@ async def admin_login_route(
 @router.post("/create-admin")
 async def create_admin_route(
     admin_data: AdminCreate,
-    current_admin: Admin = Depends(get_current_admin),
     db = Depends(get_mongo_db)
 ):
-    """Create a new admin (Super Admin only)"""
+    """Create a new admin. First admin can be created without authentication."""
     try:
-        if current_admin.role != AdminRole.SUPER_ADMIN:
-            return make_response(
-                status_code=HTTP_STATUS["FORBIDDEN"],
-                code=HTTP_CODE["FORBIDDEN"],
-                message="Only Super Admins can create new admins",
-                data={}
-            )
-        
-        new_admin = await create_new_admin(admin_data.dict(), db=db, current_admin=current_admin)
+        # The create_new_admin function now handles the logic
+        # of whether an authenticated admin is required.
+        new_admin = await create_new_admin(admin_data.dict(), db=db)
         
         return make_response(
             status_code=HTTP_STATUS["CREATED"],
@@ -151,7 +144,7 @@ async def get_users_analytics(
             status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],
             code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
             message="Error retrieving analytics",
-            data={"error": str(e)}
+            data={"error": json.dumps(e)}
         )
 
 @router.get("/analytics/assessments")

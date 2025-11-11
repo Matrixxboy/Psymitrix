@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
-import { login as authenticateUser, register as registerUser } from '../../../api/auth';
+import { loginUser as authenticateUser, register as registerUser } from '../../../api/auth';
 import LoginForm from '../components/LoginForm';
 import RegistrationForm from '../components/RegistrationForm';
 import { FaGoogle, FaApple } from 'react-icons/fa';

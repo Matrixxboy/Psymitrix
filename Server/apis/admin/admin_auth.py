@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Optional
 import jwt
+from uuid import uuid4
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security.http import HTTPAuthorizationCredentials as HTTPAuthCredentials ,HTTPBearer
 from pydantic import EmailStr
 from models.admin_model import Admin, AdminRole
 from Database.db_connection import get_mongo_db
@@ -10,13 +11,13 @@ from utils.hashing import hash_password, verify_password
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from dotenv import load_dotenv
 import os
-
+from bson import ObjectId
 load_dotenv()
 
 # JWT Configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 24
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_HOURS = int(os.getenv("ACCESS_TOKEN_EXPIRE_HOURS"))
 
 security = HTTPBearer()
 
@@ -69,7 +70,7 @@ async def get_current_admin(
     
     try:
         admins_collection = db["admins"]
-        from bson import ObjectId
+        
         try:
             admin_data = admins_collection.find_one({"admin_id": admin_id})
         except:
@@ -150,20 +151,26 @@ async def admin_login(
 async def create_admin(
     admin_data: dict,
     db = Depends(get_mongo_db),
-    current_admin: Admin = Depends(get_current_admin)
+    current_admin: Optional[Admin] = None
 ) -> Admin:
-    """Create a new admin (requires SUPER_ADMIN role)"""
+    """Create a new admin (requires SUPER_ADMIN role if not the first admin)"""
     
-    # Check permissions
-    if current_admin.role != AdminRole.SUPER_ADMIN:
+    # If a current_admin is provided, check permissions
+    if current_admin and current_admin.role != AdminRole.SUPER_ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only Super Admins can create new admins"
         )
     
+    # If no admin exists, the first one can be a super_admin
+    admins_collection = db["admins"]
+    if not current_admin and admins_collection.count_documents({}) > 0:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="An admin already exists. Creation requires a Super Admin."
+        )
+
     try:
-        admins_collection = db["admins"]
-        
         # Check if email already exists
         existing = admins_collection.find_one({"email": admin_data["email"].lower()})
         if existing:
@@ -176,7 +183,7 @@ async def create_admin(
         hashed_pwd = hash_password(admin_data["password"])
         
         new_admin = {
-            "admin_id": str(Admin().admin_id),
+            "admin_id": str(uuid4()),
             "email": admin_data["email"].lower(),
             "username": admin_data.get("username", admin_data["email"].split("@")[0]),
             "hashed_password": hashed_pwd,
@@ -188,7 +195,7 @@ async def create_admin(
             "is_verified": False,
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow(),
-            "created_by": str(current_admin.admin_id),
+            "created_by": str(current_admin.admin_id) if current_admin else "system",
             "login_history": [],
             "failed_login_attempts": 0
         }
