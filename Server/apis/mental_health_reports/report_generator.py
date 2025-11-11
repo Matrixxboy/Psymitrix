@@ -360,42 +360,55 @@ def generate_mental_health_report(
     mood_trends_30_days = [m for m in user.mood_trends if m.created_at >= thirty_days_ago]
 
     # --- Cover Page & Header ---
-    story.append(Spacer(1, 1.5*inch))
-    story.append(Paragraph("PSYMITRIX", title_style))
+    story.append(Spacer(1, 1*inch))
+    story.append(Paragraph("🧠 PSYMITRIX 🧠", title_style))
     story.append(Paragraph("Comprehensive Mental Wellness Report", ParagraphStyle(
-        'Subtitle', parent=styles['Normal'], fontSize=18, textColor=colors.black, alignment=TA_CENTER, spaceAfter=20
+        'Subtitle', parent=styles['Normal'], fontSize=16, textColor=COLOR_ACCENT, alignment=TA_CENTER, spaceAfter=15, fontName='Helvetica-Bold'
     )))
-    story.append(Spacer(1, 0.5*inch))
+    story.append(Spacer(1, 0.4*inch))
 
     profile_summary = analysis['profile_summary']
     summary_data = [
-        ["Report For:", f"{profile_summary['name']} (ID: {user.user_id})"],
-        ["Date Generated:", profile_summary['report_date']],
-        ["Data Period:", f"Last {date_range_days} Days"],
-        ["Age/Gender:", f"{profile_summary['age']} / {profile_summary['gender']}"],
+        ["👤 Report For:", f"{profile_summary['name']} (ID: {str(user.user_id)[:8]}...)"],
+        ["📅 Date Generated:", profile_summary['report_date']],
+        ["📊 Data Period:", f"Last {date_range_days} Days"],
+        ["👥 Age/Gender:", f"{profile_summary['age']} / {profile_summary['gender']}"],
+        ["✉️  Email:", profile_summary['email']],
     ]
 
     table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BACKGROUND', (0, 1), (-1, -1), COLOR_BACKGROUND),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), COLOR_LIGHT_BLUE),
+        ('GRID', (0, 0), (-1, -1), 1, COLOR_ACCENT),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, HexColor('#FFFFFF')]),
     ])
 
     report_info_table = Table(summary_data, colWidths=[1.5*inch, 4.5*inch])
     report_info_table.setStyle(table_style)
     story.append(report_info_table)
-    story.append(Spacer(1, 1*inch))
-    
-    story.append(Paragraph("Disclaimer: This report is for informational purposes only and is not a substitute for professional diagnosis or treatment.", 
-                           ParagraphStyle('Disclaimer', parent=styles['Normal'], fontSize=9, textColor=colors.red, alignment=TA_CENTER)))
+    story.append(Spacer(1, 0.6*inch))
+
+    disclaimer_style = ParagraphStyle(
+        'Disclaimer',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=COLOR_DANGER,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold',
+        backColor=HexColor('#FDEAEA'),
+        borderColor=COLOR_DANGER,
+        borderWidth=1,
+        borderPadding=6
+    )
+    story.append(Paragraph("⚠️ Disclaimer: This report is for informational purposes only and is not a substitute for professional diagnosis or treatment. Always consult with a licensed healthcare provider.", disclaimer_style))
     story.append(PageBreak())
     
     # --- How to Read Your Report ---
