@@ -24,6 +24,7 @@ from apis.assessments.router import router as assessments_router
 from apis.mental_health_reports.router import router as mental_health_reports_router
 from apis.ai_analytics.router import router as ai_analytics_router
 from apis.ai_recommendations.router import router as ai_recommendations_router
+from apis.admin.router import router as admin_router
 
 app = FastAPI()
 
@@ -54,6 +55,7 @@ app.include_router(assessments_router, prefix="/api/v1")
 app.include_router(mental_health_reports_router, prefix="/api/v1")
 app.include_router(ai_analytics_router, prefix="/api/v1")
 app.include_router(ai_recommendations_router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")
 
 #future routers
 # will be completed later on phase 2

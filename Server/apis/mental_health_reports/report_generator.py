@@ -1,21 +1,25 @@
 from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, Table, TableStyle, KeepTogether
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, Table, TableStyle, KeepTogether, RectBg
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT, TA_JUSTIFY
+from reportlab.pdfgen import canvas
 from datetime import datetime, timedelta
 import tempfile
 import os
 from typing import Optional, Dict, Any, List
 import statistics
-from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.shapes import Drawing, Rect, String
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.charts.spider import SpiderChart
 from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.axes import XCategoryAxis, YValueAxis
 from reportlab.graphics.widgets.markers import makeMarker
 from reportlab.lib.colors import HexColor, Color
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 def get_mood_score(mood: str) -> int:
     mood_scores = {
@@ -252,68 +256,102 @@ def generate_mental_health_report(
     include_recommendations: bool = True,
     date_range_days: int = 30
 ) -> str:
-    
+
     temp_dir = tempfile.gettempdir()
     filename = f"mental_health_report_{user.user_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.pdf"
     filepath = os.path.join(temp_dir, filename)
-    
-    doc = SimpleDocTemplate(filepath, pagesize=letter)
+
+    doc = SimpleDocTemplate(filepath, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
     styles = getSampleStyleSheet()
     story = []
-    
-    COLOR_PRIMARY = HexColor('#A5645A') 
-    COLOR_ACCENT = HexColor('#6495ED')  
-    COLOR_BACKGROUND = HexColor('#FAFAFA') 
+
+    # Enhanced color palette with gradients
+    COLOR_PRIMARY = HexColor('#8B5A3C')  # Warm brown
+    COLOR_ACCENT = HexColor('#4A90E2')   # Professional blue
+    COLOR_SUCCESS = HexColor('#27AE60')  # Green for positive metrics
+    COLOR_WARNING = HexColor('#F39C12')  # Orange for caution
+    COLOR_DANGER = HexColor('#E74C3C')   # Red for concern
+    COLOR_BACKGROUND = HexColor('#F8F9FA') # Light background
+    COLOR_LIGHT_BLUE = HexColor('#ECF0F1') # Very light blue
+    COLOR_DARK_TEXT = HexColor('#2C3E50') # Dark text
+    COLOR_SECONDARY = HexColor('#95A5A6') # Gray 
 
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=32,
+        fontSize=38,
         textColor=COLOR_PRIMARY,
-        spaceAfter=10,
+        spaceAfter=5,
         alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
+        fontName='Helvetica-Bold',
+        borderColor=COLOR_ACCENT,
+        borderWidth=2,
+        borderPadding=8,
+        borderRadius=6
     )
-    
+
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
-        fontSize=18,
+        fontSize=16,
         textColor=COLOR_ACCENT,
         spaceAfter=12,
         spaceBefore=16,
-        fontName='Helvetica-Bold'
+        fontName='Helvetica-Bold',
+        textColor=COLOR_PRIMARY,
+        borderColor=COLOR_ACCENT,
+        borderWidth=1,
+        borderPadding=6
     )
-    
+
     sub_heading_style = ParagraphStyle(
         'CustomSubHeading',
         parent=styles['Heading3'],
-        fontSize=14,
-        textColor=COLOR_PRIMARY,
+        fontSize=13,
+        textColor=HexColor('#2C3E50'),
         spaceAfter=8,
-        spaceBefore=8,
-        fontName='Helvetica-Bold'
+        spaceBefore=10,
+        fontName='Helvetica-Bold',
+        borderLeftColor=COLOR_ACCENT,
+        borderLeftWidth=3,
+        leftIndent=8,
+        paddingLeft=5
     )
-    
+
     body_style = ParagraphStyle(
         'CustomBody',
         parent=styles['BodyText'],
-        fontSize=11,
+        fontSize=10,
         spaceAfter=8,
         alignment=TA_JUSTIFY,
-        fontName='Helvetica'
+        fontName='Helvetica',
+        textColor=COLOR_DARK_TEXT,
+        leading=14
     )
-    
+
     instruction_style = ParagraphStyle(
         'InstructionNote',
         parent=body_style,
-        fontSize=10,
-        textColor=colors.darkgrey,
+        fontSize=9,
+        textColor=COLOR_SECONDARY,
         leftIndent=15,
         rightIndent=15,
-        spaceBefore=5,
+        spaceBefore=6,
         spaceAfter=10,
-        fontName='Helvetica-Oblique'
+        fontName='Helvetica-Oblique',
+        backColor=COLOR_LIGHT_BLUE,
+        borderColor=COLOR_ACCENT,
+        borderWidth=0.5,
+        borderPadding=8,
+        borderRadius=4
+    )
+
+    metric_style = ParagraphStyle(
+        'MetricValue',
+        parent=styles['Normal'],
+        fontSize=12,
+        textColor=COLOR_ACCENT,
+        fontName='Helvetica-Bold'
     )
 
     analysis = calculate_mental_health_analysis(user)
@@ -322,86 +360,177 @@ def generate_mental_health_report(
     mood_trends_30_days = [m for m in user.mood_trends if m.created_at >= thirty_days_ago]
 
     # --- Cover Page & Header ---
-    story.append(Spacer(1, 1.5*inch))
-    story.append(Paragraph("PSYMITRIX", title_style))
+    story.append(Spacer(1, 1*inch))
+    story.append(Paragraph("🧠 PSYMITRIX 🧠", title_style))
     story.append(Paragraph("Comprehensive Mental Wellness Report", ParagraphStyle(
-        'Subtitle', parent=styles['Normal'], fontSize=18, textColor=colors.black, alignment=TA_CENTER, spaceAfter=20
+        'Subtitle', parent=styles['Normal'], fontSize=16, textColor=COLOR_ACCENT, alignment=TA_CENTER, spaceAfter=15, fontName='Helvetica-Bold'
     )))
-    story.append(Spacer(1, 0.5*inch))
+    story.append(Spacer(1, 0.4*inch))
 
     profile_summary = analysis['profile_summary']
     summary_data = [
-        ["Report For:", f"{profile_summary['name']} (ID: {user.user_id})"],
-        ["Date Generated:", profile_summary['report_date']],
-        ["Data Period:", f"Last {date_range_days} Days"],
-        ["Age/Gender:", f"{profile_summary['age']} / {profile_summary['gender']}"],
+        ["👤 Report For:", f"{profile_summary['name']} (ID: {str(user.user_id)[:8]}...)"],
+        ["📅 Date Generated:", profile_summary['report_date']],
+        ["📊 Data Period:", f"Last {date_range_days} Days"],
+        ["👥 Age/Gender:", f"{profile_summary['age']} / {profile_summary['gender']}"],
+        ["✉️  Email:", profile_summary['email']],
     ]
 
     table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BACKGROUND', (0, 1), (-1, -1), COLOR_BACKGROUND),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), COLOR_LIGHT_BLUE),
+        ('GRID', (0, 0), (-1, -1), 1, COLOR_ACCENT),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, HexColor('#FFFFFF')]),
     ])
 
     report_info_table = Table(summary_data, colWidths=[1.5*inch, 4.5*inch])
     report_info_table.setStyle(table_style)
     story.append(report_info_table)
-    story.append(Spacer(1, 1*inch))
-    
-    story.append(Paragraph("Disclaimer: This report is for informational purposes only and is not a substitute for professional diagnosis or treatment.", 
-                           ParagraphStyle('Disclaimer', parent=styles['Normal'], fontSize=9, textColor=colors.red, alignment=TA_CENTER)))
+    story.append(Spacer(1, 0.6*inch))
+
+    disclaimer_style = ParagraphStyle(
+        'Disclaimer',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=COLOR_DANGER,
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold',
+        backColor=HexColor('#FDEAEA'),
+        borderColor=COLOR_DANGER,
+        borderWidth=1,
+        borderPadding=6
+    )
+    story.append(Paragraph("⚠️ Disclaimer: This report is for informational purposes only and is not a substitute for professional diagnosis or treatment. Always consult with a licensed healthcare provider.", disclaimer_style))
     story.append(PageBreak())
     
     # --- How to Read Your Report ---
-    story.append(Paragraph("How to Read Your Report", heading_style))
+    story.append(Paragraph("📖 How to Read Your Report", heading_style))
     story.append(Paragraph("""
-    This section provides context for interpreting the data and visualizations within this report. 
+    This section provides context for interpreting the data and visualizations within this report.
     Understanding the metrics is key to a meaningful mental wellness journey.
     """, body_style))
-    
-    story.append(Paragraph("Understanding Mood Scores", sub_heading_style))
+    story.append(Spacer(1, 0.15*inch))
+
+    story.append(Paragraph("1️⃣ Understanding Mood Scores", sub_heading_style))
+    mood_guide_data = [
+        ["Score", "Mood", "Indicator"],
+        ["10", "Excited", "✅ Excellent energy & enthusiasm"],
+        ["8", "Happy", "✅ Positive & content"],
+        ["7", "Calm", "✅ Peaceful & relaxed"],
+        ["5", "Neutral", "⚪ Balanced state"],
+        ["3", "Sad", "⚠️ Down or melancholic"],
+        ["2", "Angry", "❌ Irritated or frustrated"],
+    ]
+
+    mood_table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('GRID', (0, 0), (-1, -1), 0.5, COLOR_ACCENT),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+    ])
+
+    mood_table = Table(mood_guide_data, colWidths=[0.8*inch, 1.2*inch, 3*inch])
+    mood_table.setStyle(mood_table_style)
+    story.append(mood_table)
+    story.append(Spacer(1, 0.2*inch))
+
+    story.append(Paragraph("2️⃣ Interpreting Assessment Scores", sub_heading_style))
     story.append(Paragraph("""
-    Mood scores are on a scale of 1 to 10: **10 (Excited)**, **8 (Happy)**, **7 (Calm)**, **5 (Neutral)**, 
-    **3 (Sad)**, and **2 (Angry)**. The **Average Mood Score** reflects your emotional well-being over 
-    the past 30 days. Higher scores indicate a more positive emotional state.
+    <b>PHQ-9 (Depression)</b> and <b>GAD-7 (Anxiety)</b> are clinically validated assessment tools.
+    Higher scores indicate more symptoms. Severity ranges: <b>Minimal (0-4)</b>, <b>Mild (5-9)</b>,
+    <b>Moderate (10-14)</b>, <b>Moderately Severe (15-19)</b>, <b>Severe (20+)</b>.
+    These are screening tools, not clinical diagnoses—always consult a healthcare provider.
     """, body_style))
-    
-    story.append(Paragraph("Interpreting Assessment Scores", sub_heading_style))
-    story.append(Paragraph("""
-    **PHQ-9 (Depression) and GAD-7 (Anxiety)** scores are standardized screenings. A higher score 
-    indicates a greater level of symptom severity (e.g., Minimal, Mild, Moderate, Severe). 
-    These are screening tools, not clinical diagnoses.
-    """, body_style))
-    
-    story.append(Paragraph("Wellness Metrics (Averages)", sub_heading_style))
-    story.append(Paragraph("""
-    The 30-day averages for Sleep, Activity, and Stress provide a baseline. 
-    **Target values** are typically **7-9 hours of sleep**, **30+ minutes of activity**, 
-    and a **Stress Level of 3 or less** (on a 1-10 scale).
-    """, body_style))
-    story.append(Spacer(1, 0.3*inch))
+    story.append(Spacer(1, 0.15*inch))
+
+    story.append(Paragraph("3️⃣ Wellness Metrics & Targets", sub_heading_style))
+    wellness_targets_data = [
+        ["Metric", "Target Range", "Current 30-Day Avg"],
+        ["Sleep Hours", "7-9 hours/night", f"{analysis['wellness_metrics']['average_30_days']['sleep_hours'] or 'N/A'} hrs"],
+        ["Activity", "30+ minutes/day", f"{analysis['wellness_metrics']['average_30_days']['activity_minutes'] or 'N/A'} min"],
+        ["Stress Level", "1-3 (out of 10)", f"{analysis['wellness_metrics']['average_30_days']['stress_level'] or 'N/A'}"],
+        ["Wellness Score", "75-100%", f"{analysis['wellness_metrics']['average_30_days']['daily_wellness_score'] or 'N/A'}%"],
+    ]
+
+    wellness_table = Table(wellness_targets_data, colWidths=[1.5*inch, 2*inch, 2.5*inch])
+    wellness_table.setStyle(mood_table_style)
+    story.append(wellness_table)
+    story.append(Spacer(1, 0.2*inch))
     
     # --- Executive Summary ---
-    story.append(Paragraph("Executive Summary", heading_style))
-    summary_text = f"""
-    This comprehensive report summarizes your mental health data from the last 30 days, 
-    focusing on mood trends, wellness habits, and formal assessment results.
+    story.append(Paragraph("📊 Executive Summary", heading_style))
+
+    # Calculate overall wellness indicator
+    mood_score = analysis['mood_analysis']['average_mood_score']
+    wellness_score = analysis['wellness_metrics']['average_30_days']['daily_wellness_score'] or 0
+
+    if mood_score >= 7 and wellness_score >= 75:
+        overall_status = "�� Excellent"
+        status_color = COLOR_SUCCESS
+    elif mood_score >= 5.5 and wellness_score >= 60:
+        overall_status = "🟡 Good"
+        status_color = COLOR_WARNING
+    else:
+        overall_status = "🔴 Needs Attention"
+        status_color = COLOR_DANGER
+
+    summary_table_data = [
+        ["Current Mood", "📈 Trend", "💪 Overall Wellness", "🎯 Engagement Level"],
+        [
+            analysis['mood_analysis']['latest_mood'].upper(),
+            analysis['mood_analysis']['trend'],
+            f"{wellness_score:.0f}%",
+            f"{analysis['engagement']['total_sessions']} sessions"
+        ],
+    ]
+
+    summary_table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('FONTSIZE', (0, 1), (-1, 1), 12),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, 1), [COLOR_LIGHT_BLUE]),
+        ('GRID', (0, 0), (-1, -1), 1, COLOR_ACCENT),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+    ])
+
+    summary_table = Table(summary_table_data, colWidths=[1.4*inch, 1.4*inch, 1.6*inch, 1.8*inch])
+    summary_table.setStyle(summary_table_style)
+    story.append(summary_table)
+    story.append(Spacer(1, 0.2*inch))
+
+    # Overall Status
+    overall_text = f"""
+    <b>Overall Mental Wellness Status: </b><font color='{status_color.hexValue() if hasattr(status_color, "hexValue") else "000000"}'><b>{overall_status}</b></font>
     <br/><br/>
-    <b>Snapshot of Key Findings:</b><br/>
-    • **Current Mood:** <font color='{COLOR_ACCENT}'>{analysis['mood_analysis']['latest_mood'].upper()}</font><br/>
-    • **Average Mood Score (30-Day):** <font color='{COLOR_ACCENT}'>{analysis['mood_analysis']['average_mood_score']}/10</font><br/>
-    • **Overall Trend:** <font color='{COLOR_PRIMARY}'>{analysis['mood_analysis']['trend']}</font>
+    <b>Key Insights:</b><br/>
+    • Your average mood score is <b>{mood_score}/10</b>, indicating a <b>{('positive' if mood_score >= 6 else 'concerning')}</b> emotional state.<br/>
+    • Your mood trend is <b>{analysis['mood_analysis']['trend']}</b> over the past {date_range_days} days.<br/>
+    • You have completed <b>{analysis['engagement']['total_assessments']}</b> mental health assessments.<br/>
+    • Your current engagement streak is <b>{analysis['engagement']['current_streak']} days</b> (best: <b>{analysis['engagement']['longest_streak']} days</b>).<br/>
+    • You have earned <b>{analysis['engagement']['achievements']} achievements</b> on your wellness journey.
     """
-    story.append(Paragraph(summary_text, body_style))
-    story.append(Spacer(1, 0.3*inch))
+    story.append(Paragraph(overall_text, body_style))
+    story.append(Spacer(1, 0.25*inch))
     
     # --- Mood Analysis ---
     if include_mood_trends:
@@ -428,136 +557,282 @@ def generate_mental_health_report(
     
     # --- Assessment Results ---
     if include_assessments:
-        story.append(Paragraph("Assessment Results", heading_style))
+        story.append(Paragraph("✅ Assessment Results", heading_style))
         story.append(Paragraph("""
-        Below are the results of your most recent standardized screenings.
+        Below are the results of your most recent standardized mental health screenings (PHQ-9 for depression, GAD-7 for anxiety).
+        These are validated clinical instruments used worldwide.
         """, body_style))
+        story.append(Spacer(1, 0.15*inch))
 
         phq9_data = analysis['assessment_scores']['phq9']
         gad7_data = analysis['assessment_scores']['gad7']
 
+        # Determine severity colors
+        def get_severity_color(severity):
+            if severity and 'minimal' in severity.lower():
+                return COLOR_SUCCESS
+            elif severity and 'mild' in severity.lower():
+                return COLOR_SUCCESS
+            elif severity and 'moderate' in severity.lower():
+                return COLOR_WARNING
+            else:
+                return COLOR_DANGER
+
+        phq9_color = get_severity_color(phq9_data['severity'])
+        gad7_color = get_severity_color(gad7_data['severity'])
+
         assessment_table_data = [
-            ["Assessment", "Latest Score", "Severity Level", "Last Taken"],
-            ["PHQ-9 (Depression)", phq9_data['latest'] or 'N/A', phq9_data['severity'] or 'N/A', phq9_data['last_taken']],
-            ["GAD-7 (Anxiety)", gad7_data['latest'] or 'N/A', gad7_data['severity'] or 'N/A', gad7_data['last_taken']],
+            ["Assessment Name", "Latest Score", "Severity Level", "Last Assessment", "Status"],
+            [
+                "PHQ-9 (Depression Screening)",
+                phq9_data['latest'] or 'Not taken',
+                phq9_data['severity'] or 'N/A',
+                phq9_data['last_taken'],
+                "✓" if phq9_data['latest'] else "—"
+            ],
+            [
+                "GAD-7 (Anxiety Screening)",
+                gad7_data['latest'] or 'Not taken',
+                gad7_data['severity'] or 'N/A',
+                gad7_data['last_taken'],
+                "✓" if gad7_data['latest'] else "—"
+            ],
         ]
 
         assessment_table_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 1), (2, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BACKGROUND', (0, 1), (-1, -1), COLOR_BACKGROUND),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+            ('GRID', (0, 0), (-1, -1), 1, COLOR_PRIMARY),
         ])
-        
-        assessment_table = Table(assessment_table_data, colWidths=[1.8*inch, 1.2*inch, 1.5*inch, 1.7*inch])
+
+        assessment_table = Table(assessment_table_data, colWidths=[1.6*inch, 1*inch, 1.2*inch, 1.3*inch, 0.6*inch])
         assessment_table.setStyle(assessment_table_style)
         story.append(assessment_table)
-        story.append(Paragraph("Instruction: Consult the score interpretation guide within the PsyMitrix app for detailed severity thresholds. If your severity level is Moderate or Severe, professional advice is strongly recommended.", instruction_style))
-        story.append(Spacer(1, 0.3*inch))
+
+        assessment_note = """
+        <b>Severity Guide:</b><br/>
+        🟢 <b>Minimal/Mild</b> - Few or mild symptoms<br/>
+        🟡 <b>Moderate</b> - Moderate symptoms; consider professional support<br/>
+        🔴 <b>Moderately Severe/Severe</b> - Significant symptoms; professional consultation recommended
+        """
+        story.append(Paragraph(assessment_note, instruction_style))
+        story.append(Spacer(1, 0.2*inch))
     
     # --- Wellness Metrics ---
-    story.append(Paragraph("Wellness & Lifestyle Metrics", heading_style))
-    story.append(Paragraph("Tracking your habits provides critical context for your mental state.", body_style))
-    
+    story.append(Paragraph("💪 Wellness & Lifestyle Metrics", heading_style))
+    story.append(Paragraph("Regular tracking of your daily habits provides critical context for your mental health state. Below is your comprehensive wellness profile.", body_style))
+    story.append(Spacer(1, 0.15*inch))
+
     # Wellness Balance Chart (Spider Chart)
     story.append(Paragraph("Wellness Balance Snapshot (30-Day Average)", sub_heading_style))
     wellness_chart = create_wellness_balance_chart(analysis)
     story.append(wellness_chart)
-    story.append(Paragraph("Instruction: The spider chart visually compares your Stress (lower is better), Sleep, Mood, Energy, and Focus scores (all on a 1-10 scale). A larger, more balanced shape indicates better overall wellness.", instruction_style))
-    story.append(Spacer(1, 0.2*inch))
+    story.append(Paragraph("📌 <b>Instruction:</b> The radar chart visually displays your Stress (lower is better), Sleep, Mood, Energy, and Focus scores (all 1-10 scale). A larger, more balanced shape indicates better overall wellness.", instruction_style))
+    story.append(Spacer(1, 0.15*inch))
 
     wellness = analysis['wellness_metrics']
     current_wellness = wellness['current']
     avg_wellness = wellness['average_30_days']
 
-    def get_wellness_data_row(label, unit, current, avg):
-        current_str = f"**{current} {unit}**" if current is not None else "Not tracked"
-        avg_str = f"**{avg} {unit}**" if avg is not None else "N/A"
-        return [label, current_str, avg_str]
+    # Enhanced wellness data with status indicators
+    def get_wellness_status(metric_name, value, avg_value):
+        """Determine wellness status based on metric"""
+        if metric_name == "sleep_hours":
+            if avg_value and avg_value >= 7:
+                return "✅ Good"
+            elif avg_value and avg_value >= 6:
+                return "⚠️ Fair"
+            else:
+                return "❌ Poor"
+        elif metric_name == "activity_minutes":
+            if avg_value and avg_value >= 30:
+                return "✅ Good"
+            elif avg_value and avg_value >= 15:
+                return "⚠️ Fair"
+            else:
+                return "❌ Low"
+        elif metric_name == "stress_level":
+            if avg_value and avg_value <= 3:
+                return "✅ Good"
+            elif avg_value and avg_value <= 6:
+                return "⚠️ Fair"
+            else:
+                return "❌ High"
+        else:
+            return "—"
 
     wellness_table_data = [
-        ["Metric", "Most Recent Value", f"30-Day Average"],
-        get_wellness_data_row("Sleep Hours", "hrs", current_wellness['sleep_hours'], avg_wellness['sleep_hours']),
-        get_wellness_data_row("Activity Minutes", "min", current_wellness['activity_minutes'], avg_wellness['activity_minutes']),
-        get_wellness_data_row("Stress Level (1-10)", "score", current_wellness['stress_level'], avg_wellness['stress_level']),
-        get_wellness_data_row("Daily Wellness Score (1-100)", "score", current_wellness['daily_wellness_score'], avg_wellness['daily_wellness_score']),
+        ["Metric", "Recent", "30-Day Avg", "Target", "Status"],
+        [
+            "😴 Sleep Hours",
+            f"{current_wellness['sleep_hours'] or '—'} hrs",
+            f"{avg_wellness['sleep_hours'] or '—'} hrs",
+            "7-9 hrs",
+            get_wellness_status("sleep_hours", current_wellness['sleep_hours'], avg_wellness['sleep_hours'])
+        ],
+        [
+            "🏃 Activity Minutes",
+            f"{current_wellness['activity_minutes'] or '—'} min",
+            f"{avg_wellness['activity_minutes'] or '—'} min",
+            "30+ min",
+            get_wellness_status("activity_minutes", current_wellness['activity_minutes'], avg_wellness['activity_minutes'])
+        ],
+        [
+            "😰 Stress Level (1-10)",
+            f"{current_wellness['stress_level'] or '—'}",
+            f"{avg_wellness['stress_level'] or '—'}",
+            "1-3",
+            get_wellness_status("stress_level", current_wellness['stress_level'], avg_wellness['stress_level'])
+        ],
+        [
+            "🌟 Daily Wellness (0-100)",
+            f"{current_wellness['daily_wellness_score'] or '—'}%",
+            f"{avg_wellness['daily_wellness_score'] or '—'}%",
+            "75-100%",
+            "✅ Tracked" if avg_wellness['daily_wellness_score'] else "—"
+        ],
     ]
 
     wellness_table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+        ('TOPPADDING', (0, 0), (-1, -1), 7),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+        ('GRID', (0, 0), (-1, -1), 0.75, COLOR_PRIMARY),
+        ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+    ])
+
+    wellness_table = Table(wellness_table_data, colWidths=[1.5*inch, 1*inch, 1.2*inch, 1*inch, 1.3*inch])
+    wellness_table.setStyle(wellness_table_style)
+    story.append(wellness_table)
+    story.append(Spacer(1, 0.2*inch))
+    
+    # --- Engagement Summary ---
+    story.append(Paragraph("🎯 Your Engagement & Progress", heading_style))
+    story.append(Paragraph("Your commitment to mental wellness tracking is essential for meaningful progress. Here's how engaged you've been recently.", body_style))
+    story.append(Spacer(1, 0.15*inch))
+
+    engagement = analysis['engagement']
+
+    # Calculate engagement level
+    engagement_score = (engagement['current_streak'] / max(engagement['longest_streak'], 1)) * 100
+    if engagement_score >= 80:
+        engagement_level = "🔥 Excellent"
+    elif engagement_score >= 50:
+        engagement_level = "📈 Good"
+    else:
+        engagement_level = "⚠️ Needs Improvement"
+
+    engagement_data = [
+        ["Engagement Metric", "Your Data", "Progress Indicator"],
+        ["💬 Total Chat Sessions", str(engagement['total_sessions']), "✅" if engagement['total_sessions'] >= 5 else "—"],
+        ["📋 Assessments Completed", str(engagement['total_assessments']), "✅" if engagement['total_assessments'] >= 2 else "—"],
+        ["🔥 Current Streak", f"{engagement['current_streak']} days", engagement_level],
+        ["🏆 Longest Streak", f"{engagement['longest_streak']} days", "🌟 Best Effort"],
+        ["🎖️ Achievements Unlocked", str(engagement['achievements']), "✅" if engagement['achievements'] >= 1 else "—"],
+    ]
+
+    engagement_table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BACKGROUND', (0, 1), (-1, -1), COLOR_BACKGROUND),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
-        ('TEXTCOLOR', (1, 1), (2, -1), colors.darkslategray),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+        ('TOPPADDING', (0, 0), (-1, -1), 7),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+        ('GRID', (0, 0), (-1, -1), 0.75, COLOR_ACCENT),
     ])
 
-    wellness_table = Table(wellness_table_data, colWidths=[2.2*inch, 2*inch, 2*inch])
-    wellness_table.setStyle(wellness_table_style)
-    story.append(wellness_table)
-    story.append(Spacer(1, 0.3*inch))
-    
-    # --- Engagement Summary ---
-    story.append(Paragraph("Your Engagement", heading_style))
-    
-    engagement = analysis['engagement']
-    engagement_data = [
-        [Paragraph('Total Chat Sessions', body_style), Paragraph(str(engagement['total_sessions']), body_style)],
-        [Paragraph('Assessments Completed', body_style), Paragraph(str(engagement['total_assessments']), body_style)],
-        [Paragraph('Current Streak', body_style), Paragraph(f"**{engagement['current_streak']} days**", body_style)],
-        [Paragraph('Longest Streak', body_style), Paragraph(f"{engagement['longest_streak']} days", body_style)],
-        [Paragraph('Achievements Unlocked', body_style), Paragraph(str(engagement['achievements']), body_style)],
-    ]
-    
-    engagement_table_style = TableStyle([
-        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('BACKGROUND', (0, 0), (-1, -1), COLOR_BACKGROUND),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
-    ])
-
-    engagement_table = Table(engagement_data, colWidths=[3*inch, 3*inch])
+    engagement_table = Table(engagement_data, colWidths=[2*inch, 1.2*inch, 2*inch])
     engagement_table.setStyle(engagement_table_style)
     story.append(engagement_table)
-    story.append(Paragraph("Instruction: High engagement (long streaks and high session counts) correlates with better tracking compliance and more comprehensive data for analysis.", instruction_style))
-    story.append(Spacer(1, 0.3*inch))
+
+    engagement_insight = f"""
+    <b>Your Engagement Insight:</b><br/>
+    Your current engagement level is <b>{engagement_level}</b>. Consistent daily check-ins help build mental wellness momentum.
+    Try to maintain your streak and celebrate milestones! 🎉
+    """
+    story.append(Paragraph(engagement_insight, instruction_style))
+    story.append(Spacer(1, 0.2*inch))
     
     # --- Recommendations ---
     if include_recommendations:
-        story.append(Paragraph("Personalized Recommendations", heading_style))
-        story.append(Paragraph("Based on your recent data, here are actionable steps for your continued wellness:", body_style))
-        
-        recommendation_list = []
-        for i, rec in enumerate(analysis['recommendations'], 1):
-            recommendation_list.append(Paragraph(f"{i}. {rec}", body_style))
-        
-        story.extend(recommendation_list)
-        story.append(Spacer(1, 0.3*inch))
-    
+        story.append(Paragraph("💡 Personalized Recommendations", heading_style))
+        story.append(Paragraph("Based on your recent data, mental health research, and wellness trends, here are actionable steps for your continued wellness:", body_style))
+        story.append(Spacer(1, 0.15*inch))
+
+        # Generate recommendations based on data
+        recommendations = []
+
+        # Base recommendations
+        recommendations.extend(analysis['recommendations'][:3])
+
+        # Add data-driven recommendations
+        if mood_score < 5:
+            recommendations.append("🎯 Your mood has been lower than ideal. Consider increasing social connections and physical activity.")
+        if avg_wellness and avg_wellness < 70:
+            recommendations.append("🎯 Your overall wellness score is below target. Focus on sleep quality and stress management techniques like meditation.")
+        if analysis['engagement']['total_sessions'] < 5:
+            recommendations.append("🎯 Increase your chat sessions with the AI therapist for more consistent support and guidance.")
+
+        recommendation_boxes = []
+        colors_for_recs = [COLOR_SUCCESS, COLOR_ACCENT, COLOR_WARNING, HexColor('#9B59B6'), COLOR_PRIMARY]
+
+        for i, rec in enumerate(recommendations[:5], 1):
+            rec_style = ParagraphStyle(
+                f'RecStyle{i}',
+                parent=body_style,
+                leftIndent=20,
+                rightIndent=10,
+                spaceBefore=6,
+                spaceAfter=6,
+                borderColor=colors_for_recs[i-1],
+                borderWidth=1.5,
+                borderPadding=6,
+                backColor=HexColor('#FAFBFC')
+            )
+            recommendation_boxes.append(Paragraph(f"<b>{i}. {rec}</b>", rec_style))
+
+        story.extend(recommendation_boxes)
+        story.append(Spacer(1, 0.25*inch))
+
     # --- Important Information ---
     story.append(PageBreak())
-    story.append(Paragraph("Important Information & Disclaimer", heading_style))
-    
+    story.append(Paragraph("⚠️ Important Information & Disclaimer", heading_style))
+
     important_text = """
-    <b>Data Privacy:</b> Your mental health information is encrypted and stored securely. This report is confidential.
+    <b>🔒 Data Privacy:</b> Your mental health information is encrypted, secured, and stored confidentially.
+    This report contains sensitive personal health information and should be kept secure.
     <br/><br/>
-    <b>Crisis Support:</b> If you are in crisis or experiencing thoughts of self-harm, please contact emergency services immediately. PsyMitrix is a support tool, not a crisis response service.
+    <b>🆘 Crisis Support:</b> If you are in crisis, experiencing suicidal thoughts, or having thoughts of self-harm,
+    please contact emergency services or a crisis helpline immediately. PsyMitrix is a supportive tool, not a crisis response service.
     <br/><br/>
-    <b>Disclaimer:</b> PsyMitrix is designed to support mental health, not replace professional care. Always consult with licensed healthcare providers for diagnosis and treatment plans.
+    <b>⚖️ Disclaimer:</b> PsyMitrix is designed to support your mental health journey, NOT to replace professional medical care.
+    The assessments, insights, and recommendations in this report are for informational and supportive purposes only.
+    Always consult with licensed mental health professionals (psychiatrists, psychologists, counselors) for accurate diagnosis,
+    clinical assessments, and evidence-based treatment plans. If you have severe symptoms or ongoing struggles, seek professional help.
+    <br/><br/>
+    <b>📋 Report Accuracy:</b> This report is generated based on the data you've provided. Accuracy depends on truthful,
+    consistent self-reporting. We encourage you to be honest in your tracking for the most meaningful insights.
     """
     story.append(Paragraph(important_text, body_style))
     story.append(Spacer(1, 0.3*inch))

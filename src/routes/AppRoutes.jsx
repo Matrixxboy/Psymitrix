@@ -19,6 +19,8 @@ import HelpCenter from '../pages/Static/HelpCenter';
 import PrivacyPolicy from '../pages/Static/PrivacyPolicy';
 import TermsOfService from '../pages/Static/TermsOfService';
 import Info from '../pages/info';
+import AdminLogin from '../pages/Admin/AdminLogin';
+import AdminDashboard from '../pages/Admin/AdminDashboard';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -61,21 +63,32 @@ const AppRoutes = () => {
     <>
       <Walkthrough />
       <Routes>
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={<AdminLogin />}
+        />
+
+        <Route
+          path="/admin/dashboard"
+          element={<AdminDashboard />}
+        />
+
         {/* Public Routes */}
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <PublicRoute>
               <Login />
             </PublicRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/info" 
+
+        <Route
+          path="/info"
           element={
               <Info />
-          } 
+          }
         />
         
         {/* Protected Routes */}
