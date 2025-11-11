@@ -22,3 +22,5 @@ export default api;
 export * from './auth.js';
 export * from './sessions.js';
 export * from './notifications.js';
+export * from './achievements.js';
+export * from './wellness.js';

@@ -6,7 +6,7 @@ from Database.db_connection import get_mongo_db
 from utils.response_helper import make_response
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from models.user_model import User, NotificationType, NotificationStatus
-from .utils import complete_profile_notification, create_notification, update_notification_as_seen
+from .utils import create_notification, update_notification_as_seen
 
 router = APIRouter(prefix="/notifications", tags=["User Notifications"])
 
@@ -16,8 +16,7 @@ class NotificationRequest(BaseModel):
     message: str
     status: NotificationStatus = NotificationStatus.incomplete
 
-class SeenRequest(BaseModel):
-    NotificationID: str
+
 
 @router.get("/")
 def get_notifications(
@@ -150,16 +149,33 @@ def clear_notifications(
     current_user: User = Depends(get_current_user),
     db=Depends(get_mongo_db)
 ):
-    pass
+    try:
+        db.users.update_one(
+            {"email": current_user.email},
+            {"$set": {"notifications": []}}
+        )
+        return make_response(
+            status_code=HTTP_STATUS["OK"],
+            code=HTTP_CODE["OK"],
+            message="All notifications cleared successfully",
+            data={"notifications": []}
+        )
+    except Exception as e:
+        return make_response(
+            status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],
+            code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Failed to clear notifications",
+            data={"api": "clear_notifications", "error": str(e)}
+        )
 
-@router.post("/notifications-seen")
+@router.post("/{notification_id}/seen")
 def mark_notifications_as_seen(
-    request: SeenRequest,
+    notification_id: str,
     current_user: User = Depends(get_current_user),
     db=Depends(get_mongo_db)
 ):
     try:
-        notification_call = update_notification_as_seen(current_user, request.NotificationID)
+        notification_call = update_notification_as_seen(current_user, notification_id)
         db.users.update_one(
             {"email": current_user.email},
             {"$set": {"notifications": notification_call}}
@@ -185,16 +201,17 @@ def add_profile_notification(
     db=Depends(get_mongo_db)
 ):
     try:
-        notification_call = complete_profile_notification(current_user)
+        from .utils import check_and_add_notifications
+        check_and_add_notifications(current_user)
         db.users.update_one(
             {"email": current_user.email},
-            {"$set": {"notifications": notification_call}}
+            {"$set": {"notifications": [n.model_dump() for n in current_user.notifications]}}
         )
         return make_response(
             status_code=HTTP_STATUS["OK"],
             code=HTTP_CODE["OK"],
             message="Profile notification added successfully",
-            data={"notification": notification_call}
+            data={"notifications": current_user.notifications}
         )
     except Exception as e:
         return make_response(

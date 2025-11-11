@@ -28,6 +28,7 @@ class NotificationType(str, Enum):
     NEW_MESSAGE = "New_Message"
     FRIEND_REQUEST = "Friend_Request"
     ACHIEVEMENT_UNLOCKED = "Achievement_Unlocked"
+    ASSESSMENT_REMINDER = "Assessment_Reminder"
 
 class NotificationData(BaseModel):
     notification_id: UUID = Field(default_factory=uuid4)
@@ -161,6 +162,17 @@ class WellnessMetric(BaseModel):
     stress_level: Optional[int] = None  # 1-10 scale
     water_intake: Optional[int] = None  # glasses of water
     meditation_minutes: Optional[int] = None  # meditation practice
+
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.isoformat()
+        },
+        from_attributes=True
+    )
+
+class SleepData(BaseModel):
+    sleep_hours: float
+    date: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
     model_config = ConfigDict(
         json_encoders={

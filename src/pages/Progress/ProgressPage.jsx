@@ -1,142 +1,369 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion } from 'framer-motion';
+import {
+  FiBarChart2,
+  FiActivity,
+  FiCheckSquare,
+  FiAward,
+  FiTrendingUp,
+  FiMoon,
+} from 'react-icons/fi';
+import { useAuth } from '../../hooks/useAuth';
+import { getAchievements } from '../../api/achievements';
+import { fetchUserProfile as getUser } from '../../api/auth'; // Assuming a getUser function exists in auth.js
+import { Line } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+
+// Components
 import LineChart from '../../components/charts/LineChart';
 import RadarChart from '../../components/charts/RadarChart';
-import BarChart from '../../components/charts/BarChart';
-import PieChart from '../../components/charts/PieChart';
-import GlassCard from '../../components/ui/GlassCard';
-import { getAppData } from '../../api/data';
+import DonutChart from '../../components/charts/DonutChart';
 import Achievements from './Achievements';
-import {useAuth} from '../../hooks/useAuth';
+import DashboardSkeleton from '../Dashboard/sections/DashboardSkeleton';
+import ChartCard from '../Dashboard/ChartCard';
+import GlassCard from '../../components/ui/GlassCard';
 
-// Minimal inline icons
-const FiTrendingUp = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-);
-const FiAward = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-);
-const FiActivity = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-);
-const FiCheckSquare = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-);
-const FiPieChart = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-);
-const FiBarChart = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-);
-const FiStar = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+// Utils
+import {
+  processMoodTrendsData,
+  calculateWellnessBalance,
+  calculateActivityBreakdown,
+  getMoodScore,
+  filterDataByTimeframe,
+} from '../../utils/dataProcessing';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+/* -------------------------------------------------------------------------- */
+/*                                SMALL COMPONENTS                            */
+/* -------------------------------------------------------------------------- */
+
+const TimeframeButton = ({ label, value, selected, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`px-5 py-2.5 rounded-lg font-medium transition-all duration-300 backdrop-blur-sm ${selected
+        ? 'bg-gradient-to-r from-light-primary to-light-secondary dark:from-dark-primary dark:to-dark-secondary text-white shadow-lg'
+        : 'bg-light-secondary/10 dark:bg-dark-secondary/10 text-light-headings dark:text-dark-headings hover:bg-light-secondary/20 dark:hover:bg-dark-secondary/20'
+      }`}
+  >
+    {label}
+  </button>
 );
 
-const ChartCard = ({ title, icon: Icon, children }) => (
-  <GlassCard>
-    <div className="flex items-center gap-3 mb-4 p-4">
-      <Icon className="text-xl text-light-primary dark:text-dark-primary" />
-      <h3 className="text-lg font-semibold text-light-headings dark:text-dark-headings">{title}</h3>
+const StatCard = ({ title, value, icon: Icon, subtitle }) => (
+  <GlassCard className="p-5 flex flex-col justify-between">
+    <div className="flex items-center justify-between">
+      <h5 className="text-sm font-semibold text-light-headings dark:text-dark-headings">
+        {title}
+      </h5>
+      <Icon className="text-light-primary dark:text-dark-primary text-xl" />
     </div>
-    <div className="p-4 pt-0">
-      {children}
+    <div className="mt-3">
+      <p className="text-3xl font-bold text-light-headings dark:text-dark-headings">{value || 'N/A'}</p>
+      {subtitle && (
+        <p className="text-xs text-light-body/70 dark:text-dark-body/70 mt-1">{subtitle}</p>
+      )}
     </div>
   </GlassCard>
 );
 
-const StatCard = ({ icon: Icon, value, label }) => (
-  <GlassCard className="p-4 flex items-center gap-4">
-    <div className="p-3 bg-white/10 rounded-full">
-      <Icon className="text-2xl text-light-primary dark:text-dark-primary" />
-    </div>
-    <div>
-      <p className="text-2xl font-bold text-light-headings dark:text-dark-headings">{value}</p>
-      <p className="text-sm text-light-body dark:text-dark-body">{label}</p>
-    </div>
-  </GlassCard>
-);
+/* -------------------------------------------------------------------------- */
+/*                                 MAIN PAGE                                  */
+/* -------------------------------------------------------------------------- */
 
 const ProgressPage = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth(); // Get setUser from useAuth
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('month');
-  const [progress, setProgress] = useState(null);
+  const [achievements, setAchievements] = useState([]);
+  const [sleepDataForChart, setSleepDataForChart] = useState({ labels: [], datasets: [] });
+
+  const wellnessMetrics = user?.mental_health_profile?.wellness_metrics || [];
 
   useEffect(() => {
-    let mounted = true;
-    getAppData().then((appData) => {
-      if (mounted) {
-        setProgress(appData.progress);
+      // Prepare data for chart
+      const sortedMetrics = [...wellnessMetrics]
+          .filter(metric => metric.sleep_hours !== undefined && metric.sleep_hours !== null)
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const labels = sortedMetrics.map(metric => new Date(metric.date).toLocaleDateString());
+      const data = sortedMetrics.map(metric => metric.sleep_hours);
+
+      setSleepDataForChart({
+          labels,
+          datasets: [
+              {
+                  label: 'Sleep Hours',
+                  data,
+                  borderColor: 'rgba(153, 102, 255, 1)',
+                  backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                  fill: true,
+                  tension: 0.4,
+              },
+          ],
+      });
+  }, [wellnessMetrics]);
+
+  const sleepChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+          legend: { position: 'top', labels: { color: 'rgb(156 163 175)' } },
+          title: {
+              display: true,
+              text: 'Sleep Hours Over Time',
+              color: 'rgb(229 231 235)',
+          },
+      },
+      scales: {
+          x: {
+              ticks: { color: 'rgb(156 163 175)' },
+              grid: { color: 'rgba(107, 114, 128, 0.2)' },
+          },
+          y: {
+              ticks: { color: 'rgb(156 163 175)' },
+              grid: { color: 'rgba(107, 114, 128, 0.2)' },
+          },
+      },
+  };
+
+  const fetchUserData = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const response = await getUser(); // Fetch updated user data
+      setUser(response.data.data); // Update user in AuthProvider
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, setUser]);
+
+  useEffect(() => {
+    const fetchAchievements = async () => {
+      try {
+        const fetchedAchievements = await getAchievements();
+        setAchievements(fetchedAchievements);
+      } catch (error) {
+        console.error('Error fetching achievements:', error);
       }
-    });
-    return () => { mounted = false; };
+    };
+
+    fetchAchievements();
   }, []);
 
-  const stats = useMemo(() => progress?.stats || { avgMood: 0, habitRate: 0, daysStreak: 0, achievementsCount: 0 }, [progress]);
-  const chartData = useMemo(() => progress?.[timeframe] || { moodTrend: {}, wellnessBalance: {}, habitConsistency: {}, activityBreakdown: {} }, [progress, timeframe]);
-  const userAchievements = user?.achievements || [];
-  // **IMPROVEMENT**: Add a loading state
-  if (!progress) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-light-headings dark:text-dark-headings">Loading your progress...</p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!user) return;
 
-  const TimeframeButton = ({ period, label }) => (
-    <button
-      onClick={() => setTimeframe(period)}
-      className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-300
-        ${timeframe === period
-          ? 'bg-light-primary dark:bg-dark-primary text-white shadow-lg'
-          : 'bg-white/10 hover:bg-white/20 text-light-headings dark:text-dark-headings'}`}>
-      {label}
-    </button>
-  );
+    try {
+      const moodTrend = processMoodTrendsData(user.mood_trends || [], timeframe);
+      const activityBreakdown = calculateActivityBreakdown(user);
+      const wellnessBalance = calculateWellnessBalance(user);
+
+      const filteredMoods = filterDataByTimeframe(user.mood_trends || [], timeframe);
+      const avgMoodScore =
+        filteredMoods.length > 0
+          ? (
+            filteredMoods.reduce((sum, m) => sum + getMoodScore(m.mood), 0) /
+            filteredMoods.length
+          ).toFixed(1)
+          : 'N/A';
+
+      setData({
+        moodTrend,
+        activityBreakdown,
+        wellnessBalance,
+        avgMoodScore,
+        moodEntries: filteredMoods.length,
+      });
+    } catch (error) {
+      console.error('Error processing progress data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, timeframe]);
+
+  if (loading || !data) return <DashboardSkeleton />;
+
+  /* ---------------------------- Animations ---------------------------- */
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  /* -------------------------------------------------------------------------- */
+  /*                                  RENDER UI                                 */
+  /* -------------------------------------------------------------------------- */
 
   return (
-    <div className="mt-[50px] min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="min-h-screen p-6 md:p-10 text-light-body dark:text-dark-body mt-[60px]">
       <main className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-light-headings dark:text-dark-headings">Your Growth Journey</h1>
-          <p className="mt-2 text-md text-light-body dark:text-dark-body">Visualize your progress and celebrate your milestones.</p>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard icon={FiTrendingUp} value={stats.avgMood.toFixed(1)} label="Avg. Mood" />
-          <StatCard icon={FiCheckSquare} value={`${stats.habitRate}%`} label="Habit Rate" />
-          <StatCard icon={FiStar} value={user.streak} label="Days Streak" />
-          <StatCard icon={FiStar} value={user.longest_streak} label="Longest Streak" />
-          <StatCard icon={FiAward} value={userAchievements.length} label="Achievements" />
-        </div>
+        {/* ========================== HEADER ========================== */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-light-headings dark:text-dark-headings tracking-tight">
+            Your Growth Journey
+          </h1>
+          <p className="mt-3 text-md text-light-body/80 dark:text-dark-body/80">
+            Visualize your emotional and wellness evolution through time.
+          </p>
+        </motion.div>
 
-        <div className="mb-8 flex justify-center gap-3">
-          <TimeframeButton period="week" label="Week" />
-          <TimeframeButton period="month" label="Month" />
-          <TimeframeButton period="year" label="Year" />
-        </div>
+        {/* ====================== TIMEFRAME FILTER ====================== */}
+        <motion.div
+          className="flex justify-center mb-10 gap-4 flex-wrap"
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+        >
+          {['week', 'month', 'year'].map((tf) => (
+            <TimeframeButton
+              key={tf}
+              label={tf.charAt(0).toUpperCase() + tf.slice(1)}
+              value={tf}
+              selected={timeframe === tf}
+              onClick={() => setTimeframe(tf)}
+            />
+          ))}
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartCard title="Mood Trend" icon={FiTrendingUp}>
-            <div className="h-80"><LineChart {...(chartData.moodTrend || {})} /></div>
-          </ChartCard>
+        {/* ====================== SUMMARY STATS ====================== */}
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+        >
+          <StatCard
+            title="Average Mood"
+            value={data.avgMoodScore}
+            icon={FiTrendingUp}
+            subtitle={`${data.moodEntries} entries`}
+          />
+          <StatCard
+            title="Current Streak"
+            value={`${user?.streak || 0} days`}
+            icon={FiTrendingUp}
+            subtitle={`Best: ${user?.longest_streak || 0}`}
+          />
+          <StatCard
+            title="Assessments"
+            value={user?.mental_health_profile?.assessment_results?.length || 0}
+            icon={FiCheckSquare}
+            subtitle="Total completed"
+          />
+          <StatCard
+            title="Achievements"
+            value={achievements.length}
+            icon={FiAward}
+            subtitle="Unlocked"
+          />
+        </motion.div>
+        <div className=''>
+          {/* ====================== MAIN ANALYTICS ====================== */}
+          <div className="row-span-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2  gap-8 mb-12">
+            {/* Mood Trend */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible">
+              <ChartCard
+                title={`Mood Trend (${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)})`}
+                icon={FiBarChart2}
+              >
+                <div className="h-80">
+                  {data.moodTrend.values.length > 0 ? (
+                    <LineChart {...data.moodTrend} />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-light-body/60 dark:text-dark-body/60">
+                      No mood data for this period.
+                    </div>
+                  )}
+                </div>
+              </ChartCard>
+            </motion.div>
 
-          <ChartCard title="Habit Consistency (Days)" icon={FiBarChart}>
-            <div className="h-80"><BarChart {...(chartData.habitConsistency || {})} /></div>
-          </ChartCard>
 
-          <ChartCard title="Wellness Balance" icon={FiActivity}>
-            {/* Note: Your RadarChart component correctly expects a 'datasets' array. This implementation is correct. */}
-            <div className="h-80"><RadarChart labels={chartData.wellnessBalance?.labels || []} datasets={[{ label: 'Wellness', data: chartData.wellnessBalance?.values || [] }]} /></div>
-          </ChartCard>
+            {/* ====================== SLEEP TRACKER ====================== */}
 
-          <ChartCard title="Activity Breakdown (Mins)" icon={FiPieChart}>
-            <div className="h-80"><PieChart labels={chartData.activityBreakdown?.labels} datasets={[{ data: chartData.activityBreakdown?.values }]} /></div>
-          </ChartCard>
+            <motion.div variants={fadeUp} initial="hidden" animate="visible">
+              <ChartCard
+                title="Log Daily Sleep"
+                icon={FiMoon}
+              >
+                <div className="h-80">
+                  {sleepDataForChart.labels.length > 0 ? (
+                      <Line data={sleepDataForChart} options={sleepChartOptions} />
+                  ) : (
+                      <div className="flex items-center justify-center h-full text-light-body/60 dark:text-dark-body/60">
+                          Not enough data to display chart.
+                      </div>
+                  )}
+                </div>
+              </ChartCard>
+            </motion.div>
+          </div>
 
-          <div className="lg:col-span-2">
-            <ChartCard title="Recent Achievements" icon={FiAward}>
-              <Achievements items={progress?.achievements || []} />
-            </ChartCard>
+          {/* ====================== BOTTOM SECTION ====================== */}
+          
+          <div className="row-span-1 grid grid-cols-1 lg:grid-cols-2 gap-8">
+           {/* Wellness Radar */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible">
+              <ChartCard title="Wellness Balance" icon={FiActivity}>
+                <div className="h-80">
+                  <RadarChart {...data.wellnessBalance} />
+                </div>
+              </ChartCard>
+            </motion.div>
+            {/* Activity Breakdown */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible">
+              <ChartCard title="Activity Breakdown" icon={FiActivity}>
+                <div className="h-80 flex items-center justify-center">
+                  {user?.games?.length > 0 ? (
+                    <DonutChart
+                      value={data.activityBreakdown.value}
+                      label={data.activityBreakdown.label}
+                    />
+                  ) : (
+                    <div className="text-center text-light-body/60 dark:text-dark-body/60">
+                      <p className="text-sm">No activity data yet</p>
+                      <p className="text-xs mt-1">
+                        Play games to see your activity breakdown.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </ChartCard>
+            </motion.div>
+          </div>
+
+          <div className='row-span-1 grid grid-cols-1 gap-8 mt-14'>
+                  {/* Achievements */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible">
+              <ChartCard title="Recent Achievements" icon={FiAward}>
+                {achievements.length > 0 ? (
+                  <Achievements items={achievements} />
+                ) : (
+                  <div className="flex items-center justify-center h-40 text-light-body/60 dark:text-dark-body/60">
+                    No achievements unlocked yet. Keep going!
+                  </div>
+                )}
+              </ChartCard>
+            </motion.div>
           </div>
         </div>
       </main>

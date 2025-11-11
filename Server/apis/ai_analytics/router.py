@@ -75,13 +75,23 @@ def filter_data_by_timeframe(data: List[Any], timeframe: str) -> List[Any]:
     filtered = []
     for item in data:
         try:
-            item_date = item.created_at if hasattr(item, 'created_at') else item.get('created_at')
+            item_date = getattr(item, 'created_at', getattr(item, 'date', None))
+            if isinstance(item, dict):
+                item_date = item.get('created_at') or item.get('date')
+
+            if not item_date:
+                continue
+
             if isinstance(item_date, str):
                 item_date = datetime.fromisoformat(item_date.replace('Z', '+00:00'))
+
+            if item_date.tzinfo:
+                item_date = item_date.replace(tzinfo=None)
+
             if item_date >= cutoff:
                 filtered.append(item)
-        except:
-            filtered.append(item)
+        except (ValueError, TypeError, AttributeError):
+            continue
     
     return filtered
 
@@ -113,17 +123,22 @@ def analyze_mood_trends(mood_trends: List, timeframe: str = "month") -> MoodAnal
     volatility = statistics.stdev(mood_scores) if len(mood_scores) > 1 else 0
     
     # Determine trend
+    trend = "Insufficient data"
     if len(mood_scores) >= 2:
-        recent_avg = statistics.mean(mood_scores[-5:] if len(mood_scores) >= 5 else mood_scores[-2:])
-        older_avg = statistics.mean(mood_scores[:-5] if len(mood_scores) >= 5 else [mood_scores[0]])
+        if len(mood_scores) >= 4:
+            half = len(mood_scores) // 2
+            older_avg = statistics.mean(mood_scores[:half])
+            recent_avg = statistics.mean(mood_scores[half:])
+        else:
+            older_avg = mood_scores[0]
+            recent_avg = statistics.mean(mood_scores[1:])
+
         if recent_avg > older_avg + 1:
             trend = "Improving"
         elif recent_avg < older_avg - 1:
             trend = "Declining"
         else:
             trend = "Stable"
-    else:
-        trend = "Insufficient data"
     
     # Determine dominant mood
     mood_counts = {}

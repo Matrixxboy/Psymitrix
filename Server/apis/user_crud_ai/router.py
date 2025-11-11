@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends
 from utils.response_helper import make_response
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
-from models.user_model import User, UserUpdate
+from models.user_model import User, UserUpdate, SleepData, WellnessMetric
 from apis.auth.authentication import get_current_user
 from Database.db_connection import get_mongo_db
 from apis.database_connection.cleanup import cleanup_user_chromadb_collection
 import json 
+from datetime import datetime
+
 router = APIRouter(prefix="/user_crud", tags=["User CRUD+AI"])
 
 
@@ -126,6 +128,58 @@ async def update_user_data(
             code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
             message="Failed to update user data",
             data={"api": "update_user_data", "error": str(e)}
+        )
+
+@router.post("/user/wellness/sleep")
+async def add_sleep_data(
+    sleep_data: SleepData,
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_mongo_db)
+):
+    """
+    Adds sleep data to the current user's wellness metrics.
+    """
+    try:
+        # Fetch the existing user
+        existing_user_data = db.users.find_one({"email": current_user.email})
+        if not existing_user_data:
+            return make_response(
+                status_code=HTTP_STATUS["NOT_FOUND"],
+                code=HTTP_CODE["NOT_FOUND"],
+                message="User not found",
+                data={}
+            )
+        
+        # Convert existing user data to User model to ensure proper structure
+        existing_user = User(**existing_user_data)
+
+        # Create a new WellnessMetric object for sleep
+        new_wellness_metric = WellnessMetric(
+            date=sleep_data.date,
+            sleep_hours=sleep_data.sleep_hours
+        )
+
+        # Append the new metric to the wellness_metrics list
+        existing_user.mental_health_profile.wellness_metrics.append(new_wellness_metric)
+
+        # Update the user in the database
+        db.users.update_one(
+            {"email": current_user.email},
+            {"$set": {"mental_health_profile.wellness_metrics": [wm.model_dump() for wm in existing_user.mental_health_profile.wellness_metrics]}}
+        )
+
+        return make_response(
+            status_code=HTTP_STATUS["OK"],
+            code=HTTP_CODE["OK"],
+            message="Sleep data added successfully",
+            data={"sleep_hours": sleep_data.sleep_hours, "date": sleep_data.date.isoformat()}
+        )
+    except Exception as e:
+        return make_response(
+            status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],
+            code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Failed to add sleep data",
+            data={"api": "add_sleep_data", "error": str(e)}
         )
 
 @router.delete("/user/delete")

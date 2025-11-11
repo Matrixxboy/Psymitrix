@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, ArrowRight, Loader, TrendingDown } from 'lucide-react';
 import { assessmentsAPI } from '../../api/assessments';
 import GlassCard from '../../components/ui/GlassCard';
+import { Bandage , Ribbon} from 'lucide-react';
 
 const AssessmentsPage = () => {
   const [activeTab, setActiveTab] = useState('select');
@@ -95,7 +96,7 @@ const AssessmentsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-light-background to-light-secondary dark:from-dark-background dark:to-dark-secondary p-4 md:p-8">
+    <div className="min-h-screen mt-[90px] md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
@@ -129,14 +130,14 @@ const AssessmentsPage = () => {
                     title: 'Depression Assessment',
                     description: 'Patient Health Questionnaire (PHQ-9)',
                     duration: '2-3 minutes',
-                    icon: '😔'
+                    icon: <Bandage className='w-10 h-10 text-light-primary dark:text-dark-primary' />
                   },
                   {
                     type: 'GAD-7',
                     title: 'Anxiety Assessment',
                     description: 'Generalized Anxiety Disorder (GAD-7)',
                     duration: '2-3 minutes',
-                    icon: '😰'
+                    icon: <Ribbon className='w-10 h-10 text-light-primary dark:text-dark-primary' />
                   }
                 ].map((assessment) => (
                   <motion.div

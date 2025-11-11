@@ -192,30 +192,32 @@ async def get_ai_response(user_id: str, user_message: str, user_context: Dict, c
         if user_context.get("recent_assessments"):
             assessments_summary = "\n".join(
                 [f"- {a['type']}: {a['score']} ({a['severity']})"
-                 for a in user_context["recent_assessments"]]
+                    for a in user_context["recent_assessments"]]
             )
 
         history = "\n".join(
             [f"{m['role'].upper()}: {m['content']}"
-             for m in conversation_history[-3:]]
+                for m in conversation_history[-3:]]
         )
 
         # ✅ Updated prompt: instruct model to give plain text
-        prompt = f"""
-You are PsyMitrix — a professional, compassionate AI psychiatrist.
-Respond like a warm, caring human — not as code, JSON, or a program output.
-Write directly to the user in natural language (no JSON, quotes, or code fences).
+        prompt = f"""You are Shvayam — a compassionate, professional AI psychiatrist. 
+Respond like a warm, caring human therapist. 
 
+Do not include:
+- Any labels like “BOT:”, “Shvayam:”, or “AI:”
+- Any JSON, code blocks, quotes, or special formatting
+- Any explanations about what you’re doing
+
+Context:
 User Mood: {user_context.get('recent_mood', 'N/A')}
-Assessments:
-{assessments_summary}
+Assessments: {assessments_summary}
+Recent Chat: {history}
 
-Recent Chat:
-{history}
+User says: {user_message}
 
-User says: "{user_message}"
-
-Your compassionate natural-language reply:
+Now reply directly to the user in natural human language with empathy, insight, and emotional warmth.
+Your output must be ONLY the message — no other text or formatting.
 """
 
         outputs = local_llm_pipeline(

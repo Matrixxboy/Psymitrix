@@ -25,8 +25,9 @@ const NotificationIcon = () => {
       try {
         const response = await getNotifications();
         const data = response?.data?.data?.notifications || [];
-        setNotifications(data);
-        setUnseenCount(data.filter((n) => !n.seen).length);
+        const unseenNotifications = data.filter((n) => !n.seen);
+        setNotifications(unseenNotifications);
+        setUnseenCount(unseenNotifications.length);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       } finally {
