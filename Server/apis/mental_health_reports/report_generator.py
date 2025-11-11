@@ -423,7 +423,7 @@ def generate_mental_health_report(
     mood_guide_data = [
         ["Score", "Mood", "Indicator"],
         ["10", "Excited", "✅ Excellent energy & enthusiasm"],
-        ["8", "Happy", "✅ Positive & content"],
+        ["8", "Happy", "�� Positive & content"],
         ["7", "Calm", "✅ Peaceful & relaxed"],
         ["5", "Neutral", "⚪ Balanced state"],
         ["3", "Sad", "⚠️ Down or melancholic"],
@@ -557,39 +557,75 @@ def generate_mental_health_report(
     
     # --- Assessment Results ---
     if include_assessments:
-        story.append(Paragraph("Assessment Results", heading_style))
+        story.append(Paragraph("✅ Assessment Results", heading_style))
         story.append(Paragraph("""
-        Below are the results of your most recent standardized screenings.
+        Below are the results of your most recent standardized mental health screenings (PHQ-9 for depression, GAD-7 for anxiety).
+        These are validated clinical instruments used worldwide.
         """, body_style))
+        story.append(Spacer(1, 0.15*inch))
 
         phq9_data = analysis['assessment_scores']['phq9']
         gad7_data = analysis['assessment_scores']['gad7']
 
+        # Determine severity colors
+        def get_severity_color(severity):
+            if severity and 'minimal' in severity.lower():
+                return COLOR_SUCCESS
+            elif severity and 'mild' in severity.lower():
+                return COLOR_SUCCESS
+            elif severity and 'moderate' in severity.lower():
+                return COLOR_WARNING
+            else:
+                return COLOR_DANGER
+
+        phq9_color = get_severity_color(phq9_data['severity'])
+        gad7_color = get_severity_color(gad7_data['severity'])
+
         assessment_table_data = [
-            ["Assessment", "Latest Score", "Severity Level", "Last Taken"],
-            ["PHQ-9 (Depression)", phq9_data['latest'] or 'N/A', phq9_data['severity'] or 'N/A', phq9_data['last_taken']],
-            ["GAD-7 (Anxiety)", gad7_data['latest'] or 'N/A', gad7_data['severity'] or 'N/A', gad7_data['last_taken']],
+            ["Assessment Name", "Latest Score", "Severity Level", "Last Assessment", "Status"],
+            [
+                "PHQ-9 (Depression Screening)",
+                phq9_data['latest'] or 'Not taken',
+                phq9_data['severity'] or 'N/A',
+                phq9_data['last_taken'],
+                "✓" if phq9_data['latest'] else "—"
+            ],
+            [
+                "GAD-7 (Anxiety Screening)",
+                gad7_data['latest'] or 'Not taken',
+                gad7_data['severity'] or 'N/A',
+                gad7_data['last_taken'],
+                "✓" if gad7_data['latest'] else "—"
+            ],
         ]
 
         assessment_table_style = TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 1), (2, -1), 'CENTER'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BACKGROUND', (0, 1), (-1, -1), COLOR_BACKGROUND),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+            ('GRID', (0, 0), (-1, -1), 1, COLOR_PRIMARY),
         ])
-        
-        assessment_table = Table(assessment_table_data, colWidths=[1.8*inch, 1.2*inch, 1.5*inch, 1.7*inch])
+
+        assessment_table = Table(assessment_table_data, colWidths=[1.6*inch, 1*inch, 1.2*inch, 1.3*inch, 0.6*inch])
         assessment_table.setStyle(assessment_table_style)
         story.append(assessment_table)
-        story.append(Paragraph("Instruction: Consult the score interpretation guide within the PsyMitrix app for detailed severity thresholds. If your severity level is Moderate or Severe, professional advice is strongly recommended.", instruction_style))
-        story.append(Spacer(1, 0.3*inch))
+
+        assessment_note = """
+        <b>Severity Guide:</b><br/>
+        🟢 <b>Minimal/Mild</b> - Few or mild symptoms<br/>
+        🟡 <b>Moderate</b> - Moderate symptoms; consider professional support<br/>
+        🔴 <b>Moderately Severe/Severe</b> - Significant symptoms; professional consultation recommended
+        """
+        story.append(Paragraph(assessment_note, instruction_style))
+        story.append(Spacer(1, 0.2*inch))
     
     # --- Wellness Metrics ---
     story.append(Paragraph("Wellness & Lifestyle Metrics", heading_style))
