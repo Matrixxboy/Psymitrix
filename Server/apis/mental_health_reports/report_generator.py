@@ -423,7 +423,7 @@ def generate_mental_health_report(
     mood_guide_data = [
         ["Score", "Mood", "Indicator"],
         ["10", "Excited", "✅ Excellent energy & enthusiasm"],
-        ["8", "Happy", "�� Positive & content"],
+        ["8", "Happy", "✅ Positive & content"],
         ["7", "Calm", "✅ Peaceful & relaxed"],
         ["5", "Neutral", "⚪ Balanced state"],
         ["3", "Sad", "⚠️ Down or melancholic"],
@@ -628,52 +628,99 @@ def generate_mental_health_report(
         story.append(Spacer(1, 0.2*inch))
     
     # --- Wellness Metrics ---
-    story.append(Paragraph("Wellness & Lifestyle Metrics", heading_style))
-    story.append(Paragraph("Tracking your habits provides critical context for your mental state.", body_style))
-    
+    story.append(Paragraph("💪 Wellness & Lifestyle Metrics", heading_style))
+    story.append(Paragraph("Regular tracking of your daily habits provides critical context for your mental health state. Below is your comprehensive wellness profile.", body_style))
+    story.append(Spacer(1, 0.15*inch))
+
     # Wellness Balance Chart (Spider Chart)
     story.append(Paragraph("Wellness Balance Snapshot (30-Day Average)", sub_heading_style))
     wellness_chart = create_wellness_balance_chart(analysis)
     story.append(wellness_chart)
-    story.append(Paragraph("Instruction: The spider chart visually compares your Stress (lower is better), Sleep, Mood, Energy, and Focus scores (all on a 1-10 scale). A larger, more balanced shape indicates better overall wellness.", instruction_style))
-    story.append(Spacer(1, 0.2*inch))
+    story.append(Paragraph("📌 <b>Instruction:</b> The radar chart visually displays your Stress (lower is better), Sleep, Mood, Energy, and Focus scores (all 1-10 scale). A larger, more balanced shape indicates better overall wellness.", instruction_style))
+    story.append(Spacer(1, 0.15*inch))
 
     wellness = analysis['wellness_metrics']
     current_wellness = wellness['current']
     avg_wellness = wellness['average_30_days']
 
-    def get_wellness_data_row(label, unit, current, avg):
-        current_str = f"**{current} {unit}**" if current is not None else "Not tracked"
-        avg_str = f"**{avg} {unit}**" if avg is not None else "N/A"
-        return [label, current_str, avg_str]
+    # Enhanced wellness data with status indicators
+    def get_wellness_status(metric_name, value, avg_value):
+        """Determine wellness status based on metric"""
+        if metric_name == "sleep_hours":
+            if avg_value and avg_value >= 7:
+                return "✅ Good"
+            elif avg_value and avg_value >= 6:
+                return "⚠️ Fair"
+            else:
+                return "❌ Poor"
+        elif metric_name == "activity_minutes":
+            if avg_value and avg_value >= 30:
+                return "✅ Good"
+            elif avg_value and avg_value >= 15:
+                return "⚠️ Fair"
+            else:
+                return "❌ Low"
+        elif metric_name == "stress_level":
+            if avg_value and avg_value <= 3:
+                return "✅ Good"
+            elif avg_value and avg_value <= 6:
+                return "⚠️ Fair"
+            else:
+                return "❌ High"
+        else:
+            return "—"
 
     wellness_table_data = [
-        ["Metric", "Most Recent Value", f"30-Day Average"],
-        get_wellness_data_row("Sleep Hours", "hrs", current_wellness['sleep_hours'], avg_wellness['sleep_hours']),
-        get_wellness_data_row("Activity Minutes", "min", current_wellness['activity_minutes'], avg_wellness['activity_minutes']),
-        get_wellness_data_row("Stress Level (1-10)", "score", current_wellness['stress_level'], avg_wellness['stress_level']),
-        get_wellness_data_row("Daily Wellness Score (1-100)", "score", current_wellness['daily_wellness_score'], avg_wellness['daily_wellness_score']),
+        ["Metric", "Recent", "30-Day Avg", "Target", "Status"],
+        [
+            "😴 Sleep Hours",
+            f"{current_wellness['sleep_hours'] or '—'} hrs",
+            f"{avg_wellness['sleep_hours'] or '—'} hrs",
+            "7-9 hrs",
+            get_wellness_status("sleep_hours", current_wellness['sleep_hours'], avg_wellness['sleep_hours'])
+        ],
+        [
+            "🏃 Activity Minutes",
+            f"{current_wellness['activity_minutes'] or '—'} min",
+            f"{avg_wellness['activity_minutes'] or '—'} min",
+            "30+ min",
+            get_wellness_status("activity_minutes", current_wellness['activity_minutes'], avg_wellness['activity_minutes'])
+        ],
+        [
+            "😰 Stress Level (1-10)",
+            f"{current_wellness['stress_level'] or '—'}",
+            f"{avg_wellness['stress_level'] or '—'}",
+            "1-3",
+            get_wellness_status("stress_level", current_wellness['stress_level'], avg_wellness['stress_level'])
+        ],
+        [
+            "🌟 Daily Wellness (0-100)",
+            f"{current_wellness['daily_wellness_score'] or '—'}%",
+            f"{avg_wellness['daily_wellness_score'] or '—'}%",
+            "75-100%",
+            "✅ Tracked" if avg_wellness['daily_wellness_score'] else "—"
+        ],
     ]
 
     wellness_table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_PRIMARY),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BACKGROUND', (0, 1), (-1, -1), COLOR_BACKGROUND),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
-        ('TEXTCOLOR', (1, 1), (2, -1), colors.darkslategray),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+        ('TOPPADDING', (0, 0), (-1, -1), 7),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [COLOR_LIGHT_BLUE, colors.white]),
+        ('GRID', (0, 0), (-1, -1), 0.75, COLOR_PRIMARY),
+        ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
     ])
 
-    wellness_table = Table(wellness_table_data, colWidths=[2.2*inch, 2*inch, 2*inch])
+    wellness_table = Table(wellness_table_data, colWidths=[1.5*inch, 1*inch, 1.2*inch, 1*inch, 1.3*inch])
     wellness_table.setStyle(wellness_table_style)
     story.append(wellness_table)
-    story.append(Spacer(1, 0.3*inch))
+    story.append(Spacer(1, 0.2*inch))
     
     # --- Engagement Summary ---
     story.append(Paragraph("Your Engagement", heading_style))
