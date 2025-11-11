@@ -479,7 +479,7 @@ def generate_mental_health_report(
     wellness_score = analysis['wellness_metrics']['average_30_days']['daily_wellness_score'] or 0
 
     if mood_score >= 7 and wellness_score >= 75:
-        overall_status = "🟢 Excellent"
+        overall_status = "�� Excellent"
         status_color = COLOR_SUCCESS
     elif mood_score >= 5.5 and wellness_score >= 60:
         overall_status = "🟡 Good"
@@ -776,26 +776,63 @@ def generate_mental_health_report(
     
     # --- Recommendations ---
     if include_recommendations:
-        story.append(Paragraph("Personalized Recommendations", heading_style))
-        story.append(Paragraph("Based on your recent data, here are actionable steps for your continued wellness:", body_style))
-        
-        recommendation_list = []
-        for i, rec in enumerate(analysis['recommendations'], 1):
-            recommendation_list.append(Paragraph(f"{i}. {rec}", body_style))
-        
-        story.extend(recommendation_list)
-        story.append(Spacer(1, 0.3*inch))
-    
+        story.append(Paragraph("💡 Personalized Recommendations", heading_style))
+        story.append(Paragraph("Based on your recent data, mental health research, and wellness trends, here are actionable steps for your continued wellness:", body_style))
+        story.append(Spacer(1, 0.15*inch))
+
+        # Generate recommendations based on data
+        recommendations = []
+
+        # Base recommendations
+        recommendations.extend(analysis['recommendations'][:3])
+
+        # Add data-driven recommendations
+        if mood_score < 5:
+            recommendations.append("🎯 Your mood has been lower than ideal. Consider increasing social connections and physical activity.")
+        if avg_wellness and avg_wellness < 70:
+            recommendations.append("🎯 Your overall wellness score is below target. Focus on sleep quality and stress management techniques like meditation.")
+        if analysis['engagement']['total_sessions'] < 5:
+            recommendations.append("🎯 Increase your chat sessions with the AI therapist for more consistent support and guidance.")
+
+        recommendation_boxes = []
+        colors_for_recs = [COLOR_SUCCESS, COLOR_ACCENT, COLOR_WARNING, HexColor('#9B59B6'), COLOR_PRIMARY]
+
+        for i, rec in enumerate(recommendations[:5], 1):
+            rec_style = ParagraphStyle(
+                f'RecStyle{i}',
+                parent=body_style,
+                leftIndent=20,
+                rightIndent=10,
+                spaceBefore=6,
+                spaceAfter=6,
+                borderColor=colors_for_recs[i-1],
+                borderWidth=1.5,
+                borderPadding=6,
+                backColor=HexColor('#FAFBFC')
+            )
+            recommendation_boxes.append(Paragraph(f"<b>{i}. {rec}</b>", rec_style))
+
+        story.extend(recommendation_boxes)
+        story.append(Spacer(1, 0.25*inch))
+
     # --- Important Information ---
     story.append(PageBreak())
-    story.append(Paragraph("Important Information & Disclaimer", heading_style))
-    
+    story.append(Paragraph("⚠️ Important Information & Disclaimer", heading_style))
+
     important_text = """
-    <b>Data Privacy:</b> Your mental health information is encrypted and stored securely. This report is confidential.
+    <b>🔒 Data Privacy:</b> Your mental health information is encrypted, secured, and stored confidentially.
+    This report contains sensitive personal health information and should be kept secure.
     <br/><br/>
-    <b>Crisis Support:</b> If you are in crisis or experiencing thoughts of self-harm, please contact emergency services immediately. PsyMitrix is a support tool, not a crisis response service.
+    <b>🆘 Crisis Support:</b> If you are in crisis, experiencing suicidal thoughts, or having thoughts of self-harm,
+    please contact emergency services or a crisis helpline immediately. PsyMitrix is a supportive tool, not a crisis response service.
     <br/><br/>
-    <b>Disclaimer:</b> PsyMitrix is designed to support mental health, not replace professional care. Always consult with licensed healthcare providers for diagnosis and treatment plans.
+    <b>⚖️ Disclaimer:</b> PsyMitrix is designed to support your mental health journey, NOT to replace professional medical care.
+    The assessments, insights, and recommendations in this report are for informational and supportive purposes only.
+    Always consult with licensed mental health professionals (psychiatrists, psychologists, counselors) for accurate diagnosis,
+    clinical assessments, and evidence-based treatment plans. If you have severe symptoms or ongoing struggles, seek professional help.
+    <br/><br/>
+    <b>📋 Report Accuracy:</b> This report is generated based on the data you've provided. Accuracy depends on truthful,
+    consistent self-reporting. We encourage you to be honest in your tracking for the most meaningful insights.
     """
     story.append(Paragraph(important_text, body_style))
     story.append(Spacer(1, 0.3*inch))
