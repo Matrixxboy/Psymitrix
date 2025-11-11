@@ -472,18 +472,65 @@ def generate_mental_health_report(
     story.append(Spacer(1, 0.2*inch))
     
     # --- Executive Summary ---
-    story.append(Paragraph("Executive Summary", heading_style))
-    summary_text = f"""
-    This comprehensive report summarizes your mental health data from the last 30 days, 
-    focusing on mood trends, wellness habits, and formal assessment results.
+    story.append(Paragraph("📊 Executive Summary", heading_style))
+
+    # Calculate overall wellness indicator
+    mood_score = analysis['mood_analysis']['average_mood_score']
+    wellness_score = analysis['wellness_metrics']['average_30_days']['daily_wellness_score'] or 0
+
+    if mood_score >= 7 and wellness_score >= 75:
+        overall_status = "🟢 Excellent"
+        status_color = COLOR_SUCCESS
+    elif mood_score >= 5.5 and wellness_score >= 60:
+        overall_status = "🟡 Good"
+        status_color = COLOR_WARNING
+    else:
+        overall_status = "🔴 Needs Attention"
+        status_color = COLOR_DANGER
+
+    summary_table_data = [
+        ["Current Mood", "📈 Trend", "💪 Overall Wellness", "🎯 Engagement Level"],
+        [
+            analysis['mood_analysis']['latest_mood'].upper(),
+            analysis['mood_analysis']['trend'],
+            f"{wellness_score:.0f}%",
+            f"{analysis['engagement']['total_sessions']} sessions"
+        ],
+    ]
+
+    summary_table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), COLOR_ACCENT),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('FONTSIZE', (0, 1), (-1, 1), 12),
+        ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, 1), [COLOR_LIGHT_BLUE]),
+        ('GRID', (0, 0), (-1, -1), 1, COLOR_ACCENT),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+    ])
+
+    summary_table = Table(summary_table_data, colWidths=[1.4*inch, 1.4*inch, 1.6*inch, 1.8*inch])
+    summary_table.setStyle(summary_table_style)
+    story.append(summary_table)
+    story.append(Spacer(1, 0.2*inch))
+
+    # Overall Status
+    overall_text = f"""
+    <b>Overall Mental Wellness Status: </b><font color='{status_color.hexValue() if hasattr(status_color, "hexValue") else "000000"}'><b>{overall_status}</b></font>
     <br/><br/>
-    <b>Snapshot of Key Findings:</b><br/>
-    • **Current Mood:** <font color='{COLOR_ACCENT}'>{analysis['mood_analysis']['latest_mood'].upper()}</font><br/>
-    • **Average Mood Score (30-Day):** <font color='{COLOR_ACCENT}'>{analysis['mood_analysis']['average_mood_score']}/10</font><br/>
-    • **Overall Trend:** <font color='{COLOR_PRIMARY}'>{analysis['mood_analysis']['trend']}</font>
+    <b>Key Insights:</b><br/>
+    • Your average mood score is <b>{mood_score}/10</b>, indicating a <b>{('positive' if mood_score >= 6 else 'concerning')}</b> emotional state.<br/>
+    • Your mood trend is <b>{analysis['mood_analysis']['trend']}</b> over the past {date_range_days} days.<br/>
+    • You have completed <b>{analysis['engagement']['total_assessments']}</b> mental health assessments.<br/>
+    • Your current engagement streak is <b>{analysis['engagement']['current_streak']} days</b> (best: <b>{analysis['engagement']['longest_streak']} days</b>).<br/>
+    • You have earned <b>{analysis['engagement']['achievements']} achievements</b> on your wellness journey.
     """
-    story.append(Paragraph(summary_text, body_style))
-    story.append(Spacer(1, 0.3*inch))
+    story.append(Paragraph(overall_text, body_style))
+    story.append(Spacer(1, 0.25*inch))
     
     # --- Mood Analysis ---
     if include_mood_trends:
