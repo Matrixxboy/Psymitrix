@@ -63,21 +63,32 @@ const AppRoutes = () => {
     <>
       <Walkthrough />
       <Routes>
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={<AdminLogin />}
+        />
+
+        <Route
+          path="/admin/dashboard"
+          element={<AdminDashboard />}
+        />
+
         {/* Public Routes */}
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <PublicRoute>
               <Login />
             </PublicRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/info" 
+
+        <Route
+          path="/info"
           element={
               <Info />
-          } 
+          }
         />
         
         {/* Protected Routes */}
