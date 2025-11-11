@@ -19,6 +19,8 @@ import HelpCenter from '../pages/Static/HelpCenter';
 import PrivacyPolicy from '../pages/Static/PrivacyPolicy';
 import TermsOfService from '../pages/Static/TermsOfService';
 import Info from '../pages/info';
+import AdminLogin from '../pages/Admin/AdminLogin';
+import AdminDashboard from '../pages/Admin/AdminDashboard';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
