@@ -279,52 +279,79 @@ def generate_mental_health_report(
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=32,
+        fontSize=38,
         textColor=COLOR_PRIMARY,
-        spaceAfter=10,
+        spaceAfter=5,
         alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
+        fontName='Helvetica-Bold',
+        borderColor=COLOR_ACCENT,
+        borderWidth=2,
+        borderPadding=8,
+        borderRadius=6
     )
-    
+
     heading_style = ParagraphStyle(
         'CustomHeading',
         parent=styles['Heading2'],
-        fontSize=18,
+        fontSize=16,
         textColor=COLOR_ACCENT,
         spaceAfter=12,
         spaceBefore=16,
-        fontName='Helvetica-Bold'
+        fontName='Helvetica-Bold',
+        textColor=COLOR_PRIMARY,
+        borderColor=COLOR_ACCENT,
+        borderWidth=1,
+        borderPadding=6
     )
-    
+
     sub_heading_style = ParagraphStyle(
         'CustomSubHeading',
         parent=styles['Heading3'],
-        fontSize=14,
-        textColor=COLOR_PRIMARY,
+        fontSize=13,
+        textColor=HexColor('#2C3E50'),
         spaceAfter=8,
-        spaceBefore=8,
-        fontName='Helvetica-Bold'
+        spaceBefore=10,
+        fontName='Helvetica-Bold',
+        borderLeftColor=COLOR_ACCENT,
+        borderLeftWidth=3,
+        leftIndent=8,
+        paddingLeft=5
     )
-    
+
     body_style = ParagraphStyle(
         'CustomBody',
         parent=styles['BodyText'],
-        fontSize=11,
+        fontSize=10,
         spaceAfter=8,
         alignment=TA_JUSTIFY,
-        fontName='Helvetica'
+        fontName='Helvetica',
+        textColor=COLOR_DARK_TEXT,
+        leading=14
     )
-    
+
     instruction_style = ParagraphStyle(
         'InstructionNote',
         parent=body_style,
-        fontSize=10,
-        textColor=colors.darkgrey,
+        fontSize=9,
+        textColor=COLOR_SECONDARY,
         leftIndent=15,
         rightIndent=15,
-        spaceBefore=5,
+        spaceBefore=6,
         spaceAfter=10,
-        fontName='Helvetica-Oblique'
+        fontName='Helvetica-Oblique',
+        backColor=COLOR_LIGHT_BLUE,
+        borderColor=COLOR_ACCENT,
+        borderWidth=0.5,
+        borderPadding=8,
+        borderRadius=4
+    )
+
+    metric_style = ParagraphStyle(
+        'MetricValue',
+        parent=styles['Normal'],
+        fontSize=12,
+        textColor=COLOR_ACCENT,
+        fontName='Helvetica-Bold'
     )
 
     analysis = calculate_mental_health_analysis(user)
