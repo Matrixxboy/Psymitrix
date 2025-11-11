@@ -256,18 +256,25 @@ def generate_mental_health_report(
     include_recommendations: bool = True,
     date_range_days: int = 30
 ) -> str:
-    
+
     temp_dir = tempfile.gettempdir()
     filename = f"mental_health_report_{user.user_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.pdf"
     filepath = os.path.join(temp_dir, filename)
-    
-    doc = SimpleDocTemplate(filepath, pagesize=letter)
+
+    doc = SimpleDocTemplate(filepath, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
     styles = getSampleStyleSheet()
     story = []
-    
-    COLOR_PRIMARY = HexColor('#A5645A') 
-    COLOR_ACCENT = HexColor('#6495ED')  
-    COLOR_BACKGROUND = HexColor('#FAFAFA') 
+
+    # Enhanced color palette with gradients
+    COLOR_PRIMARY = HexColor('#8B5A3C')  # Warm brown
+    COLOR_ACCENT = HexColor('#4A90E2')   # Professional blue
+    COLOR_SUCCESS = HexColor('#27AE60')  # Green for positive metrics
+    COLOR_WARNING = HexColor('#F39C12')  # Orange for caution
+    COLOR_DANGER = HexColor('#E74C3C')   # Red for concern
+    COLOR_BACKGROUND = HexColor('#F8F9FA') # Light background
+    COLOR_LIGHT_BLUE = HexColor('#ECF0F1') # Very light blue
+    COLOR_DARK_TEXT = HexColor('#2C3E50') # Dark text
+    COLOR_SECONDARY = HexColor('#95A5A6') # Gray 
 
     title_style = ParagraphStyle(
         'CustomTitle',
