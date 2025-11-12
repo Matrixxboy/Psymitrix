@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from fastapi import UploadFile, HTTPException
 from pathlib import Path
 import PyPDF2
-from langchain_text_splitters import CharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
@@ -19,19 +19,15 @@ ADMIN_COLLECTION_NAME = "admin_knowledge_base"
 
 def initialize_admin_vector_store():
     """Initialize admin knowledge base vector store"""
-    try:
-        settings = Settings(anonymized_telemetry=False)
-        chroma_client = chromadb.PersistentClient(path=CHROMA_PATH, settings=settings)
-        embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
-        vector_store = Chroma(
-            client=chroma_client,
-            collection_name=ADMIN_COLLECTION_NAME,
-            embedding_function=embeddings
-        )
-        return vector_store, chroma_client
-    except Exception as e:
-        print(f"[ERROR] Failed to initialize admin vector store: {e}")
-        return None, None
+    settings = Settings(anonymized_telemetry=False)
+    chroma_client = chromadb.PersistentClient(path=CHROMA_PATH, settings=settings)
+    embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+    vector_store = Chroma(
+        client=chroma_client,
+        collection_name=ADMIN_COLLECTION_NAME,
+        embedding_function=embeddings
+    )
+    return vector_store, chroma_client
 
 async def extract_text_from_pdf(file_path: str) -> str:
     """Extract text from PDF file"""
@@ -93,8 +89,6 @@ async def upload_and_index_document(
     """Upload and index a document to vector DB"""
     try:
         vector_store, chroma_client = initialize_admin_vector_store()
-        if not vector_store or not chroma_client:
-            raise HTTPException(status_code=500, detail="Vector DB not available")
         
         # Determine file type
         file_extension = Path(file.filename).suffix.lower()
@@ -132,10 +126,10 @@ async def upload_and_index_document(
             raise HTTPException(status_code=400, detail=f"Unsupported document type: {document_type}")
         
         # Split text into chunks
-        text_splitter = CharacterTextSplitter(
+        text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,
             chunk_overlap=50,
-            separator="\n"
+            separators=["\n\n", "\n", ".", " ", ""]
         )
         chunks = text_splitter.split_text(text)
         
@@ -172,12 +166,11 @@ async def upload_and_index_document(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error uploading document: {str(e)}")
 
+
 async def remove_document_from_vector_db(document_name: str) -> Dict[str, Any]:
     """Remove a document from vector DB"""
     try:
         vector_store, chroma_client = initialize_admin_vector_store()
-        if not vector_store or not chroma_client:
-            raise HTTPException(status_code=500, detail="Vector DB not available")
         
         # Get collection
         collection = vector_store._collection
@@ -206,8 +199,6 @@ async def list_vector_db_documents() -> Dict[str, Any]:
     """List all documents in vector DB"""
     try:
         vector_store, chroma_client = initialize_admin_vector_store()
-        if not vector_store or not chroma_client:
-            raise HTTPException(status_code=500, detail="Vector DB not available")
         
         collection = vector_store._collection
         
@@ -247,8 +238,6 @@ async def search_vector_db(query: str, limit: int = 5) -> Dict[str, Any]:
     """Search vector DB for relevant documents"""
     try:
         vector_store, chroma_client = initialize_admin_vector_store()
-        if not vector_store or not chroma_client:
-            raise HTTPException(status_code=500, detail="Vector DB not available")
         
         # Search
         results = vector_store.similarity_search(query, k=limit)
@@ -278,8 +267,6 @@ async def clear_vector_db() -> Dict[str, Any]:
     """Clear all documents from vector DB"""
     try:
         vector_store, chroma_client = initialize_admin_vector_store()
-        if not vector_store or not chroma_client:
-            raise HTTPException(status_code=500, detail="Vector DB not available")
         
         collection = vector_store._collection
         

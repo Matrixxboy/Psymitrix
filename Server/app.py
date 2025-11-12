@@ -1,9 +1,12 @@
+import os
+import json
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
-import json
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 # Import routers
 from apis.auth.router import router as auth_router

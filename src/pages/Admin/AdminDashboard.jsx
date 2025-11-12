@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, TrendingUp, Database, FileUp, BarChart3, Loader } from 'lucide-react';
+import {
+  LogOut,
+  Users,
+  TrendingUp,
+  Database,
+  BarChart3,
+  Loader,
+  LayoutDashboard,
+  ClipboardList,
+  Activity,
+  Sparkles,
+  CheckCircle,
+  Zap,
+} from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import UserAnalyticsChart from '../../components/Admin/UserAnalyticsChart';
@@ -81,8 +94,8 @@ const AdminDashboard = () => {
       <header className="glass dark:glass-dark sticky top-0 z-50 border-b border-light-secondary/20 dark:border-dark-secondary/20">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-light-primary dark:text-dark-primary">
-              🎛️ Admin Dashboard
+            <h1 className="text-3xl font-bold text-light-primary dark:text-dark-primary flex items-center gap-2">
+              <LayoutDashboard /> Admin Dashboard
             </h1>
             <p className="text-light-body dark:text-dark-body text-sm mt-1">
               Welcome, {adminInfo?.first_name || adminInfo?.username}
@@ -114,20 +127,21 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto px-6 mt-6">
         <div className="flex gap-4 overflow-x-auto pb-4 border-b border-light-secondary/20 dark:border-dark-secondary/20">
           {[
-            { id: 'overview', label: '📊 Overview', icon: BarChart3 },
-            { id: 'users', label: '👥 Users', icon: Users },
-            { id: 'assessments', label: '📋 Assessments', icon: TrendingUp },
-            { id: 'vector-db', label: '🗄️ Vector DB', icon: Database }
+            { id: 'overview', label: 'Overview', icon: BarChart3 },
+            { id: 'users', label: 'Users', icon: Users },
+            { id: 'assessments', label: 'Assessments', icon: ClipboardList },
+            { id: 'vector-db', label: 'Vector DB', icon: Database }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-semibold transition-all whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-light-accent dark:bg-dark-accent text-white'
                   : 'text-light-body dark:text-dark-body hover:text-light-primary dark:hover:text-dark-primary'
               }`}
             >
+              <tab.icon size={18} />
               {tab.label}
             </button>
           ))}
@@ -148,26 +162,26 @@ const AdminDashboard = () => {
               <MetricCard
                 title="Total Users"
                 value={analytics.users.summary.total_users}
-                icon="👥"
+                icon={<Users size={32} />}
                 color="from-blue-400 to-blue-600"
               />
               <MetricCard
                 title="Active Users (30d)"
                 value={analytics.users.summary.active_users_30_days}
                 subtitle={`${analytics.users.summary.active_percentage}% active`}
-                icon="🟢"
+                icon={<Activity size={32} />}
                 color="from-green-400 to-green-600"
               />
               <MetricCard
                 title="New Users (30d)"
                 value={analytics.users.summary.new_users_30_days}
-                icon="✨"
+                icon={<Sparkles size={32} />}
                 color="from-purple-400 to-purple-600"
               />
               <MetricCard
                 title="Verified Users"
                 value={analytics.users.summary.verified_users}
-                icon="✅"
+                icon={<CheckCircle size={32} />}
                 color="from-emerald-400 to-emerald-600"
               />
             </div>
@@ -175,8 +189,8 @@ const AdminDashboard = () => {
             {/* Engagement Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="glass dark:glass-dark rounded-xl p-6">
-                <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4">
-                  📈 Engagement Overview
+                <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4 flex items-center gap-2">
+                  <TrendingUp size={20} /> Engagement Overview
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
@@ -207,8 +221,8 @@ const AdminDashboard = () => {
               </div>
 
               <div className="glass dark:glass-dark rounded-xl p-6">
-                <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4">
-                  💪 Wellness Averages (30d)
+                <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4 flex items-center gap-2">
+                  <Zap size={20} /> Wellness Averages (30d)
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
@@ -279,7 +293,7 @@ const MetricCard = ({ title, value, subtitle, icon, color }) => (
           <p className="text-light-accent dark:text-dark-accent text-sm mt-1">{subtitle}</p>
         )}
       </div>
-      <div className="text-4xl">{icon}</div>
+      <div className="text-4xl text-light-accent dark:text-dark-accent">{icon}</div>
     </div>
   </motion.div>
 );

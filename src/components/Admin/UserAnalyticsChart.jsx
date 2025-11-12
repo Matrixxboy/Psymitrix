@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { TrendingUp, Zap, BarChart as BarChartIcon } from 'lucide-react';
 
 const UserAnalyticsChart = ({ data, refreshFn }) => {
   const [chartType, setChartType] = useState('trend');
 
   // Convert daily trends to chart data
-  const dailyTrendData = data.daily_trends ? Object.entries(data.daily_trends).map(([date, count]) => ({
-    date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    active: count
-  })).reverse().slice(-14) : [];
+  const dailyTrendData = data.daily_trends
+    ? Object.entries(data.daily_trends)
+        .map(([date, count]) => ({
+          date: new Date(date), // Keep as Date object for sorting
+          active: count,
+        }))
+        .sort((a, b) => a.date - b.date) // Sort chronologically
+        .slice(-14) // Take the last 14 days
+        .map((item) => ({
+          ...item,
+          date: item.date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+          }), // Format for display
+        }))
+    : [];
 
   // Prepare summary data for pie chart
   const summaryData = [
@@ -28,18 +41,19 @@ const UserAnalyticsChart = ({ data, refreshFn }) => {
       {/* Chart Type Selector */}
       <div className="flex gap-3 pb-4 border-b border-light-secondary/20 dark:border-dark-secondary/20">
         {[
-          { id: 'trend', label: '📈 Activity Trend', icon: '📊' },
-          { id: 'engagement', label: '💪 Engagement Breakdown', icon: '🎯' }
+          { id: 'trend', label: 'Activity Trend', icon: TrendingUp },
+          { id: 'engagement', label: 'Engagement Breakdown', icon: Zap }
         ].map(type => (
           <button
             key={type.id}
             onClick={() => setChartType(type.id)}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
               chartType === type.id
                 ? 'bg-light-accent dark:bg-dark-accent text-white'
                 : 'text-light-body dark:text-dark-body hover:bg-light-secondary/10 dark:hover:bg-dark-secondary/10'
             }`}
           >
+            <type.icon size={18} />
             {type.label}
           </button>
         ))}
@@ -160,8 +174,8 @@ const UserAnalyticsChart = ({ data, refreshFn }) => {
 
       {/* Retention Stats */}
       <div className="glass dark:glass-dark rounded-xl p-6">
-        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4">
-          📊 User Retention (30-Day Cohort)
+        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4 flex items-center gap-2">
+          <BarChartIcon size={20} /> User Retention (30-Day Cohort)
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 bg-light-secondary/10 dark:bg-dark-secondary/10 rounded-lg">
