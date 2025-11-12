@@ -36,16 +36,21 @@ def initialize_local_llm():
         print(f"[INFO] Loading your model: {MODEL_NAME}")
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
 
+        # Check for GPU availability
+        has_gpu = torch.cuda.is_available()
+        device_map = "auto" if has_gpu else None
+        pipeline_device = 0 if has_gpu else -1
+
         try:
             # Try full FP16 first
             model = AutoModelForCausalLM.from_pretrained(
                 MODEL_NAME,
                 torch_dtype=torch.float16,
-                device_map="auto",
+                device_map=device_map,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True
             )
-            print("[INFO] Model loaded in FP16 successfully.")
+            print(f"[INFO] Model loaded in FP16 successfully on {'GPU' if has_gpu else 'CPU'}.")
         except RuntimeError as oom_error:
             print("[WARN] Out of memory loading in FP16 — switching to 4-bit quantization.")
             bnb_config = BitsAndBytesConfig(
@@ -55,18 +60,20 @@ def initialize_local_llm():
             )
             model = AutoModelForCausalLM.from_pretrained(
                 MODEL_NAME,
-                device_map="auto",
+                device_map=device_map,
                 quantization_config=bnb_config,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True
             )
+            print(f"[INFO] Model loaded in 4-bit successfully on {'GPU' if has_gpu else 'CPU'}.")
+
 
         llm_pipeline = pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
             torch_dtype=torch.float16,
-            device_map="auto",
+            device=pipeline_device,
             temperature=0.6,
             top_p=0.9,
             repetition_penalty=1.1
@@ -182,10 +189,7 @@ async def get_ai_response(user_id: str, user_message: str, user_context: Dict, c
     """Generate empathetic, context-aware mental health responses."""
 
     if not local_llm_pipeline:
-        return (
-            "I’m here for you. Please remember, you’re not alone in this.",
-            {"error": "Model not loaded"},
-        )
+        return "error no llm"
 
     try:
         assessments_summary = "No recent assessments."
@@ -228,7 +232,10 @@ Your output must be ONLY the message — no other text or formatting.
             top_p=0.9
         )
 
-        reply = outputs[0]["generated_text"].replace(prompt, "").strip()
+        if outputs and outputs[0].get("generated_text"):
+            reply = outputs[0]["generated_text"].replace(prompt, "").strip()
+        else:
+            reply = "I'm sorry, I couldn't generate a response right now. Could you try rephrasing?"
 
         # ✅ Clean up: remove code fences, JSON, print(), etc.
         reply = re.sub(r"```.*?```", "", reply, flags=re.DOTALL).strip()
@@ -239,7 +246,7 @@ Your output must be ONLY the message — no other text or formatting.
             data = json.loads(reply)
             if isinstance(data, dict) and "response" in data:
                 reply = data["response"]
-            elif isinstance(data, list) and "response" in data[0]:
+            elif isinstance(data, list) and data and "response" in data[0]:
                 reply = data[0]["response"]
         except json.JSONDecodeError:
             # Not JSON — continue normally

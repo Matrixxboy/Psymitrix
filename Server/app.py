@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
+from starlette.staticfiles import StaticFiles # Import StaticFiles
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -31,6 +32,9 @@ from apis.ai_recommendations.router import router as ai_recommendations_router
 from apis.admin.router import router as admin_router
 
 app = FastAPI()
+
+# Mount static files directory
+app.mount("/profile_pictures", StaticFiles(directory="../public/profile_pictures"), name="profile_pictures")
 
 #the migration script
 # uncomment the line below to run the migration once

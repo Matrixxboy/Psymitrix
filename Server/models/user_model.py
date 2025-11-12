@@ -254,7 +254,7 @@ class User(BaseModel):
     occupation: Optional[str] = None
     location: Optional[str] = None
     bio: Optional[str] = None
-    profile_picture_url: Optional[HttpUrl] = None
+    profile_picture_url: Optional[str] = None
     olderSiblings: Optional[int] = 0
     youngerSiblings: Optional[int] = 0
     parental_marital_status: Optional[str] = None

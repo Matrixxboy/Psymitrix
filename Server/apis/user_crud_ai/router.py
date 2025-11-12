@@ -130,6 +130,75 @@ async def update_user_data(
             data={"api": "update_user_data", "error": str(e)}
         )
 
+import os
+import shutil
+from fastapi import UploadFile, File, HTTPException
+from PIL import Image # Import Image from Pillow
+from io import BytesIO # Import BytesIO
+
+UPLOAD_DIRECTORY = "public/profile_pictures"
+
+@router.post("/user/profile-picture")
+async def upload_profile_picture(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_mongo_db)
+):
+    """
+    Uploads a profile picture for the currently authenticated user.
+    Converts the uploaded image to PNG format.
+    """
+    try:
+        # Ensure upload directory exists
+        os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
+        # Read the uploaded file content
+        file_content = await file.read()
+        
+        # Open the image using Pillow
+        image = Image.open(BytesIO(file_content))
+        
+        # Convert to RGB if necessary (e.g., for PNGs with alpha channel)
+        if image.mode in ("RGBA", "P"):
+            image = image.convert("RGB")
+
+        # Generate a unique filename using user_id and .png extension
+        filename = f"{current_user.user_id}.png"
+        file_path = os.path.join(UPLOAD_DIRECTORY, filename)
+
+        # Save the image as PNG
+        image.save(file_path, "PNG")
+
+        # Construct the URL for the profile picture
+        profile_picture_url = f"/profile_pictures/{filename}"
+
+        # Update user's profile_picture_url in the database
+        db.users.update_one(
+            {"email": current_user.email},
+            {"$set": {"profile_picture_url": profile_picture_url}}
+        )
+
+        # Fetch updated user data to return
+        updated_user_data = db.users.find_one({"email": current_user.email})
+        updated_user = User(**updated_user_data)
+
+        return make_response(
+            status_code=HTTP_STATUS["OK"],
+            code=HTTP_CODE["OK"],
+            message="Profile picture uploaded successfully",
+            data={"profile_picture_url": updated_user.profile_picture_url}
+        )
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        return make_response(
+            status_code=HTTP_STATUS["INTERNAL_SERVER_ERROR"],
+            code=HTTP_CODE["INTERNAL_SERVER_ERROR"],
+            message="Failed to upload profile picture",
+            data={"api": "upload_profile_picture", "error": str(e)}
+        )
+
 @router.post("/user/wellness/sleep")
 async def add_sleep_data(
     sleep_data: SleepData,
