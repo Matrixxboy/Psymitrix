@@ -46,7 +46,9 @@ export const register = async (email, username, password) => {
 
 export const fetchUserProfile = async () => {
   try {
+    console.log("fetchUserProfile: Making API call to /user_crud/user/me");
     const response = await api.get(`/user_crud/user/me`);
+    console.log("fetchUserProfile: API call successful. Response:", response.data);
     return { success: true, data: response.data.data }; // Access data.data because of make_response wrapper
   } catch (error) {
     console.error("Fetch User Profile API error:", error);

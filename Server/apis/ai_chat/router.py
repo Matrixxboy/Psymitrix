@@ -31,12 +31,28 @@ async def send_message(
     db=Depends(get_mongo_db)
 ):
     """
-    Send a message to the AI psychiatrist and get a contextual response
+    Handle user → AI psychiatrist messages.
+    Optimized for speed, safety, and low database overhead.
     """
     print("SEND_MESSAGE ENDPOINT CALLED")
+
     try:
         user_id = str(current_user.user_id)
-        # Initialize vector store with user's mental health context
+
+        # ============================
+        # BUILD USER CONTEXT
+        # ============================
+        assessments = current_user.mental_health_profile.assessment_results[-3:]
+        assessments_data = [
+            {
+                "type": a.assessment_type,
+                "score": a.score,
+                "severity": a.severity_level,
+                "date": a.date.isoformat()
+            }
+            for a in assessments
+        ]
+
         user_context = {
             "user_id": user_id,
             "mental_health_history": current_user.mental_health_profile.mental_health_history or "Not specified",
@@ -44,47 +60,57 @@ async def send_message(
             "age": current_user.age,
             "gender": current_user.gender,
             "occupation": current_user.occupation,
-            "recent_assessments": [
-                {
-                    "type": a.assessment_type,
-                    "score": a.score,
-                    "severity": a.severity_level,
-                    "date": a.date.isoformat()
-                }
-                for a in current_user.mental_health_profile.assessment_results[-3:]
-            ]
+            "recent_assessments": assessments_data
         }
-        
-        # Get AI response with context
+
+        # ============================
+        # PREPARE SHORT CHAT HISTORY
+        # ============================
+        recent_history = [
+            {"role": msg.sender, "content": msg.message}
+            for msg in current_user.sessions_chat_history[-10:]
+        ]
+
+        # ============================
+        # GET AI RESPONSE
+        # ============================
         ai_response, analysis = await get_ai_response(
             user_id=user_id,
             user_message=request.message,
             user_context=user_context,
-            conversation_history=[
-                {"role": msg.sender, "content": msg.message}
-                for msg in current_user.sessions_chat_history[-10:]
-            ]
+            conversation_history=recent_history
         )
-        
-        # Create chat message objects
+        print(ai_response)
+        # ============================
+        # UPDATE SESSION HISTORY (in RAM)
+        # ============================
+        timestamp = datetime.utcnow()
+
         user_msg = ChatMessage(
             sender="user",
             message=request.message,
-            timestamp=datetime.utcnow()
+            timestamp=timestamp
         )
-        
+
         ai_msg = ChatMessage(
             sender="bot",
             message=ai_response,
-            timestamp=datetime.utcnow()
+            timestamp=timestamp
         )
-        
-        # Save to database
+
+        # Append to memory
         current_user.sessions_chat_history.append(user_msg)
         current_user.sessions_chat_history.append(ai_msg)
         current_user.interactions += 1
-        current_user.updated_at = datetime.utcnow()
-        
+        current_user.updated_at = timestamp
+
+        # Limit chat history (prevents DB bloat)
+        if len(current_user.sessions_chat_history) > 300:
+            current_user.sessions_chat_history = current_user.sessions_chat_history[-200:]
+
+        # ============================
+        # WRITE TO DATABASE (FAST)
+        # ============================
         db.users.update_one(
             {"email": current_user.email},
             {
@@ -94,31 +120,36 @@ async def send_message(
                         for msg in current_user.sessions_chat_history
                     ],
                     "interactions": current_user.interactions,
-                    "updated_at": datetime.utcnow()
+                    "updated_at": timestamp
                 }
             }
         )
-        data =  ChatResponse(
-            message_id=str(ai_msg.message_id),
-            user_message=request.message,
-            ai_response=ai_response,
-            timestamp=ai_msg.timestamp.isoformat(),
-            analysis=analysis
-        )
+
+        # ============================
+        # RETURN RESPONSE
+        # ============================
         return make_response(
             status_code=200,
             code="OK",
             message="AI response generated successfully",
-            data=data.model_dump()
+            data=ChatResponse(
+                message_id=str(ai_msg.message_id),
+                user_message=request.message,
+                ai_response=ai_response,
+                timestamp=timestamp.isoformat(),
+                analysis=analysis
+            ).model_dump()
         )
-        
+
     except Exception as e:
+        print("[CRITICAL ERROR in send_message]:", e)
         return make_response(
             status_code=500,
             code="ERROR",
             message=f"Error processing message: {str(e)}",
             data={}
         )
+
 
 @router.get("/history")
 async def get_chat_history(

@@ -13,17 +13,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
     const storedTokenType = localStorage.getItem('tokenType');
+    console.log("AuthProvider: Initializing auth. Stored token:", storedToken ? "Exists" : "None");
     
     const initializeAuth = async () => {
       if (storedToken && storedTokenType) {
         setToken(storedToken);
         setIsLoggedIn(true);
+        console.log("AuthProvider: Token found, fetching user profile...");
         try {
           const userProfileResult = await fetchUserProfile();
+          console.log("AuthProvider: fetchUserProfile result on mount:", userProfileResult);
           if (userProfileResult.success) {
             setUser(userProfileResult.data);
           } else {
-            console.error("Failed to fetch user profile on mount:", userProfileResult.error);
+            console.error("AuthProvider: Failed to fetch user profile on mount:", userProfileResult.error);
             // Optionally clear token if profile fetch fails
             localStorage.removeItem('authToken');
             localStorage.removeItem('tokenType');
@@ -31,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             setToken(null);
           }
         } catch (error) {
-          console.error("Error fetching user profile on mount:", error);
+          console.error("AuthProvider: Error fetching user profile on mount:", error);
           // Optionally clear token if profile fetch fails
           localStorage.removeItem('authToken');
           localStorage.removeItem('tokenType');
@@ -40,30 +43,34 @@ export const AuthProvider = ({ children }) => {
         }
       }
       setLoading(false);
+      console.log("AuthProvider: Initialization complete. LoggedIn:", isLoggedIn);
     };
 
     initializeAuth();
   }, []);
 
   const login = async (authToken) => {
+    console.log("AuthProvider: Login function called with token:", authToken ? "Exists" : "None");
     setToken(authToken);
     setIsLoggedIn(true);
     
     // Persist to localStorage
     localStorage.setItem('authToken', authToken);
     localStorage.setItem('tokenType', 'Bearer'); // Store token type
+    console.log("AuthProvider: Token stored in localStorage.");
 
     // Fetch user profile immediately after login
     try {
       const userProfileResult = await fetchUserProfile();
+      console.log("AuthProvider: fetchUserProfile result after login:", userProfileResult);
       if (userProfileResult.success) {
         setUser(userProfileResult.data);
       } else {
-        console.error("Failed to fetch user profile after login:", userProfileResult.error);
+        console.error("AuthProvider: Failed to fetch user profile after login:", userProfileResult.error);
         // Handle error, maybe log out or show a message
       }
     } catch (error) {
-      console.error("Error fetching user profile after login:", error);
+      console.error("AuthProvider: Error fetching user profile after login:", error);
     }
   };
 

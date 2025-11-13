@@ -148,9 +148,11 @@ const ChatPage = () => {
     setInput('');
     setMessageSentiment(null);
     setLoading(true);
+    console.log("ChatPage: Sending message:", input);
 
     try {
       const response = await aiChatAPI.sendMessage(input);
+      console.log("ChatPage: AI response received:", response);
       const aiMessage = {
         id: response.message_id,
         sender: 'Shvayam',
@@ -160,17 +162,7 @@ const ChatPage = () => {
       };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: 'Shvayam',
-          content: "I'm having trouble connecting right now. Please try again in a moment.",
-          timestamp: new Date().toISOString(),
-          sentiment: 'neutral',
-        },
-      ]);
+      console.error('ChatPage: Error sending message:', error);
     } finally {
       setLoading(false);
     }

@@ -7,7 +7,7 @@ from utils.http_constants import HTTP_STATUS, HTTP_CODE
 from utils.response_helper import make_response
 from starlette.staticfiles import StaticFiles # Import StaticFiles
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 # Import routers
 from apis.auth.router import router as auth_router

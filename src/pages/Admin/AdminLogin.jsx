@@ -92,7 +92,7 @@ const AdminLogin = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="admin@psymitrix.com"
+                placeholder="Enter Your mail"
                 required
                 className="w-full px-4 py-3 rounded-lg border-2 border-light-accent dark:border-dark-accent bg-light-background dark:bg-dark-background text-light-headings dark:text-dark-headings placeholder-light-body dark:placeholder-dark-body focus:outline-none focus:border-light-primary dark:focus:border-dark-primary transition-colors"
               />

@@ -31,58 +31,48 @@ EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 # ===========================
 
 def initialize_local_llm():
-    """Load PsyMitrix model with automatic 4-bit fallback."""
+    """Load PsyMitrix model in 4-bit only (best for 4GB VRAM GPUs)."""
     try:
         print(f"[INFO] Loading your model: {MODEL_NAME}")
+
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
 
-        # Check for GPU availability
-        has_gpu = torch.cuda.is_available()
-        device_map = "auto" if has_gpu else None
-        pipeline_device = 0 if has_gpu else -1
+        # Force 4-bit ALWAYS (GTX 1650 cannot handle FP16 models reliably)
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16  # safer than float16
+        )
 
-        try:
-            # Try full FP16 first
-            model = AutoModelForCausalLM.from_pretrained(
-                MODEL_NAME,
-                torch_dtype=torch.float16,
-                device_map=device_map,
-                trust_remote_code=True,
-                low_cpu_mem_usage=True
-            )
-            print(f"[INFO] Model loaded in FP16 successfully on {'GPU' if has_gpu else 'CPU'}.")
-        except RuntimeError as oom_error:
-            print("[WARN] Out of memory loading in FP16 — switching to 4-bit quantization.")
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_quant_type="nf4"
-            )
-            model = AutoModelForCausalLM.from_pretrained(
-                MODEL_NAME,
-                device_map=device_map,
-                quantization_config=bnb_config,
-                trust_remote_code=True,
-                low_cpu_mem_usage=True
-            )
-            print(f"[INFO] Model loaded in 4-bit successfully on {'GPU' if has_gpu else 'CPU'}.")
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=True,
+            low_cpu_mem_usage=True
+        )
 
+        print("[INFO] Model loaded in safe 4-bit mode.")
 
+        # SAFE PIPELINE — remove FP16 to prevent RAM leaks
         llm_pipeline = pipeline(
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            torch_dtype=torch.float16,
-            device=pipeline_device,
             temperature=0.6,
             top_p=0.9,
-            repetition_penalty=1.1
+            repetition_penalty=1.1,
+            max_new_tokens=120,   # ⬅ LOWERED for RAM safety
+            pad_token_id=tokenizer.eos_token_id,
+            eos_token_id=tokenizer.eos_token_id
         )
-        print("[INFO] PsyMitrix LLM loaded and ready.")
+
+        print("[INFO] PsyMitrix LLM ready in optimized low-memory mode.")
         return llm_pipeline
 
     except Exception as e:
-        print(f"[ERROR] Failed to load model: {e}")
+        print(f"[ERROR] LLM Load Failed: {e}")
         import traceback
         traceback.print_exc()
         return None
@@ -189,7 +179,7 @@ async def get_ai_response(user_id: str, user_message: str, user_context: Dict, c
     """Generate empathetic, context-aware mental health responses."""
 
     if not local_llm_pipeline:
-        return "error no llm"
+        return "I'm sorry, but the AI service is currently unavailable. Please try again later.", {"error": "LLM pipeline not initialized"}
 
     try:
         assessments_summary = "No recent assessments."
@@ -204,25 +194,30 @@ async def get_ai_response(user_id: str, user_message: str, user_context: Dict, c
                 for m in conversation_history[-3:]]
         )
 
-        # ✅ Updated prompt: instruct model to give plain text
-        prompt = f"""You are Shvayam — a compassionate, professional AI psychiatrist. 
-Respond like a warm, caring human therapist. 
+        prompt = f"""
+You are Shvayam — a warm, compassionate AI psychiatrist who speaks like a caring human therapist.
+Your ONLY job is to write a short, supportive reply to the user.
+STRICT RULES:
+- Output ONLY the reply (2–3 sentences).
+- NO labels, NO tags, NO explanations.
+- NO repeating the prompt or conversation.
+- NO JSON, bullet points, or formatting.
+- NO therapist disclaimers like "As an AI".
+- Keep your tone gentle, validating, human, and emotionally warm.
 
-Do not include:
-- Any labels like “BOT:”, “Shvayam:”, or “AI:”
-- Any JSON, code blocks, quotes, or special formatting
-- Any explanations about what you’re doing
-
-Context:
+Here is the person saved data :
 User Mood: {user_context.get('recent_mood', 'N/A')}
-Assessments: {assessments_summary}
-Recent Chat: {history}
+Assessments:
+{assessments_summary}
 
-User says: {user_message}
+Recent Chat (summary only):
+{history}
 
-Now reply directly to the user in natural human language with empathy, insight, and emotional warmth.
-Your output must be ONLY the message — no other text or formatting.
+User says: "{user_message}"
+
+Now respond with ONLY the reply in natural human language according to User says:
 """
+
 
         outputs = local_llm_pipeline(
             prompt,
@@ -232,9 +227,21 @@ Your output must be ONLY the message — no other text or formatting.
             top_p=0.9
         )
 
-        if outputs and outputs[0].get("generated_text"):
-            reply = outputs[0]["generated_text"].replace(prompt, "").strip()
+        if outputs and isinstance(outputs, list) and len(outputs) > 0 and outputs[0].get("generated_text"):
+            full_text = outputs[0]["generated_text"]
+            # Find the start of the generated response
+            response_start_index = full_text.find("<response>")
+            if response_start_index != -1:
+                # Extract from <response> to the end
+                reply = full_text[response_start_index + len("<response>"):].strip()
+                # If the model generates a closing tag, remove it
+                if reply.endswith("</response>"):
+                    reply = reply[:-len("</response>")].strip()
+            else:
+                # Fallback to old method if <response> tag is not found
+                reply = full_text.replace(prompt, "").strip()
         else:
+            print(f"[WARN] Unexpected output from LLM pipeline: {outputs}")
             reply = "I'm sorry, I couldn't generate a response right now. Could you try rephrasing?"
 
         # ✅ Clean up: remove code fences, JSON, print(), etc.
@@ -270,6 +277,9 @@ Your output must be ONLY the message — no other text or formatting.
             "That sounds difficult. I’m here for you — let’s take it one step at a time.",
             {"error": str(e)},
         )
+
+
+
 
 # ===========================
 # STARTUP
