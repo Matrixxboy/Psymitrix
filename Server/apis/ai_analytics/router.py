@@ -374,3 +374,93 @@ async def get_wellness_summary(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class WellnessBalanceData(BaseModel):
+    labels: List[str]
+    datasets: List[Dict[str, Any]]
+
+@router.get("/wellness-balance", response_model=WellnessBalanceData)
+async def get_wellness_balance(
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_mongo_db)
+):
+    """
+    Calculate and return wellness balance data
+    """
+    try:
+        assessment_results = current_user.mental_health_profile.assessment_results
+        wellness_metrics = current_user.mental_health_profile.wellness_metrics
+        mood_trends = current_user.mood_trends
+
+        # Default values
+        stress_score = 5
+        mood_score = 5
+        focus_score = 5
+        sleep_score = 5
+        energy_score = 5
+
+        if assessment_results:
+            recent_assessments = filter_data_by_timeframe(assessment_results, 'month')
+            latest_gad7 = next((a for a in reversed(recent_assessments) if a.assessment_type == 'GAD-7'), None)
+            
+            if latest_gad7:
+                stress_score = 10 - min(latest_gad7.score, 9)
+
+        if mood_trends:
+            recent_moods = filter_data_by_timeframe(mood_trends, 'month')
+            if recent_moods:
+                mood_scores = [get_mood_score(m.mood) for m in recent_moods]
+                mood_score = statistics.mean(mood_scores)
+
+        focus_score = mood_score
+
+        if wellness_metrics:
+            latest_metric = wellness_metrics[-1] if wellness_metrics else None
+            if latest_metric:
+                if latest_metric.sleep_hours:
+                    sleep_score = max(1, min(10, round((latest_metric.sleep_hours / 8) * 10)))
+                if latest_metric.daily_wellness_score:
+                    energy_score = round((latest_metric.daily_wellness_score or 0) / 10)
+
+        return WellnessBalanceData(
+            labels=["Stress", "Sleep", "Mood", "Energy", "Focus"],
+            datasets=[
+                {
+                    "label": "Current",
+                    "data": [10 - stress_score, sleep_score, mood_score, energy_score, focus_score]
+                },
+                {
+                    "label": "Average",
+                    "data": [5, 5, 5, 5, 5]
+                }
+            ]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to calculate wellness balance: {str(e)}")
+
+class ActivityBreakdownData(BaseModel):
+    value: int
+    label: str
+
+@router.get("/activity-breakdown", response_model=ActivityBreakdownData)
+async def get_activity_breakdown(
+    current_user: User = Depends(get_current_user),
+    db=Depends(get_mongo_db)
+):
+    """
+    Calculate and return activity breakdown data
+    """
+    try:
+        if not current_user.games:
+            return ActivityBreakdownData(value=0, label="No activities yet")
+
+        total_game_time = sum(game.total_time_played for game in current_user.games if game.total_time_played)
+        weekly_goal = 150  # minutes per week
+        percentage = min(100, round((total_game_time / weekly_goal) * 100))
+
+        return ActivityBreakdownData(
+            value=percentage,
+            label=f"{percentage}% of weekly goal ({total_game_time}min)"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to calculate activity breakdown: {str(e)}")

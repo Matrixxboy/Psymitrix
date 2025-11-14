@@ -23,8 +23,6 @@ import {
   getMoodScore,
   filterDataByTimeframe,
   processMoodTrendsData,
-  calculateWellnessBalance,
-  calculateActivityBreakdown,
   generateConsistencyData,
 } from '../../utils/dataProcessing';
 
@@ -59,79 +57,93 @@ const DashboardPage = () => {
   const [mood, setMood] = useState('');
   const [aiInsights, setAiInsights] = useState(null);
   const [recommendations, setRecommendations] = useState(null);
+  const [wellnessBalance, setWellnessBalance] = useState(null);
+  const [activityBreakdown, setActivityBreakdown] = useState(null);
+
+  const fetchData = async () => {
+    if (user) {
+      try {
+        // Process all data from user object
+        const moodTrend = processMoodTrendsData(user.mood_trends || [], timeframe);
+        const consistency = generateConsistencyData(user.mood_trends || []);
+
+        // Calculate average mood
+        const filteredMoods = filterDataByTimeframe(user.mood_trends || [], timeframe);
+        const avgMoodScore = filteredMoods.length > 0
+          ? (filteredMoods.reduce((sum, m) => sum + getMoodScore(m.mood), 0) / filteredMoods.length).toFixed(1)
+          : 'N/A';
+
+        const mapped = {
+          moodTrend: moodTrend,
+          consistency: consistency,
+          avgMoodScore: avgMoodScore,
+          moodEntries: filteredMoods.length,
+          dailyInsight: {
+            title: "Mental Health Status",
+            text: filteredMoods.length > 0
+              ? `You've logged ${filteredMoods.length} mood entries. Your average mood is ${avgMoodScore}/10. Keep tracking for better insights!`
+              : "Start tracking your mood to see personalized insights"
+          },
+          suggestions: {
+            activities: [
+              { title: "Breathing Exercise", details: "5 min" },
+              { title: "Mindful Walk", details: "15 min" }
+            ]
+          }
+        };
+
+        setData(mapped);
+
+        const headers = { Authorization: `Bearer ${localStorage.getItem('authToken')}` };
+
+        // Fetch Wellness Balance
+        try {
+          const wellnessResponse = await axios.get(`/api/v1/ai_analytics/wellness-balance`, { headers });
+          if (wellnessResponse.data) {
+            setWellnessBalance(wellnessResponse.data);
+          }
+        } catch (err) {
+          console.log('Wellness Balance data not available yet');
+        }
+
+        // Fetch Activity Breakdown
+        try {
+          const activityResponse = await axios.get(`/api/v1/ai_analytics/activity-breakdown`, { headers });
+          if (activityResponse.data) {
+            setActivityBreakdown(activityResponse.data);
+          }
+        } catch (err) {
+          console.log('Activity Breakdown data not available yet');
+        }
+
+        // Fetch AI insights
+        try {
+          const insightsResponse = await axios.get(`/api/v1/ai_analytics/insights?timeframe=${timeframe}`, { headers });
+          if (insightsResponse.data?.data) {
+            setAiInsights(insightsResponse.data.data);
+          }
+        } catch (err) {
+          console.log('AI Insights not available yet');
+        }
+
+        // Fetch recommendations
+        try {
+          const recsResponse = await axios.get(`/api/v1/recommendations/personalized`, { headers });
+          if (recsResponse.data?.data) {
+            setRecommendations(recsResponse.data.data);
+          }
+        } catch (err) {
+          console.log('Recommendations not available yet');
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (user) {
-        try {
-          // Process all data from user object
-          const moodTrend = processMoodTrendsData(user.mood_trends || [], timeframe);
-          const activityBreakdown = calculateActivityBreakdown(user);
-          const wellnessBalance = calculateWellnessBalance(user);
-          const consistency = generateConsistencyData(user.mood_trends || []);
-
-          // Calculate average mood
-          const filteredMoods = filterDataByTimeframe(user.mood_trends || [], timeframe);
-          const avgMoodScore = filteredMoods.length > 0
-            ? (filteredMoods.reduce((sum, m) => sum + getMoodScore(m.mood), 0) / filteredMoods.length).toFixed(1)
-            : 'N/A';
-
-          const mapped = {
-            moodTrend: moodTrend,
-            activityBreakdown: activityBreakdown,
-            wellnessBalance: wellnessBalance,
-            consistency: consistency,
-            avgMoodScore: avgMoodScore,
-            moodEntries: filteredMoods.length,
-            dailyInsight: {
-              title: "Mental Health Status",
-              text: filteredMoods.length > 0
-                ? `You've logged ${filteredMoods.length} mood entries. Your average mood is ${avgMoodScore}/10. Keep tracking for better insights!`
-                : "Start tracking your mood to see personalized insights"
-            },
-            suggestions: {
-              activities: [
-                { title: "Breathing Exercise", details: "5 min" },
-                { title: "Mindful Walk", details: "15 min" }
-              ]
-            }
-          };
-
-          setData(mapped);
-
-          // Fetch AI insights
-          try {
-            const insightsResponse = await axios.get(
-              `/api/v1/ai_analytics/insights?timeframe=${timeframe}`,
-              { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
-            );
-            if (insightsResponse.data?.data) {
-              setAiInsights(insightsResponse.data.data);
-            }
-          } catch (err) {
-            console.log('AI Insights not available yet');
-          }
-
-          // Fetch recommendations
-          try {
-            const recsResponse = await axios.get(
-              `/api/v1/recommendations/personalized`,
-              { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
-            );
-            if (recsResponse.data?.data) {
-              setRecommendations(recsResponse.data.data);
-            }
-          } catch (err) {
-            console.log('Recommendations not available yet');
-          }
-        } catch (error) {
-          console.error('Error fetching dashboard data:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
     fetchData();
   }, [user, timeframe]);
 
@@ -139,6 +151,7 @@ const DashboardPage = () => {
     // Refresh data after mood is saved
     if (user) {
       setMood('');
+      fetchData(); // Refetch all data
     }
   };
 
@@ -253,8 +266,8 @@ const DashboardPage = () => {
               <motion.div variants={itemVariants} className="flex">
                 <ChartCard title="Activity Breakdown" icon={FiActivity} className="w-full">
                   <div className="h-64 flex items-center justify-center">
-                    {user?.games && user.games.length > 0 ? (
-                      <DonutChart value={data.activityBreakdown.value} label={data.activityBreakdown.label} />
+                    {activityBreakdown && activityBreakdown.value > 0 ? (
+                      <DonutChart value={activityBreakdown.value} label={activityBreakdown.label} />
                     ) : (
                       <div className="text-center text-light-body/60 dark:text-dark-body/60">
                         <p className="text-sm">No activity data yet</p>
@@ -268,7 +281,13 @@ const DashboardPage = () => {
               <motion.div variants={itemVariants} className="flex">
                 <ChartCard title="Wellness Balance" icon={FiCheckSquare} className="w-full">
                   <div className="h-64 flex items-center justify-center">
-                    <RadarChart {...data.wellnessBalance} />
+                    {wellnessBalance ? (
+                      <RadarChart {...wellnessBalance} />
+                    ) : (
+                      <div className="text-center text-light-body/60 dark:text-dark-body/60">
+                        <p className="text-sm">No wellness data available</p>
+                      </div>
+                    )}
                   </div>
                 </ChartCard>
               </motion.div>

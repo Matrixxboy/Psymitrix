@@ -12,6 +12,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { getAchievements } from '../../api/achievements';
 import { fetchUserProfile as getUser } from '../../api/auth'; // Assuming a getUser function exists in auth.js
 import { Line } from 'react-chartjs-2';
+import axios from 'axios';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -35,8 +36,6 @@ import GlassCard from '../../components/ui/GlassCard';
 // Utils
 import {
   processMoodTrendsData,
-  calculateWellnessBalance,
-  calculateActivityBreakdown,
   getMoodScore,
   filterDataByTimeframe,
 } from '../../utils/dataProcessing';
@@ -87,6 +86,8 @@ const ProgressPage = () => {
   const [timeframe, setTimeframe] = useState('month');
   const [achievements, setAchievements] = useState([]);
   const [sleepDataForChart, setSleepDataForChart] = useState({ labels: [], datasets: [] });
+  const [wellnessBalance, setWellnessBalance] = useState(null);
+  const [activityBreakdown, setActivityBreakdown] = useState(null);
 
   const wellnessMetrics = user?.mental_health_profile?.wellness_metrics || [];
 
@@ -166,32 +167,55 @@ const ProgressPage = () => {
   useEffect(() => {
     if (!user) return;
 
-    try {
-      const moodTrend = processMoodTrendsData(user.mood_trends || [], timeframe);
-      const activityBreakdown = calculateActivityBreakdown(user);
-      const wellnessBalance = calculateWellnessBalance(user);
+    const fetchData = async () => {
+      try {
+        const moodTrend = processMoodTrendsData(user.mood_trends || [], timeframe);
 
-      const filteredMoods = filterDataByTimeframe(user.mood_trends || [], timeframe);
-      const avgMoodScore =
-        filteredMoods.length > 0
-          ? (
-            filteredMoods.reduce((sum, m) => sum + getMoodScore(m.mood), 0) /
-            filteredMoods.length
-          ).toFixed(1)
-          : 'N/A';
+        const filteredMoods = filterDataByTimeframe(user.mood_trends || [], timeframe);
+        const avgMoodScore =
+          filteredMoods.length > 0
+            ? (
+              filteredMoods.reduce((sum, m) => sum + getMoodScore(m.mood), 0) /
+              filteredMoods.length
+            ).toFixed(1)
+            : 'N/A';
 
-      setData({
-        moodTrend,
-        activityBreakdown,
-        wellnessBalance,
-        avgMoodScore,
-        moodEntries: filteredMoods.length,
-      });
-    } catch (error) {
-      console.error('Error processing progress data:', error);
-    } finally {
-      setLoading(false);
-    }
+        setData({
+          moodTrend,
+          avgMoodScore,
+          moodEntries: filteredMoods.length,
+        });
+
+        const headers = { Authorization: `Bearer ${localStorage.getItem('authToken')}` };
+
+        // Fetch Wellness Balance
+        try {
+          const wellnessResponse = await axios.get(`/api/v1/ai_analytics/wellness-balance`, { headers });
+          if (wellnessResponse.data) {
+            setWellnessBalance(wellnessResponse.data);
+          }
+        } catch (err) {
+          console.log('Wellness Balance data not available yet');
+        }
+
+        // Fetch Activity Breakdown
+        try {
+          const activityResponse = await axios.get(`/api/v1/ai_analytics/activity-breakdown`, { headers });
+          if (activityResponse.data) {
+            setActivityBreakdown(activityResponse.data);
+          }
+        } catch (err) {
+          console.log('Activity Breakdown data not available yet');
+        }
+
+      } catch (error) {
+        console.error('Error processing progress data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [user, timeframe]);
 
   if (loading || !data) return <DashboardSkeleton />;
@@ -325,7 +349,13 @@ const ProgressPage = () => {
             <motion.div variants={fadeUp} initial="hidden" animate="visible">
               <ChartCard title="Wellness Balance" icon={FiActivity}>
                 <div className="h-80">
-                  <RadarChart {...data.wellnessBalance} />
+                  {wellnessBalance ? (
+                    <RadarChart {...wellnessBalance} />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-light-body/60 dark:text-dark-body/60">
+                      <p className="text-sm">No wellness data available</p>
+                    </div>
+                  )}
                 </div>
               </ChartCard>
             </motion.div>
@@ -333,10 +363,10 @@ const ProgressPage = () => {
             <motion.div variants={fadeUp} initial="hidden" animate="visible">
               <ChartCard title="Activity Breakdown" icon={FiActivity}>
                 <div className="h-80 flex items-center justify-center">
-                  {user?.games?.length > 0 ? (
+                  {activityBreakdown && activityBreakdown.value > 0 ? (
                     <DonutChart
-                      value={data.activityBreakdown.value}
-                      label={data.activityBreakdown.label}
+                      value={activityBreakdown.value}
+                      label={activityBreakdown.label}
                     />
                   ) : (
                     <div className="text-center text-light-body/60 dark:text-dark-body/60">
