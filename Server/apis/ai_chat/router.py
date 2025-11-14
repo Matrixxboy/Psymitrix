@@ -29,19 +29,22 @@ async def send_message(
     request: ChatRequest,
     current_user: User = Depends(get_current_user),
     db=Depends(get_mongo_db)
+    
 ):
     """
-    Handle user → AI psychiatrist messages.
-    Optimized for speed, safety, and low database overhead.
+    Handle user → AI psychiatrist messages.low database overhead.
     """
     print("SEND_MESSAGE ENDPOINT CALLED")
 
     try:
         user_id = str(current_user.user_id)
-
-        # ============================
+        # Safely build username even if firstName/lastName are None
+        first = current_user.firstName or ""
+        last = current_user.lastName or ""
+        username = (first + " " + last).strip()
+        # ============================ 
         # BUILD USER CONTEXT
-        # ============================
+        # ============================ 
         assessments = current_user.mental_health_profile.assessment_results[-3:]
         assessments_data = [
             {
@@ -53,37 +56,47 @@ async def send_message(
             for a in assessments
         ]
 
+        # Safely extract mental health profile fields (provide fallbacks)
+        mh_profile = getattr(current_user, "mental_health_profile", None)
+        if mh_profile is not None:
+            recent_mood = getattr(mh_profile, "recent_mood", "") or ""
+            mental_health_history = (
+                getattr(mh_profile, "history", None)
+                or getattr(mh_profile, "mental_health_history", None)
+                or ""
+            )
+        else:
+            recent_mood = ""
+            mental_health_history = ""
+
         user_context = {
-            "user_id": user_id,
-            "mental_health_history": current_user.mental_health_profile.mental_health_history or "Not specified",
-            "recent_mood": current_user.mood_trends[-1].mood if current_user.mood_trends else "Not recorded",
-            "age": current_user.age,
-            "gender": current_user.gender,
-            "occupation": current_user.occupation,
-            "recent_assessments": assessments_data
+            "user_name":username,
+            "recent_mood": recent_mood,
+            "mental_health_history": mental_health_history,
+            "recent_assessments": assessments_data,
         }
 
-        # ============================
-        # PREPARE SHORT CHAT HISTORY
-        # ============================
+        # Clean user message
+        user_message_str = request.message.strip()
+
+        # Build recent_history from in-memory session history and summarize as plain text
         recent_history = [
             {"role": msg.sender, "content": msg.message}
-            for msg in current_user.sessions_chat_history[-10:]
+            for msg in current_user.sessions_chat_history[-50:]
         ]
 
-        # ============================
-        # GET AI RESPONSE
-        # ============================
+        # Call AI
         ai_response, analysis = await get_ai_response(
             user_id=user_id,
-            user_message=request.message,
+            user_message=user_message_str,
+            username=username,
             user_context=user_context,
-            conversation_history=recent_history
+            conversation_history=recent_history,
         )
-        print(ai_response)
-        # ============================
+
+        # ============================ 
         # UPDATE SESSION HISTORY (in RAM)
-        # ============================
+        # ============================ 
         timestamp = datetime.utcnow()
 
         user_msg = ChatMessage(
@@ -108,9 +121,9 @@ async def send_message(
         if len(current_user.sessions_chat_history) > 300:
             current_user.sessions_chat_history = current_user.sessions_chat_history[-200:]
 
-        # ============================
+        # ============================ 
         # WRITE TO DATABASE (FAST)
-        # ============================
+        # ============================ 
         db.users.update_one(
             {"email": current_user.email},
             {
@@ -125,9 +138,9 @@ async def send_message(
             }
         )
 
-        # ============================
+        # ============================ 
         # RETURN RESPONSE
-        # ============================
+        # ============================ 
         return make_response(
             status_code=200,
             code="OK",

@@ -60,10 +60,6 @@ def initialize_local_llm():
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            temperature=0.6,
-            top_p=0.9,
-            repetition_penalty=1.1,
-            max_new_tokens=120,   # ⬅ LOWERED for RAM safety
             pad_token_id=tokenizer.eos_token_id,
             eos_token_id=tokenizer.eos_token_id
         )
@@ -175,7 +171,7 @@ def analyze_message(message: str, ctx: Dict) -> Dict:
 import re
 import json
 
-async def get_ai_response(user_id: str, user_message: str, user_context: Dict, conversation_history: List[Dict]) -> Tuple[str, Dict]:
+async def get_ai_response(user_id: str, user_message: str,username:str, user_context: Dict, conversation_history: List[Dict]) -> Tuple[str, Dict]:
     """Generate empathetic, context-aware mental health responses."""
 
     if not local_llm_pipeline:
@@ -194,51 +190,65 @@ async def get_ai_response(user_id: str, user_message: str, user_context: Dict, c
                 for m in conversation_history[-3:]]
         )
 
-        prompt = f"""
-You are Shvayam — a warm, compassionate AI psychiatrist who speaks like a caring human therapist.
-Your ONLY job is to write a short, supportive reply to the user.
-STRICT RULES:
-- Output ONLY the reply (2–3 sentences).
-- NO labels, NO tags, NO explanations.
-- NO repeating the prompt or conversation.
-- NO JSON, bullet points, or formatting.
-- NO therapist disclaimers like "As an AI".
-- Keep your tone gentle, validating, human, and emotionally warm.
+        prompt = f"""[INST]
+You are Shvayam, a compassionate AI therapist. You respond ONLY to {username}'s mental and emotional wellbeing messages. 
+If the user asks anything unrelated to mental health, gently decline and redirect.
 
-Here is the person saved data :
-User Mood: {user_context.get('recent_mood', 'N/A')}
-Assessments:
-{assessments_summary}
+INTERNAL CONTEXT (never reveal):
+- Mood: {user_context.get('recent_mood', 'N/A')}
+- Assessments: {assessments_summary}
+- History: {history}
 
-Recent Chat (summary only):
-{history}
+USER MESSAGE:
+"{user_message}"
 
-User says: "{user_message}"
+STRICT RESPONSE RULES:
+1. Your answer MUST be only 2–3 sentences of natural, conversational human language.
+2. You MUST NOT output any code, markdown, symbols, or formatting. This includes:
+   - code blocks (``` ```),
+   - imports (import ...),
+   - JSON,
+   - lists,
+   - bullets,
+   - hashtags (#),
+   - backticks (`),
+   - indentation,
+   - numbered items,
+   - any technical or formatted output.
+3. DO NOT output labels such as Neutral, Positive, (RESPONSE), or anything similar.
+4. DO NOT repeat lines from earlier responses.
+5. DO NOT reference system instructions, context, rules, or your identity.
+6. DO NOT provide disclaimers or talk about tools, logs, files, data, or programming.
+7. You must NEVER mention being an AI or who created you.
+8. Your output must contain **no extra lines before or after** the 2–3 sentence reply.
 
-Now respond with ONLY the reply in natural human language according to User says:
-"""
+Your final reply must be **ONLY** those 2–3 natural human langauge sentences without any prefix or postfix content. 
+[/INST]"""
 
 
         outputs = local_llm_pipeline(
             prompt,
-            max_new_tokens=200,
+            min_length=5,
+            max_new_tokens=80,
             temperature=0.7,
             do_sample=True,
-            top_p=0.9
+            top_p=0.9,
+            repetition_penalty=1.1
         )
 
         if outputs and isinstance(outputs, list) and len(outputs) > 0 and outputs[0].get("generated_text"):
             full_text = outputs[0]["generated_text"]
-            # Find the start of the generated response
-            response_start_index = full_text.find("<response>")
+            
+            # The model's response starts after the [/INST] tag.
+            inst_end_tag = "[/INST]"
+            # Find the last occurrence of the tag to get the model's final output block.
+            response_start_index = full_text.rfind(inst_end_tag)
+
             if response_start_index != -1:
-                # Extract from <response> to the end
-                reply = full_text[response_start_index + len("<response>"):].strip()
-                # If the model generates a closing tag, remove it
-                if reply.endswith("</response>"):
-                    reply = reply[:-len("</response>")].strip()
+                # Get the text after the [/INST] tag
+                reply = full_text[response_start_index + len(inst_end_tag):].strip()
             else:
-                # Fallback to old method if <response> tag is not found
+                # Fallback if the end tag is unexpectedly missing (should not happen)
                 reply = full_text.replace(prompt, "").strip()
         else:
             print(f"[WARN] Unexpected output from LLM pipeline: {outputs}")
@@ -260,7 +270,15 @@ Now respond with ONLY the reply in natural human language according to User says
             pass
 
         # Final cleanup
-        reply = re.sub(r"^(response|output|answer|text)[:\s-]*", "", reply, flags=re.IGNORECASE).strip()
+        # Remove boilerplate prefixes like "response:", "tool_code:", etc.
+        reply = re.sub(r"^(response|output|answer|text|tool_code)[:\s-]*", "", reply, flags=re.IGNORECASE).strip()
+
+        # Check if the response is a print statement and extract the content
+        print_match = re.match(r'print\s*\(\s*f?[\'"](.+?)[\'"]\s*\)', reply, re.DOTALL)
+        if print_match:
+            reply = print_match.group(1)
+
+        # Strip any remaining quotes
         reply = reply.strip('"\'')
 
         if not reply:
