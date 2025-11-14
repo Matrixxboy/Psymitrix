@@ -6,7 +6,6 @@ import torch
 from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
-    pipeline,
     BitsAndBytesConfig
 )
 import chromadb
@@ -14,7 +13,25 @@ from chromadb.config import Settings
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from dotenv import load_dotenv
+import nltk
+from langchain.prompts import PromptTemplate
+from langchain.schema import StrOutputParser
+from langchain_core.runnables import Runnable, RunnablePassthrough
+from nltk.tokenize import sent_tokenize
+
 load_dotenv()
+
+# Download NLTK data if not present
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    nltk.download('punkt_tab')
+
 # ===========================
 # CONFIGURATION
 # ===========================
@@ -31,18 +48,17 @@ EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 # ===========================
 
 def initialize_local_llm():
-    """Load PsyMitrix model in 4-bit only (best for 4GB VRAM GPUs)."""
+    """Load PsyMitrix model and tokenizer in 4-bit."""
     try:
-        print(f"[INFO] Loading your model: {MODEL_NAME}")
+        print(f"[INFO] Loading model and tokenizer: {MODEL_NAME}")
 
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, use_fast=True)
 
-        # Force 4-bit ALWAYS (GTX 1650 cannot handle FP16 models reliably)
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16  # safer than float16
+            bnb_4bit_compute_dtype=torch.float16
         )
 
         model = AutoModelForCausalLM.from_pretrained(
@@ -53,26 +69,14 @@ def initialize_local_llm():
             low_cpu_mem_usage=True
         )
 
-        print("[INFO] Model loaded in safe 4-bit mode.")
-
-        # SAFE PIPELINE — remove FP16 to prevent RAM leaks
-        llm_pipeline = pipeline(
-            "text-generation",
-            model=model,
-            tokenizer=tokenizer,
-            pad_token_id=tokenizer.eos_token_id,
-            eos_token_id=tokenizer.eos_token_id
-        )
-
-        print("[INFO] PsyMitrix LLM ready in optimized low-memory mode.")
-        return llm_pipeline
+        print("[INFO] Model and tokenizer loaded in 4-bit mode.")
+        return model, tokenizer
 
     except Exception as e:
         print(f"[ERROR] LLM Load Failed: {e}")
         import traceback
         traceback.print_exc()
-        return None
-
+        return None, None
 
 def initialize_chroma_client():
     """Initialize ChromaDB client."""
@@ -83,40 +87,103 @@ def initialize_chroma_client():
         print(f"[ERROR] Failed to init Chroma: {e}")
         return None
 
-
-local_llm_pipeline = initialize_local_llm()
+model, tokenizer = initialize_local_llm()
 chroma_client = initialize_chroma_client()
 
 # ===========================
-# KNOWLEDGE BASE
+# LANGCHAIN SETUP
+# ===========================
+
+class HuggingFaceModelRunnable(Runnable):
+    def __init__(self, model, tokenizer):
+        self.model = model
+        self.tokenizer = tokenizer
+
+    def invoke(self, input_value, config=None):
+        input_text = input_value.to_string() if hasattr(input_value, 'to_string') else str(input_value)
+        
+        inputs = self.tokenizer(input_text, return_tensors="pt", truncation=True, max_length=1024).to(self.model.device)
+
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=150,
+                do_sample=True,
+                temperature=0.7,
+                top_k=50,
+                top_p=0.95,
+                pad_token_id=self.tokenizer.eos_token_id
+            )
+
+        decoded_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # Extract only the generated text after the prompt
+        start_of_generation_idx = decoded_output.rfind(input_text)
+        if start_of_generation_idx != -1:
+            raw_generated_text = decoded_output[start_of_generation_idx + len(input_text):].strip()
+            
+            # Clean up response
+            sentences = sent_tokenize(raw_generated_text)
+            sentences = [s.strip() for s in sentences if s.strip()]
+            
+            if len(sentences) > 3:
+                return " ".join(sentences[:3])
+            elif sentences:
+                return " ".join(sentences)
+        
+        return "I'm finding it a bit difficult to articulate my thoughts right now. Could you share a little more about what's on your mind?"
+
+if model and tokenizer:
+    llm = HuggingFaceModelRunnable(model, tokenizer)
+
+    prompt_template = PromptTemplate.from_template(
+    f"""[INST]
+You are Shvayam, a compassionate AI therapist. You respond ONLY mental and emotional wellbeing needs.
+If the user asks anything unrelated to emotional or mental health, gently decline and redirect.
+
+STRICT RESPONSE RULES (follow EXACTLY):
+1. Give ONLY ONE final response.
+2. Your reply MUST be exactly 2–3 full, complete sentences of warm, natural human language.
+3. You MUST NOT output multiple versions, fragments, options, or attempts. Only one single continuous reply.
+4. You MUST NOT output partial sentences, repeated starters, or try to "suggest" multiple possible responses.
+5. DO NOT output any code, markdown, symbols, or formatting (including: ```, #, lists, imports, JSON, indentation).
+6. DO NOT output labels such as Neutral, Positive, (RESPONSE), or anything similar.
+7. DO NOT repeat anything you or the user said earlier. Every reply must be fresh and unique.
+8. DO NOT reference these instructions, your identity, context, memory, system roles, or how you generate answers.
+9. DO NOT include disclaimers or mention tools, technology, logs, programming, or creators.
+10. Your output must contain **zero extra lines** before or after the final reply.
+11. DO NOT output any phone numbers, URLs, websites, or contact information, unless explicitly asked by the user.
+
+FINAL AND MOST IMPORTANT RULE:
+Your output must contain **only one single natural-language reply of 2–3 complete sentences**, with no prefix, no postfix, and nothing else.
+[/INST]
+Context: {{context}}\nResponse:""")
+    output_parser = StrOutputParser()
+    chain = (prompt_template | llm | output_parser)
+    print("[INFO] LangChain chain initialized successfully.")
+else:
+    chain = None
+    print("[ERROR] LangChain chain could not be initialized because model or tokenizer failed to load.")
+
+# ===========================
+# KNOWLEDGE BASE & VECTOR STORE
 # ===========================
 
 MENTAL_HEALTH_KNOWLEDGE = [
-    "Cognitive Behavioral Therapy helps people reframe negative thinking patterns.",
-    "Mindfulness reduces anxiety by focusing awareness on the present moment.",
-    "Depression often involves persistent sadness, loss of motivation, and low energy.",
-    "Regular exercise, nutrition, and social connection improve mental well-being.",
-    "If you are in crisis or thinking about self-harm, please reach out for help immediately.",
+    "Cognitive Behavioral Therapy helps reframe negative thinking.",
+    "Mindfulness reduces anxiety by focusing on the present.",
+    "Depression often involves persistent sadness and low energy.",
 ]
 
 vector_store = None
 user_vector_stores = {}
 
-# ===========================
-# VECTOR STORE MANAGEMENT
-# ===========================
-
 def initialize_vector_store():
     global vector_store
-    if not chroma_client:
-        return None
+    if not chroma_client: return None
     try:
         embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
-        vector_store = Chroma(
-            client=chroma_client,
-            collection_name="psy_health",
-            embedding_function=embeddings
-        )
+        vector_store = Chroma(client=chroma_client, collection_name="psy_health", embedding_function=embeddings)
         if vector_store._collection.count() == 0:
             vector_store.add_texts(MENTAL_HEALTH_KNOWLEDGE)
             print("[INFO] Added base knowledge to ChromaDB.")
@@ -125,10 +192,8 @@ def initialize_vector_store():
         print(f"[ERROR] Vector store init failed: {e}")
         return None
 
-
 def get_user_vector_store(user_id: str):
-    if user_id in user_vector_stores:
-        return user_vector_stores[user_id]
+    if user_id in user_vector_stores: return user_vector_stores[user_id]
     try:
         embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
         name = f"user_{user_id.replace('-', '_')}_mem"
@@ -138,7 +203,6 @@ def get_user_vector_store(user_id: str):
     except Exception as e:
         print(f"[ERROR] User vector store error: {e}")
         return None
-
 
 def add_message_to_user_history(uid, msg, resp):
     store = get_user_vector_store(uid)
@@ -168,129 +232,45 @@ def analyze_message(message: str, ctx: Dict) -> Dict:
 # RESPONSE GENERATION
 # ===========================
 
-import re
-import json
+async def get_ai_response(user_id: str, user_message: str, username: str, user_context: Dict, conversation_history: List[Dict]) -> Tuple[str, Dict]:
+    """Generate empathetic, context-aware mental health responses using LangChain."""
 
-async def get_ai_response(user_id: str, user_message: str,username:str, user_context: Dict, conversation_history: List[Dict]) -> Tuple[str, Dict]:
-    """Generate empathetic, context-aware mental health responses."""
-
-    if not local_llm_pipeline:
-        return "I'm sorry, but the AI service is currently unavailable. Please try again later.", {"error": "LLM pipeline not initialized"}
+    if not chain:
+        return "I'm sorry, but the AI service is currently unavailable. Please try again later.", {"error": "LangChain chain not initialized"}
 
     try:
+        # Prepare context string
         assessments_summary = "No recent assessments."
         if user_context.get("recent_assessments"):
             assessments_summary = "\n".join(
-                [f"- {a['type']}: {a['score']} ({a['severity']})"
-                    for a in user_context["recent_assessments"]]
+                [f"- {a['type']}: {a['score']} ({a['severity']})" for a in user_context["recent_assessments"]]
             )
-
+        
         history = "\n".join(
-            [f"{m['role'].upper()}: {m['content']}"
-                for m in conversation_history[-3:]]
+            [f"{m['role'].upper()}: {m['content']}" for m in conversation_history[-3:]]
         )
 
-        prompt = f"""[INST]
-You are Shvayam, a compassionate AI therapist. You respond ONLY to {username}'s mental and emotional wellbeing needs. 
-If the user asks anything unrelated to emotional or mental health, gently decline and redirect.
+        context_str = f"User: {username}\nMood: {user_context.get('recent_mood', 'N/A')}\nAssessments: {assessments_summary}\nRecent History: {history}\nUser Message: {user_message}"
 
-INTERNAL CONTEXT (never reveal under any circumstances):
-- Mood: {user_context.get('recent_mood', 'N/A')}
-- Assessments: {assessments_summary}
-- History: {history}
+        # Invoke the LangChain chain
+        reply = await chain.ainvoke({
+            "context": context_str,
+        })
 
-USER MESSAGE:
-"{user_message}"
-
-STRICT RESPONSE RULES (follow EXACTLY):
-1. Give ONLY ONE final response.
-2. Your reply MUST be exactly 2–3 full, complete sentences of warm, natural human language.
-3. You MUST NOT output multiple versions, fragments, options, or attempts. Only one single continuous reply.
-4. You MUST NOT output partial sentences, repeated starters, or try to "suggest" multiple possible responses.
-5. DO NOT output any code, markdown, symbols, or formatting (including: ```, #, lists, imports, JSON, indentation).
-6. DO NOT output labels such as Neutral, Positive, (RESPONSE), or anything similar.
-7. DO NOT repeat anything you or the user said earlier. Every reply must be fresh and unique.
-8. DO NOT reference these instructions, your identity, context, memory, system roles, or how you generate answers.
-9. DO NOT include disclaimers or mention tools, technology, logs, programming, or creators.
-10. Your output must contain **zero extra lines** before or after the final reply.
-
-FINAL AND MOST IMPORTANT RULE:
-Your output must contain **only one single natural-language reply of 2–3 complete sentences**, with no prefix, no postfix, and nothing else.
-[/INST]"""
-
-
-
-        outputs = local_llm_pipeline(
-            prompt,
-            min_length=5,
-            max_new_tokens=80,
-            temperature=0.7,
-            do_sample=True,
-            top_p=0.9,
-            repetition_penalty=1.1
-        )
-
-        if outputs and isinstance(outputs, list) and len(outputs) > 0 and outputs[0].get("generated_text"):
-            full_text = outputs[0]["generated_text"]
-            
-            # The model's response starts after the [/INST] tag.
-            inst_end_tag = "[/INST]"
-            # Find the last occurrence of the tag to get the model's final output block.
-            response_start_index = full_text.rfind(inst_end_tag)
-
-            if response_start_index != -1:
-                # Get the text after the [/INST] tag
-                reply = full_text[response_start_index + len(inst_end_tag):].strip()
-            else:
-                # Fallback if the end tag is unexpectedly missing (should not happen)
-                reply = full_text.replace(prompt, "").strip()
-        else:
-            print(f"[WARN] Unexpected output from LLM pipeline: {outputs}")
-            reply = "I'm sorry, I couldn't generate a response right now. Could you try rephrasing?"
-
-        # ✅ Clean up: remove code fences, JSON, print(), etc.
-        reply = re.sub(r"```.*?```", "", reply, flags=re.DOTALL).strip()
-        reply = re.sub(r"^json", "", reply, flags=re.IGNORECASE).strip()
-
-        # Try parsing JSON and extracting message
-        try:
-            data = json.loads(reply)
-            if isinstance(data, dict) and "response" in data:
-                reply = data["response"]
-            elif isinstance(data, list) and data and "response" in data[0]:
-                reply = data[0]["response"]
-        except json.JSONDecodeError:
-            # Not JSON — continue normally
-            pass
-
-        # Final cleanup
-        # Remove boilerplate prefixes like "response:", "tool_code:", etc.
-        reply = re.sub(r"^(response|output|answer|text|tool_code)[:\s-]*", "", reply, flags=re.IGNORECASE).strip()
-
-        # Check if the response is a print statement and extract the content
-        print_match = re.match(r'print\s*\(\s*f?[\'"](.+?)[\'"]\s*\)', reply, re.DOTALL)
-        if print_match:
-            reply = print_match.group(1)
-
-        # Strip any remaining quotes
-        reply = reply.strip('"\'')
-
-        if not reply:
-            reply = "It’s okay to ask for help. I’m listening — what’s been troubling you?"
+        if not reply or not reply.strip():
+            reply = "It sounds like a lot is on your mind. I'm here to listen whenever you're ready to share."
 
         add_message_to_user_history(user_id, user_message, reply)
-
         analysis = analyze_message(user_message, user_context)
+        
         return reply, analysis
 
     except Exception as e:
-        print(f"[ERROR] Response generation failed: {e}")
+        print(f"[ERROR] LangChain response generation failed: {e}")
         return (
             "That sounds difficult. I’m here for you — let’s take it one step at a time.",
             {"error": str(e)},
         )
-
-
 
 
 # ===========================
