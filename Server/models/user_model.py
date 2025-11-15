@@ -252,6 +252,8 @@ class User(BaseModel):
     height: Optional[float] = None
     weight: Optional[float] = None
     occupation: Optional[str] = None
+    relationshipStatus: Optional[str] = None
+    childrens: Optional[str] = None
     location: Optional[str] = None
     bio: Optional[str] = None
     profile_picture_url: Optional[str] = None
