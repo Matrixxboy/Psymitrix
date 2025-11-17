@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import GlassCard from "../../../components/ui/GlassCard";
 import Button from "../../../components/ui/Button";
+import { reportsAPI } from "../../../api/reports";
 
 const ReportSection = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleGenerateReport = async () => {
+    setIsLoading(true);
+    toast.loading("Generating your report...");
+
+    try {
+      await reportsAPI.generateReport();
+      toast.dismiss();
+      toast.success("Report downloaded successfully!");
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.message || "Failed to generate report.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const cardVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.002 } },
@@ -26,7 +46,9 @@ const ReportSection = () => {
           </div>
 
           <div className="mt-4 md:mt-0 flex gap-4">
-            <Button>Generate New Report</Button>
+            <Button onClick={handleGenerateReport} disabled={isLoading}>
+              {isLoading ? "Generating..." : "Generate New Report"}
+            </Button>
             <Button>Show My Reports</Button>
           </div>
         </GlassCard>

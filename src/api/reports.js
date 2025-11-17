@@ -1,42 +1,43 @@
 import api from './index';
 
-const REPORTS_BASE = '/reports';
+const AI_REPORTS_BASE = '/ai_report';
 
 export const reportsAPI = {
-  // Generate mental health report
-  generateReport: async (options = {}) => {
+  generateReport: async () => {
     try {
-      const response = await api.post(`${REPORTS_BASE}/generate`, {
-        include_assessments: options.includeAssessments !== false,
-        include_mood_trends: options.includeMoodTrends !== false,
-        include_recommendations: options.includeRecommendations !== false,
-        date_range_days: options.dateRangeDays || 30
+      const response = await api.post(`${AI_REPORTS_BASE}/ai_generate_report`, {}, {
+        responseType: 'blob', // Important for file downloads
       });
-      return response.data?.data;
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Extract filename from content-disposition header
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'report.pdf'; // default filename
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      link.setAttribute('download', filename);
+      
+      // Append to html link element page
+      document.body.appendChild(link);
+      
+      // Start download
+      link.click();
+      
+      // Clean up and remove the link
+      link.parentNode.removeChild(link);
+
+      return { file_name: filename, generated_at: new Date() };
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to generate report');
     }
   },
-
-  // Download report
-  downloadReport: async (fileName) => {
-    try {
-      const response = await api.get(`${REPORTS_BASE}/download/${fileName}`, {
-        responseType: 'blob'
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to download report');
-    }
-  },
-
-  // Get mental health analysis
-  getAnalysis: async () => {
-    try {
-      const response = await api.get(`${REPORTS_BASE}/analysis`);
-      return response.data?.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch analysis');
-    }
-  }
 };

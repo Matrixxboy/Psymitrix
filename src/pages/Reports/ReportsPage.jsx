@@ -9,7 +9,6 @@ import GlassCard from '../../components/ui/GlassCard';
 
 const ReportsPage = () => {
   const { user } = useAuth();
-  const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [reportFile, setReportFile] = useState(null);
@@ -26,10 +25,6 @@ const ReportsPage = () => {
     try {
       setLoading(true);
       
-      // Load analysis
-      const analysisData = await reportsAPI.getAnalysis();
-      setAnalysis(analysisData);
-
       // Load AI insights
       try {
         const insightsData = await analyticsAPI.getInsights(timeframe);
@@ -56,37 +51,13 @@ const ReportsPage = () => {
   const handleGenerateReport = async () => {
     try {
       setGenerating(true);
-      const data = await reportsAPI.generateReport({
-        includeAssessments: true,
-        includeMoodTrends: true,
-        includeRecommendations: true,
-        dateRangeDays: 30
-      });
+      const data = await reportsAPI.generateReport();
       setReportFile(data);
     } catch (err) {
       console.error('Failed to generate report:', err);
       alert('Failed to generate report. Please try again.');
     } finally {
       setGenerating(false);
-    }
-  };
-
-  const downloadReport = async () => {
-    try {
-      if (!reportFile?.file_name) return;
-      
-      const blob = await reportsAPI.downloadReport(reportFile.file_name);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = reportFile.file_name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Failed to download report:', err);
-      alert('Failed to download report. Please try again.');
     }
   };
 
@@ -175,11 +146,11 @@ const ReportsPage = () => {
               Generate a detailed PDF report with your mental health analysis, mood trends, assessment results, and professional recommendations. Perfect for sharing with your healthcare provider.
             </p>
             
-            {reportFile ? (
+            {reportFile && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-4 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg"
+                className="p-4 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg mb-4"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -187,38 +158,32 @@ const ReportsPage = () => {
                     Report Generated Successfully!
                   </p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-green-600 dark:text-green-400">
-                    Generated: {new Date(reportFile.generated_at).toLocaleString()}
-                  </p>
-                  <button
-                    onClick={downloadReport}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-                  >
-                    <Download className="w-5 h-5" />
-                    Download PDF
-                  </button>
-                </div>
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  File: {reportFile.file_name}
+                </p>
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  Generated: {new Date(reportFile.generated_at).toLocaleString()}
+                </p>
               </motion.div>
-            ) : (
-              <button
-                onClick={handleGenerateReport}
-                disabled={generating}
-                className="flex items-center gap-2 px-6 py-3 bg-light-primary dark:bg-dark-primary text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-              >
-                {generating ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    Generating Report...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="w-5 h-5" />
-                    Generate Report
-                  </>
-                )}
-              </button>
             )}
+
+            <button
+              onClick={handleGenerateReport}
+              disabled={generating}
+              className="flex items-center gap-2 px-6 py-3 bg-light-primary dark:bg-dark-primary text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {generating ? (
+                <>
+                  <Loader className="w-5 h-5 animate-spin" />
+                  Generating Report...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-5 h-5" />
+                  {reportFile ? 'Re-generate Report' : 'Generate Report'}
+                </>
+              )}
+            </button>
           </GlassCard>
         </motion.div>
 
@@ -226,7 +191,7 @@ const ReportsPage = () => {
           {/* Main Analysis Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Assessment Summary */}
-            {analysis && (
+            {aiInsights?.assessment_analysis && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -245,20 +210,17 @@ const ReportsPage = () => {
                       <p className="text-light-body/60 dark:text-dark-body/60 text-sm font-semibold mb-2">
                         Depression (PHQ-9)
                       </p>
-                      {analysis.assessment_summary?.phq9 ? (
+                      {aiInsights.assessment_analysis?.latest_phq9_score ? (
                         <>
                           <div className="flex items-baseline gap-2 mb-4">
                             <span className="text-4xl font-bold text-light-headings dark:text-dark-headings">
-                              {analysis.assessment_summary.phq9.latest_score}
+                              {aiInsights.assessment_analysis.latest_phq9_score}
                             </span>
                             <span className="text-light-body/60 dark:text-dark-body/60">/27</span>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-sm text-light-body dark:text-dark-body">
-                              <span className="font-semibold">Average:</span> {analysis.assessment_summary.phq9.average_score?.toFixed(1) || 'N/A'}
-                            </p>
                             <div className="inline-block px-3 py-1 bg-light-primary/20 dark:bg-dark-primary/20 rounded text-xs font-semibold text-light-primary dark:text-dark-primary">
-                              {analysis.assessment_summary.phq9.trend || 'Not assessed'}
+                              {aiInsights.assessment_analysis.phq9_trend || 'Not assessed'}
                             </div>
                           </div>
                         </>
@@ -272,20 +234,17 @@ const ReportsPage = () => {
                       <p className="text-light-body/60 dark:text-dark-body/60 text-sm font-semibold mb-2">
                         Anxiety (GAD-7)
                       </p>
-                      {analysis.assessment_summary?.gad7 ? (
+                      {aiInsights.assessment_analysis?.latest_gad7_score ? (
                         <>
                           <div className="flex items-baseline gap-2 mb-4">
                             <span className="text-4xl font-bold text-light-headings dark:text-dark-headings">
-                              {analysis.assessment_summary.gad7.latest_score}
+                              {aiInsights.assessment_analysis.latest_gad7_score}
                             </span>
                             <span className="text-light-body/60 dark:text-dark-body/60">/21</span>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-sm text-light-body dark:text-dark-body">
-                              <span className="font-semibold">Average:</span> {analysis.assessment_summary.gad7.average_score?.toFixed(1) || 'N/A'}
-                            </p>
                             <div className="inline-block px-3 py-1 bg-light-accent/20 dark:bg-dark-accent/20 rounded text-xs font-semibold text-light-accent dark:text-dark-accent">
-                              {analysis.assessment_summary.gad7.trend || 'Not assessed'}
+                              {aiInsights.assessment_analysis.gad7_trend || 'Not assessed'}
                             </div>
                           </div>
                         </>
@@ -431,7 +390,7 @@ const ReportsPage = () => {
                       <p key={idx} className="text-sm text-light-body dark:text-dark-body">• {insight}</p>
                     ))}
                   </div>
-                </GlassCard>
+.                </GlassCard>
               </motion.div>
             )}
           </div>

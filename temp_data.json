@@ -1,0 +1,140 @@
+{
+    "sections": {
+        "report": {
+            "Openness": "Utsav shows a balanced openness to experience. While he appreciates familiar routines, he also enjoys exploring new ideas in his free time, such as reading contemporary literature and experimenting with coding projects. His curiosity is moderate, enabling him to adapt to change without excessive risk‑taking, and creative problem‑solving.",
+            "Individualization": "He naturally recognizes and appreciates the unique qualities of individuals around him. In group settings, Utsav often mediates conflicts by acknowledging each person’s perspective, thereby fostering inclusivity, and cultural sensitivity. This skill helps him collaborate effectively with peers and mentors, building a supportive network that respects diverse viewpoints.",
+            "Introversion–Extraversion": "Utsav exhibits a moderate level of introversion. He prefers focused, low‑key environments where he can reflect, yet he is comfortable engaging in group discussions when needed, in collaborative contexts. This balanced temperament supports thoughtful decision‑making while allowing him to contribute meaningfully in team projects.",
+            "Self‑Esteem": "Self‑confidence is evident in Utsav’s willingness to take on new responsibilities, such as leading a community coding workshop. While he remains modest about his achievements, he acknowledges personal strengths like problem‑solving and empathy, which reinforces a stable sense of self‑worth and continuous self‑improvement.",
+            "Enneagram & DISC Summary": "The Enneagram profile suggests a Type 3 (Achiever) with a focus on accomplishment and a DISC profile leaning toward C (Conscientious) and I (Influential). He combines drive with analytical precision, allowing him to set clear goals and follow through with detail‑oriented execution, ensuring effective teamwork.",
+            "FIRO‑B Summary": "FIRO‑B results show a strong need for Inclusion and a moderate need for Control, with a low desire for Affection. Utsav actively seeks collaborative opportunities but prefers autonomous tasks when feasible, and adaptive. His interpersonal style balances collaboration with self‑direction.",
+            "Career Fit": "His skill set aligns well with technology‑centric roles that blend analytical rigor and collaborative problem‑solving, such as software engineering, data analysis, or product management. The combination of methodical planning and team facilitation positions him for success in dynamic, growth‑oriented organizations, with opportunities for leadership.",
+            "Neuro Map": "Brain activity patterns indicate a robust prefrontal cortex engagement, supporting executive functions, while moderate temporal‑lobe activation reflects balanced emotional processing. This neural profile suggests resilience to stress and an aptitude for structured learning environments, facilitating advanced problem‑solving."
+        },
+        "charts": {
+            "radarChart": {
+                "data": [
+                    {
+                        "field": "Openness",
+                        "value": "80"
+                    },
+                    {
+                        "field": "Individualization",
+                        "value": "75"
+                    },
+                    {
+                        "field": "Introversion",
+                        "value": "60"
+                    },
+                    {
+                        "field": "Self‑Esteem",
+                        "value": "85"
+                    },
+                    {
+                        "field": "Enneagram & DISC",
+                        "value": "70"
+                    },
+                    {
+                        "field": "FIRO‑B",
+                        "value": "65"
+                    },
+                    {
+                        "field": "Career Fit",
+                        "value": "80"
+                    },
+                    {
+                        "field": "Neuro Map",
+                        "value": "78"
+                    }
+                ],
+                "explanation": "The radar chart presents Utsav’s core personality dimensions as a multi‑arm graphic. Each arm represents a key attribute; the length corresponds to the score (0‑100). The pattern shows strong strengths in Self‑Esteem, Career Fit, and Neuro Map, moderate scores in Openness, Individualization, Enneagram & DISC, and FIRO‑B, while Introversion is comparatively lower, indicating a tendency toward thoughtful reflection over outward engagement."
+            },
+            "barChart": {
+                "data": [
+                    {
+                        "field": "Openness",
+                        "value": "80"
+                    },
+                    {
+                        "field": "Individualization",
+                        "value": "75"
+                    },
+                    {
+                        "field": "Introversion",
+                        "value": "60"
+                    },
+                    {
+                        "field": "Self‑Esteem",
+                        "value": "85"
+                    },
+                    {
+                        "field": "Enneagram & DISC",
+                        "value": "70"
+                    },
+                    {
+                        "field": "FIRO‑B",
+                        "value": "65"
+                    },
+                    {
+                        "field": "Career Fit",
+                        "value": "80"
+                    },
+                    {
+                        "field": "Neuro Map",
+                        "value": "78"
+                    }
+                ],
+                "explanation": "The bar chart visualises each personality domain as a vertical bar, providing an immediate comparison across dimensions. Taller bars reflect higher proficiency. This representation highlights Utsav’s standout strengths in Self‑Esteem, Career Fit, and Neuro Map, while identifying areas for potential growth, such as Introversion."
+            },
+            "comparisonTable": {
+                "data": [
+                    {
+                        "field": "Domain",
+                        "value": "Self‑Esteem"
+                    },
+                    {
+                        "field": "Score",
+                        "value": "85"
+                    },
+                    {
+                        "field": "Average",
+                        "value": "70"
+                    },
+                    {
+                        "field": "Gap",
+                        "value": "+15"
+                    }
+                ],
+                "explanation": "The comparison table juxtaposes Utsav’s scores against a reference average. For each domain, the table lists his score, the group average, and the positive or negative gap. This format clarifies where he exceeds typical benchmarks and where targeted development could further align him with peers."
+            },
+            "donutChart": {
+                "data": [
+                    {
+                        "field": "Coding",
+                        "value": "35"
+                    },
+                    {
+                        "field": "Reading",
+                        "value": "25"
+                    },
+                    {
+                        "field": "Sports",
+                        "value": "20"
+                    },
+                    {
+                        "field": "Art",
+                        "value": "10"
+                    },
+                    {
+                        "field": "Music",
+                        "value": "10"
+                    }
+                ],
+                "explanation": "The donut chart breaks down Utsav’s primary interests into proportional segments. Each slice size reflects the percentage of time or emphasis he dedicates to an activity. Coding dominates with 35%, followed by Reading 25%, Sports 20%, and equal parts Art and Music at 10% each, illustrating a balanced yet technology‑focused profile."
+            },
+            "gaugeChart": {
+                "value": "78",
+                "explanation": "The gauge chart presents a single‑point representation of Utsav’s overall personality alignment on a scale from 0 to 100. The needle at 78 indicates a strong fit across evaluated dimensions, signifying a well‑developed personality suited to structured, goal‑oriented environments."
+            }
+        }
+    }
+}
