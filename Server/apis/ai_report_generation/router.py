@@ -18,12 +18,12 @@ async def ai_report(
     db=Depends(get_mongo_db)
 ):
     try:
-        username = f"{current_user.firstName}_{current_user.lastName}"
-        filename = f"{username}_Personality_Report_by_PsyMitrix.pdf"
+        username = f"{current_user.firstName} {current_user.lastName}"
+        filename = f"{username} - Personality Report.pdf"
         report_data_str = await generate_report(current_user)
         report_data = json.loads(report_data_str)
         
-        pdf_buffer = generate_personality_pdf(filename=filename,data=report_data,person_name=current_user.firstName,generated_by=current_user.firstName)
+        pdf_buffer = generate_personality_pdf(filename=filename,data=report_data,person_name=f"{current_user.firstName} {current_user.lastName}",generated_by=f"{current_user.firstName} {current_user.lastName}")
         
         headers = {
             'Content-Disposition': f'attachment; filename="{filename}"'

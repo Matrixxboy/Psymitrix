@@ -6,6 +6,7 @@ import { analyticsAPI } from '../../api/analytics';
 import { recommendationsAPI } from '../../api/recommendations';
 import { useAuth } from '../../hooks/useAuth';
 import GlassCard from '../../components/ui/GlassCard';
+import { _capitalize } from 'chart.js/helpers';
 
 const ReportsPage = () => {
   const { user } = useAuth();
@@ -100,7 +101,7 @@ const ReportsPage = () => {
           <div className="flex items-center justify-center gap-3 mb-3">
             <Brain className="w-8 h-8 text-light-primary dark:text-dark-primary" />
             <h1 className="text-4xl font-bold text-light-headings dark:text-dark-headings">
-              Your Mental Health Report
+              {user ? `${_capitalize(user.firstName)}'s` : 'Your'} Mental Health Report
             </h1>
           </div>
           <p className="text-light-body dark:text-dark-body text-lg max-w-2xl mx-auto">

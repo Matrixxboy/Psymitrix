@@ -16,7 +16,7 @@ export const reportsAPI = {
 
       // Extract filename from content-disposition header
       const contentDisposition = response.headers['content-disposition'];
-      let filename = 'report.pdf'; // default filename
+      let filename = `personality_base_report.pdf`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
         if (filenameMatch.length > 1) {

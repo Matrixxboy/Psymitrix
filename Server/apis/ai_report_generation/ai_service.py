@@ -33,7 +33,7 @@ Sections (in order):
 11. Comparison Table data with only: "fields", "values" in numbers, and "explanation" a complete chart
 12. Donut Chart data with only: "fields", "values" in numbers, and "explanation" a complete chart
 13. Gauge Chart data with only: "value" in numbers, and "explanation" a complete chart
-
+14. Score all charts out of 100
 consider this structure and keys must be followed:
 {
   "sections": {
