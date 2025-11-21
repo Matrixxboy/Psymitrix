@@ -1,41 +1,54 @@
-```mermaid
-flowchart TD
-    A0([Start]) --> U1
+https://app.diagrams.net/
+https://plantuml.com/
+```
+@startuml
+title Application Navigation – Compact User ↔ System Flow (A4 Friendly)
 
-    %% User Partition
-    subgraph User
-        U1[Navigate to Assessments Page] --> S1
-    end
+'--- Lanes ---
+|User|
+start
+:Open Application;
+--> System
 
-    %% System Partition
-    subgraph System
-        S1{Is User Authenticated?}
-    end
+|System|
+if (Is User Authenticated?) then (Yes)
+    --> User
+else (No)
+    :Redirect to Login Page;
+    stop
+endif
 
-    S1 -->|Yes| S2
-    S1 -->|No| S3
+|User|
+:Choose a Page;
+note right
+Available Pages:
+- Dashboard
+- Progress
+- AI Chat
+- Reports
+- Games
+- Profile
+- Assessments
+end note
+--> System
 
-    subgraph System
-        S2[Display available assessments]
-        S3[Redirect to Login Page]
-    end
+|System|
+:Load Selected Page Data;
+note right
+System loads only what is needed
+for the selected page
+(Dashboard, Progress, Chat, etc.)
+end note
+--> User
 
-    S3 --> A1([Stop])
-    S2 --> U2
+|User|
+:Perform Page Actions;
+repeat
+:Navigate to Another Page?;
+repeat while (Yes)
 
-    %% User actions
-    subgraph User
-        U2["Select an assessment e.g. PHQ-9"] --> U3
-        U3[Answer all questions] --> U4
-        U4[Submit assessment form] --> S4
-    end
+|User|
+stop
 
-    %% System processing
-    subgraph System
-        S4[Calculate assessment score] --> S5
-        S5[Save result to database] --> S6
-        S6[Generate report based on score & history] --> S7
-        S7[Display generated report] --> A1([Stop])
-    end
-
+@enduml
 ```
