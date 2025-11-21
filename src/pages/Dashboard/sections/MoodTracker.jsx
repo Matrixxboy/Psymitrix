@@ -103,7 +103,7 @@ const MoodTracker = ({ mood, setMood, onMoodSaved }) => {
             type="range"
             min="1"
             max="6"
-            value={mood ? Object.keys(moodOptions).indexOf(moodOptions.findIndex(m => m.value === mood)) + 1 : 0}
+            value={mood ? moodOptions.findIndex(m => m.value === mood) + 1 : 0}
             onChange={(e) => {
               const index = parseInt(e.target.value) - 1;
               if (index >= 0 && index < moodOptions.length) {

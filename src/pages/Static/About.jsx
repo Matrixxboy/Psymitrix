@@ -2,7 +2,7 @@ import React from 'react';
 import GlassCard from '../../components/ui/GlassCard';
 
 const About = () => (
-  <div className="min-h-screen p-6 md:p-10 bg-light-background dark:bg-dark-background">
+  <div className="min-h-screen p-6 md:p-10 bg-light-background dark:bg-dark-background mt-[90px]">
     <div className="max-w-4xl mx-auto space-y-8">
       <GlassCard className="p-8 animate-fade-in-up">
         <h1 className="text-4xl font-extrabold text-light-headings dark:text-dark-headings mb-4 tracking-tight">

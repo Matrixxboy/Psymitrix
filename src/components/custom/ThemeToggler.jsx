@@ -1,4 +1,5 @@
 import React from 'react';
+import { Moon, Sun } from 'lucide-react'; // Import Lucide icons
 import { useTheme } from '../../providers/ThemeProvider';
 import Button from '../ui/Button';
 
@@ -14,7 +15,7 @@ const ThemeToggler = () => {
       aria-label="Toggle theme"
       title="Toggle theme"
     >
-      {theme === 'light' ? '🌙' : '☀️'}
+      {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
     </Button>
   );
 };

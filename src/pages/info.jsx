@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Smile, Sun, Shield } from 'lucide-react';
+import { Link } from "react-router-dom";
 
 const customStyles = `
   body {
@@ -128,7 +130,9 @@ const Info = () => {
                                 className="border-2 border-logo-primary !border-t-0 !border-b-0 !border-r-0 !shadow-none"
                             />
                             <h1 className="text-2xl font-bold font-serif logo-text-color">
-                                PsyMitrix
+                                <Link to='/'>
+                                    PsyMitrix
+                                </Link>
                             </h1>
                         </div>
                         <div className="hidden md:flex items-center space-x-8">
@@ -182,17 +186,17 @@ const Info = () => {
                         <div className="grid md:grid-cols-3 gap-8 text-center">
                             {[
                                 {
-                                    emoji: "😌",
+                                    icon: Smile,
                                     title: "Evoking Calmness",
                                     text: "Gentle lines and soft colors create a peaceful, secure atmosphere.",
                                 },
                                 {
-                                    emoji: "☀️",
+                                    icon: Sun,
                                     title: "Communicating Positivity",
                                     text: "Warm tones convey hope, optimism, and new beginnings.",
                                 },
                                 {
-                                    emoji: "🛡️",
+                                    icon: Shield,
                                     title: "Establishing Trust",
                                     text: "Balanced typography and grounded tones reinforce integrity and care.",
                                 },
@@ -201,7 +205,9 @@ const Info = () => {
                                     key={i}
                                     className="bg-[#F4F4F2] p-8 rounded-lg shadow-sm hover:shadow-md transition"
                                 >
-                                    <div className="text-4xl mb-4">{item.emoji}</div>
+                                    <div className="text-4xl mb-4 text-logo-primary">
+                                        <item.icon size={40} />
+                                    </div>
                                     <h3 className="text-xl font-serif font-semibold logo-text-color mb-2">
                                         {item.title}
                                     </h3>

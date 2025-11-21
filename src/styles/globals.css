@@ -175,3 +175,37 @@
     border-top: 1px solid rgba(225,167,158,0.32);
   }
 }
+
+
+.relief-cursor {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--light-primary); /* Use primary color for light theme */
+  box-shadow: 0 0 25px var(--light-primary);
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: breathe 3s ease-in-out infinite;
+  z-index: 9999;
+  opacity: 0.6; /* Make it slightly transparent */
+  transition: width 0.2s ease-out, height 0.2s ease-out, opacity 0.2s ease-out, background 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.dark .relief-cursor {
+  background: var(--dark-primary); /* Use primary color for dark theme */
+  box-shadow: 0 0 25px var(--dark-primary);
+}
+
+@keyframes breathe {
+  0%   { transform: translate(-50%, -50%) scale(1); }
+  50%  { transform: translate(-50%, -50%) scale(1.15); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Hide custom cursor on small screens (e.g., phones) */
+@media (max-width: 639px) { /* Tailwind's 'sm' breakpoint is 640px */
+  .relief-cursor {
+    display: none !important;
+  }
+}

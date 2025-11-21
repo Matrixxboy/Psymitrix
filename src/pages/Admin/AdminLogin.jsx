@@ -60,8 +60,8 @@ const AdminLogin = () => {
         <div className="glass dark:glass-dark rounded-2xl p-8 shadow-xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-light-primary dark:text-dark-primary mb-2">
-              🔐 Admin Portal
+            <h1 className="text-4xl font-bold text-light-primary dark:text-dark-primary mb-2 flex items-center justify-center gap-2">
+              <Lock size={36} /> Admin Portal
             </h1>
             <p className="text-light-body dark:text-dark-body text-sm">
               Secure access to PsyMitrix Admin Dashboard
@@ -146,8 +146,8 @@ const AdminLogin = () => {
 
           {/* Footer */}
           <div className="mt-8 pt-6 border-t border-light-secondary dark:border-dark-secondary text-center">
-            <p className="text-xs text-light-body dark:text-dark-body">
-              🔒 This is a secure admin area. Unauthorized access is prohibited.
+            <p className="text-xs text-light-body dark:text-dark-body flex items-center justify-center gap-1">
+              <Lock size={12} /> This is a secure admin area. Unauthorized access is prohibited.
             </p>
           </div>
         </div>

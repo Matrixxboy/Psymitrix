@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { FiWind, FiZap, FiArrowLeft } from 'react-icons/fi';   // feather icons
+import { FiWind, FiZap, FiArrowLeft, FiHeart } from 'react-icons/fi';   // feather icons
 import { FaPuzzlePiece, FaSpa } from 'react-icons/fa';                // font awesome
 import BreathingExercise from './mini-games/BreathingExercise';
 import FocusPuzzle from './mini-games/FocusPuzzle';
 import MemoryChallenge from './mini-games/MemoryChallenge';
 import GuidedMeditation from './mini-games/GuidedMeditation';
+import AffirmationAscent from './mini-games/AffirmationAscent'; // Import the new game
 
 const GamesPage = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -23,6 +24,13 @@ const GamesPage = () => {
       description: 'A guided meditation to help you relax and find inner peace.',
       icon: <FaSpa />,
       component: <GuidedMeditation />
+    },
+    {
+      id: 'affirmation-ascent',
+      title: 'Affirmation Ascent',
+      description: 'Engage with positive affirmations to boost your mood and self-esteem.',
+      icon: <FiHeart />, // Using FiHeart as defined in AffirmationAscent.jsx
+      component: <AffirmationAscent />
     },
     // {
     //   id: 'focus',

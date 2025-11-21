@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import {React,  useState } from 'react';
 import { motion } from 'framer-motion';
+import { Smile, BarChart2 } from 'lucide-react'; // Import Lucide icons
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 const AssessmentAnalytics = ({ data, moodData }) => {
@@ -89,8 +90,8 @@ const AssessmentAnalytics = ({ data, moodData }) => {
 
       {/* Mood Distribution Chart */}
       <div className="glass dark:glass-dark rounded-xl p-6">
-        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4">
-          😊 Mood Distribution (All Time)
+        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4 flex items-center gap-2">
+          <Smile size={20} /> Mood Distribution (All Time)
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -128,8 +129,8 @@ const AssessmentAnalytics = ({ data, moodData }) => {
 
           {/* Mood Statistics */}
           <div>
-            <h4 className="text-md font-semibold text-light-primary dark:text-dark-primary mb-4">
-              📊 Mood Statistics
+            <h4 className="text-md font-semibold text-light-primary dark:text-dark-primary mb-4 flex items-center gap-2">
+              <BarChart2 size={18} /> Mood Statistics
             </h4>
             
             <div className="space-y-3">

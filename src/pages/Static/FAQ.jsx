@@ -52,7 +52,7 @@ const FaqItem = ({ faq }) => {
 };
 
 const FAQ = () => (
-  <div className="min-h-screen p-6 md:p-10 bg-light-background dark:bg-dark-background">
+  <div className="min-h-screen p-6 md:p-10 bg-light-background dark:bg-dark-background mt-[50px]">
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-10">
         <h1 className="text-4xl font-extrabold text-light-headings dark:text-dark-headings tracking-tight">Frequently Asked Questions</h1>

@@ -21,6 +21,9 @@ import TermsOfService from '../pages/Static/TermsOfService';
 import Info from '../pages/info';
 import AdminLogin from '../pages/Admin/AdminLogin';
 import AdminDashboard from '../pages/Admin/AdminDashboard';
+import BlogPage from '../pages/Blogs/BlogPage';
+import BlogPostPage from '../pages/Blogs/BlogPostPage';
+import AffirmationAscent from '../pages/Games/mini-games/AffirmationAscent';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -91,6 +94,19 @@ const AppRoutes = () => {
           }
         />
         
+        <Route
+          path="/blog"
+          element={
+              <BlogPage />
+          }
+        />
+        <Route
+          path="/blog/:slug"
+          element={
+              <BlogPostPage />
+          }
+        />
+        
         {/* Protected Routes */}
         <Route element={<Layout />}>
           <Route 
@@ -130,6 +146,14 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <GamesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/games/affirmation-ascent" 
+            element={
+              <ProtectedRoute>
+                <AffirmationAscent />
               </ProtectedRoute>
             } 
           />

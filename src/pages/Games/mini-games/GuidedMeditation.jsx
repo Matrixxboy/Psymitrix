@@ -62,12 +62,12 @@ const GuidedMeditation = () => {
   ];
 
   const motivationalMessages = [
-    "You're doing great 🌸",
-    "Stay with your breath 🌿",
-    "Peace flows through you 🌊",
-    "You are safe and loved 💫",
-    "Let go... just be ☁️",
-    "You’re calm, centered, and present 🕊️",
+    "You're doing great",
+    "Stay with your breath",
+    "Peace flows through you",
+    "You are safe and loved",
+    "Let go... just be",
+    "You’re calm, centered, and present",
   ];
 
   // Setup speech + music
@@ -170,7 +170,7 @@ const GuidedMeditation = () => {
     }
 
     setElapsedTime(0);
-    setMessage("Take your time... breathe and relax 🌿");
+    setMessage("Take your time... breathe and relax");
   };
 
   const handleSkip = () => {

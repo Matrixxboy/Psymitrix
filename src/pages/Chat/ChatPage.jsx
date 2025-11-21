@@ -290,7 +290,9 @@ const ChatPage = () => {
 
                       {m.analysis?.insights && m.sender === 'Shvayam' && (
                         <div className="mt-2 pt-2 border-t border-white/20">
-                          <p className="text-xs font-semibold mb-1">💡 Insight</p>
+                          <p className="text-xs font-semibold mb-1 flex items-center gap-1">
+                            <Lightbulb className="w-3 h-3" /> Insight
+                          </p>
                           <p className="text-xs">{m.analysis.insights}</p>
                         </div>
                       )}

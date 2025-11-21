@@ -133,186 +133,98 @@ const pillarHighlights = [
   },
 ];
 
-const blogHighlights = [
-  {
-    slug: 'ai-psychiatrist-introduction',
-    title: 'How PsyMitrix balances AI psychiatry with human empathy',
-    excerpt:
-      'Explore the blended care framework that keeps Shvayam clinically anchored, culturally aware, and deeply compassionate in every conversation.',
-    readingTime: '6 min read',
-  },
-  {
-    slug: 'safety-guardrails',
-    title: 'Safety guardrails every mental health AI must follow',
-    excerpt:
-      'We share the escalation ladders, bias audits, and human-in-the-loop reviews that protect your wellbeing 24/7.',
-    readingTime: '5 min read',
-  },
-  {
-    slug: 'building-support-plan',
-    title: 'Designing your personalised support plan in 72 hours',
-    excerpt:
-      'See how assessments, journaling, and guided practices converge into an actionable roadmap for lasting growth.',
-    readingTime: '7 min read',
-  },
-];
+import blogPosts from '../data/blogData'; // Import blogPosts data
+
+const blogHighlights = blogPosts.slice(0, 3); // Get the first 3 blog posts for highlights
 
 const Home = () => {
-  const { user } = useAuth();
   const gradientText = 'text-transparent bg-clip-text bg-gradient-to-r from-light-primary to-light-secondary dark:from-dark-primary dark:to-dark-secondary';
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
   };
 
-  const userProgress = user ? 75 : 25;
-  const sessionsCompleted = user ? 12 : 0;
-  const assessmentsTaken = user ? 3 : 0;
-  const moodScore = user ? 'Balanced' : 'N/A';
-  const achievementsUnlocked = user ? 5 : 0;
-
   return (
     <div className="min-h-screen text-light-body dark:text-dark-body overflow-hidden relative">
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 relative z-10">
-        <Section className=" grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+        <Section className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+
+          {/* LEFT SIDE — Badge + GlassCard */}
           <motion.div
             className="text-center lg:text-left"
             variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
           >
+            {/* Badge */}
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-xm md:text-sm lg:text-sm font-medium text-light-headings dark:text-dark-headings mb-6 "
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-xm md:text-sm lg:text-sm font-medium text-light-headings dark:text-dark-headings mb-6"
             >
               <FiHeart className="text-light-primary dark:text-dark-primary text-2xl" />
               Trusted AI psychiatrist for guided, human-centred care
             </motion.div>
-            <motion.h1 variants={fadeInUp} className={`text-5xl md:text-6xl pt-auto font-bold mb-6 ${gradientText}`}>
-              PsyMitrix: Your Always-On Partner Platform for Mental Wellness.
-            </motion.h1>
-            
-            <motion.p
-              variants={fadeInUp}
-              className="text-xl md:text-2xl text-light-body dark:text-dark-body max-w-xl mx-auto mt-2 lg:mx-0 mb-10 leading-relaxed"
-            >
-              Shvayam listens with empathy, surfaces clinically-backed insights, and keeps you connected to the practices and people who help you heal.
-            </motion.p>
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-start justify-center">
-              <PrimaryButton to="/chat">
-                Start your first chat session <FiArrowRight className="inline ml-2" />
-              </PrimaryButton>
-              <Link to="/blog" className="text-light-primary dark:text-dark-primary font-semibold hover:underline">
-                Explore our clinical journal
-              </Link>
+
+            {/* Glass Card */}
+            <motion.div variants={fadeInUp}>
+              <GlassCard className="p-6 lg:p-8 text-center backdrop-blur-xl">
+                <div className="flex flex-col items-center">
+                  <img
+                    src="/MainImages/IconPNG.png"
+                    alt="PsyMitrix Logo"
+                    className="h-60 w-60 mb-6 drop-shadow-2xl animate-float"
+                  />
+
+                  <h2 className="text-light-primary dark:text-dark-primary text-3xl font-bold tracking-wide">
+                    Your Personal Wellness Hub
+                  </h2>
+
+                  <p className="mt-3 mb-2 max-w-md mx-auto text-light-body/80 dark:text-dark-body/80 leading-relaxed">
+                    Powered by
+                    <span className="px-1 font-semibold text-light-headings dark:text-dark-headings">
+                      AI-driven emotional intelligence,
+                    </span>
+                    PsyMitrix guides you through a calm and intuitive mental-wellness journey.
+                  </p>
+                </div>
+              </GlassCard>
             </motion.div>
           </motion.div>
 
-          <motion.div variants={fadeInUp}>
-            <GlassCard className="p-6 lg:p-8">
-              <div className=" p-6 rounded-2xl space-y-6">
-                <div>
-                  <p className="font-bold text-xl md:text-2xl text-light-headings dark:text-dark-headings mb-2">
-                    👋 Welcome back, {user ? user.firstName : 'Explorer'}
-                  </p>
-                  <p className="text-sm text-light-body/80 dark:text-dark-body/80">
-                    Your therapeutic companion is ready with new guidance tailored to today’s mood.
-                  </p>
-                </div>
+          {/* RIGHT SIDE — Hero Text */}
+          <div className="flex flex-col justify-center lg:pl-6">
+            <motion.h1
+              variants={fadeInUp}
+              className={`text-5xl md:text-6xl font-bold tracking-wide mb-6 text-center lg:text-left ${gradientText}`}
+            >
+              PsyMitrix: Your Always-On Partner Platform for Mental Wellness.
+            </motion.h1>
 
-                <div>
-                  <h4 className="text-md font-semibold text-light-headings dark:text-dark-headings mb-2">This week at a glance</h4>
-                  <ProgressBar progress={userProgress} label="Journey" />
-                  <p className="mt-2 text-xs text-light-body dark:text-dark-body">
-                    {userProgress}% of your personalised care plan complete — gentle reminders are queued.
-                  </p>
-                </div>
+            <motion.p
+              variants={fadeInUp}
+              className="text-xl md:text-2xl text-light-body dark:text-dark-body max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed text-center lg:text-left"
+            >
+              Shvayam listens with empathy, surfaces clinically-backed insights, and keeps you
+              connected to the practices and people who help you heal.
+            </motion.p>
 
-                <div className="grid grid-cols-2 gap-4 items-center">
-                  {/* <SummaryCard title="Sessions" value={user.sessions_chat_history.length} icon={FiMessageCircle} /> */}
-                  {/* <SummaryCard title="Assessments" value={user.sessions.length} icon={FiClipboard} /> */}
-                  <SummaryCard title="Mood Score" value={moodScore} icon={FiHeart} />
-                  {/* <SummaryCard title="Milestones" value={user.achievements.length} icon={FiAward} /> */}
-                </div>
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col gap-4 items-center justify-center lg:justify-start"
+            >
+              <PrimaryButton to="/chat">
+                Start your first chat session <FiArrowRight className="inline ml-2" />
+              </PrimaryButton>
 
-                <ul className="space-y-3 text-sm text-left text-light-body dark:text-dark-body">
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 flex h-8 w-14 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
-                      <FiShield />
-                    </span>
-                    <span className='z-10'>
-                      <strong >Clinical guardrails:</strong> Crisis detection routes you to regional hotlines and notifies your trusted contacts when you consent.
-                    </span>
-                  </li>
-                  {/* <li className="flex items-start gap-3">
-                    <span className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
-                      <FiAlertCircle />
-                    </span>
-                    <span>
-                    </span>
-                  </li> */}
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 flex h-8 w-14 items-center justify-center rounded-full bg-light-secondary/20 dark:bg-dark-secondary/20 text-light-primary dark:text-dark-primary">
-                      <FiBookOpen />
-                    </span>
-                    <span>
-                      <strong>Shared care summaries:</strong> Export progress notes to therapists, psychiatrists, or family supporters in one secure click.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </GlassCard>
-          </motion.div>
-        </Section>
-
-        <Section className='my-20 md:my-28'>
-          <motion.h2 variants={fadeInUp} className={`text-4xl font-bold mb-4 text-center ${gradientText}`}>
-            Designed as a full-spectrum mental health companion
-          </motion.h2>
-          <motion.p
-            variants={fadeInUp}
-            className="max-w-3xl mx-auto text-xl text-center mb-12 text-light-body dark:text-dark-body"
-          >
-            PsyMitrix mirrors the calming reassurance of a clinician with the precision of real-time data, turning each conversation into progress you can feel.
-          </motion.p>
-          <motion.div variants={fadeInUp} className="grid gap-8 md:grid-cols-3">
-            {featureHighlights.map((feature) => (
-              <motion.div key={feature.title} variants={fadeInUp}>
-                <FeatureCard {...feature} />
-              </motion.div>
-            ))}
-          </motion.div>
-        </Section>
-
-        <Section className='my-20 md:my-28'>
-          <motion.h2 variants={fadeInUp} className={`text-4xl font-bold  mb-4 text-center ${gradientText}`}>
-            How PsyMitrix guides every session
-          </motion.h2>
-          <motion.p
-            variants={fadeInUp}
-            className="max-w-2xl mx-auto text-center text-lg text-light-body dark:text-dark-body mb-12"
-          >
-            A therapeutic arc crafted with clinicians: understand your story, interpret the signals, then support meaningful change.
-          </motion.p>
-          <div className="grid gap-8 md:grid-cols-3">
-            {journeySteps.map((step, index) => (
-              <motion.div key={step.title} variants={fadeInUp}>
-                <GlassCard className="p-6 h-full">
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-light-secondary/25 dark:bg-dark-secondary/25 text-light-primary dark:text-dark-primary text-lg font-semibold">
-                      {index + 1}
-                    </span>
-                    <div className="text-3xl text-light-primary dark:text-dark-primary">
-                      <step.icon />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-semibold text-light-headings dark:text-dark-headings mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-light-body dark:text-dark-body leading-relaxed">{step.description}</p>
-                </GlassCard>
-              </motion.div>
-            ))}
+              <Link
+                to="/blog"
+                className="text-light-primary dark:text-dark-primary font-semibold hover:underline"
+              >
+                Explore our clinical journal
+              </Link>
+            </motion.div>
           </div>
+
         </Section>
+
 
         <Section className="grid lg:grid-cols-2 gap-12 items-center text-center">
           <motion.div variants={fadeInUp} className="space-y-6 my-20 md:my-28">
@@ -377,7 +289,7 @@ const Home = () => {
           <div className="grid gap-8 md:grid-cols-3">
             {blogHighlights.map((post) => (
               <motion.div key={post.slug} variants={fadeInUp}>
-                <Link to={`/blog#${post.slug}`}>
+                <Link to={`/blog/${post.slug}`}>
                   <GlassCard className="h-full p-8 transition-transform duration-300 hover:-translate-y-1">
                     <div className="flex items-center gap-2 text-sm font-medium text-light-primary dark:text-dark-primary mb-4">
                       <FiBookOpen />

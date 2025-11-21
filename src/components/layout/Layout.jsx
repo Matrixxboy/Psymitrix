@@ -69,7 +69,8 @@ const Layout = () => {
       {/* Navbar (use the .glass utility) */}
       <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4 m-5" style={{ overflow: 'visible' }}>
         <div className="relative max-w-7xl mx-auto flex justify-between items-center">
-          <Link to="/" className="text-2xl font-extrabold tracking-tight text-light-headings dark:text-dark-headings">
+          <Link to="/" className="flex items-center text-2xl font-extrabold tracking-tight text-light-headings dark:text-dark-headings">
+            <img src="/MainImages/IconPNG.png" alt="PsyMitrix Logo" className="h-14 w-auto  mr-1" />
             <span className="inline-block transform will-change-transform [text-shadow:0_2px_12px_rgba(108,99,255,0.35)]">PsyMitrix</span>
           </Link>
 
@@ -120,6 +121,7 @@ const Layout = () => {
               <li><Link to="/games">Games</Link></li>
               <li><Link to="/progress">Progress</Link></li>
               <li><Link to="/profile">Profile</Link></li>
+              <li><Link to="/blog">Blogs</Link></li>
             </ul>
           </div>
           {/* Support */}

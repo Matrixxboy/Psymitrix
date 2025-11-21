@@ -4,10 +4,12 @@ import { AuthProvider } from './providers/AuthProvider';
 import { ThemeProvider } from './providers/ThemeProvider';
 import AppRoutes from './routes/AppRoutes';
 import { Toaster } from 'react-hot-toast';
+import CustomCursor from './components/custom/CustomCursor';
 
 function App() {
   return (
     <ThemeProvider>
+      <CustomCursor />
       <AuthProvider>
         <div className="min-h-screen">
           <BrowserRouter

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Trash2, Search, Loader, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, Trash2, Search, Loader, AlertCircle, CheckCircle, Folder, Book, FileText } from 'lucide-react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 
@@ -154,8 +154,8 @@ const VectorDBManager = () => {
     >
       {/* Upload Section */}
       <div className="glass dark:glass-dark rounded-xl p-6">
-        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4">
-          📤 Upload Documents to Knowledge Base
+        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4 flex items-center gap-2">
+          <Upload size={20} /> Upload Documents to Knowledge Base
         </h3>
         
         <p className="text-light-body dark:text-dark-body text-sm mb-4">
@@ -236,8 +236,8 @@ const VectorDBManager = () => {
 
       {/* Search Section */}
       <div className="glass dark:glass-dark rounded-xl p-6">
-        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4">
-          🔍 Search Knowledge Base
+        <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary mb-4 flex items-center gap-2">
+          <Search size={20} /> Search Knowledge Base
         </h3>
 
         <div className="flex gap-3">
@@ -268,8 +268,8 @@ const VectorDBManager = () => {
               {searchResults.results.map((result, idx) => (
                 <div key={idx} className="p-4 bg-light-secondary/10 dark:bg-dark-secondary/10 rounded-lg">
                   <p className="text-sm text-light-body dark:text-dark-body">{result.content}</p>
-                  <p className="text-xs text-light-accent dark:text-dark-accent mt-2">
-                    📁 {result.source} (Chunk {result.chunk_index + 1})
+                  <p className="text-xs text-light-accent dark:text-dark-accent mt-2 flex items-center gap-1">
+                    <Folder size={14} /> {result.source} (Chunk {result.chunk_index + 1})
                   </p>
                 </div>
               ))}
@@ -281,8 +281,8 @@ const VectorDBManager = () => {
       {/* Documents List Section */}
       <div className="glass dark:glass-dark rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary">
-            📚 Knowledge Base Documents
+          <h3 className="text-lg font-bold text-light-primary dark:text-dark-primary flex items-center gap-2">
+            <Book size={20} /> Knowledge Base Documents
           </h3>
           {documents && documents.total_documents > 0 && (
             <button
@@ -319,8 +319,8 @@ const VectorDBManager = () => {
               {Object.entries(documents.documents).map(([docName, docInfo]) => (
                 <div key={docName} className="p-4 bg-light-secondary/10 dark:bg-dark-secondary/10 rounded-lg flex items-center justify-between hover:shadow-md transition-all">
                   <div>
-                    <p className="font-semibold text-light-primary dark:text-dark-primary text-sm">
-                      📄 {docName}
+                    <p className="font-semibold text-light-primary dark:text-dark-primary text-sm flex items-center gap-1">
+                      <FileText size={16} /> {docName}
                     </p>
                     <p className="text-xs text-light-body dark:text-dark-body mt-1">
                       Type: <span className="font-semibold">{docInfo.type}</span> | 
