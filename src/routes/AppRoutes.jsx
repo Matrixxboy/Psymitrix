@@ -94,29 +94,19 @@ const AppRoutes = () => {
           }
         />
         
-        <Route
-          path="/blog"
-          element={
-              <BlogPage />
-          }
-        />
-        <Route
-          path="/blog/:slug"
-          element={
-              <BlogPostPage />
-          }
-        />
-        
-        {/* Protected Routes */}
+        {/* Routes accessible to everyone */}
         <Route element={<Layout />}>
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:slug" element={<BlogPostPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+        
+          {/* Protected Routes */}
           <Route 
             path="/dashboard" 
             element={
@@ -180,56 +170,6 @@ const AppRoutes = () => {
                 <ProfilePage />
               </ProtectedRoute>
             }
-          />
-
-          {/* Static Pages */}
-          <Route 
-            path="/about" 
-            element={
-              <ProtectedRoute>
-                <About />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/contact" 
-            element={
-              <ProtectedRoute>
-                <Contact />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/faq" 
-            element={
-              <ProtectedRoute>
-                <FAQ />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/help" 
-            element={
-              <ProtectedRoute>
-                <HelpCenter />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/privacy" 
-            element={
-              <ProtectedRoute>
-                <PrivacyPolicy />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/terms" 
-            element={
-                <ProtectedRoute>
-                  <TermsOfService />
-                </ProtectedRoute>
-            } 
           />
         </Route>
         

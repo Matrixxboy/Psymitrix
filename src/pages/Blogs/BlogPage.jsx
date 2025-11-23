@@ -23,13 +23,6 @@ const BlogPage = () => {
   return (
     <div className="min-h-screen text-light-body dark:text-dark-body overflow-hidden relative">
       <main className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 relative z-10">
-          <Link
-                to="/"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-light-headings dark:text-dark-headings bg-light-secondary/10 dark:bg-dark-secondary/10 hover:bg-light-secondary/20 dark:hover:bg-dark-secondary/20 transition-colors"
-              >
-                <Home className="w-4 h-4" />
-                <span>Home</span>
-              </Link>
         <motion.header
           initial="hidden"
           animate="visible"

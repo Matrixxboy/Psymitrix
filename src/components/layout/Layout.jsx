@@ -4,6 +4,7 @@ import { Link, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import ThemeToggler from '../custom/ThemeToggler';
 import NotificationIcon from '../ui/NotificationIcon';
+import LoginPrompt from './LoginPrompt';
 
 const Burger = ({ open, setOpen }) => (
   <button
@@ -21,32 +22,40 @@ const Burger = ({ open, setOpen }) => (
   </button>
 );
 
-const MobileMenuContent = ({ onClose, user, logout }) => (
+const MobileMenuContent = ({ onClose, user, logout, isLoggedIn }) => (
   <div className="glass-panel mt-10">
     <div className="flex flex-col items-start p-2 space-y-3 ">
-      <Link onClick={onClose} to="/dashboard" className="w-full">Dashboard</Link>
-      <Link onClick={onClose} to="/chat" className="w-full">AI Chat</Link>
-      <Link onClick={onClose} to="/assessments" className="w-full">Assessments</Link>
-      <Link onClick={onClose} to="/games" className="w-full">Games</Link>
-      <Link onClick={onClose} to="/progress" className="w-full">Progress</Link>
-      <Link onClick={onClose} to="/reports" className="w-full">Reports</Link>
-      <Link onClick={onClose} to="/profile" className="w-full">Profile</Link>
-
-      <hr className="w-full border-white/20 dark:border-gray-700/50" />
-      <span className="text-light-body dark:text-dark-body">{user?.name}</span>
-
-      <button
-        onClick={() => { logout(); onClose(); }}
-        className="px-4 py-2 w-full rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all"
-      >
-        Logout
-      </button>
+      {isLoggedIn ? (
+        <>
+          <Link onClick={onClose} to="/dashboard" className="w-full">Dashboard</Link>
+          <Link onClick={onClose} to="/chat" className="w-full">AI Chat</Link>
+          <Link onClick={onClose} to="/assessments" className="w-full">Assessments</Link>
+          <Link onClick={onClose} to="/games" className="w-full">Games</Link>
+          <Link onClick={onClose} to="/progress" className="w-full">Progress</Link>
+          <Link onClick={onClose} to="/reports" className="w-full">Reports</Link>
+          <Link onClick={onClose} to="/profile" className="w-full">Profile</Link>
+          <hr className="w-full border-white/20 dark:border-gray-700/50" />
+          <span className="text-light-body dark:text-dark-body">{user?.name}</span>
+          <button
+            onClick={() => { logout(); onClose(); }}
+            className="px-4 py-2 w-full rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all"
+          >
+            Logout
+          </button>
+        </>
+      ) : (
+        <>
+          <Link onClick={onClose} to="/login" className="w-full">Login</Link>
+          <Link onClick={onClose} to="/blog" className="w-full">Blog</Link>
+          <Link onClick={onClose} to="/about" className="w-full">About</Link>
+        </>
+      )}
     </div>
   </div>
 );
 
-const Layout = () => {
-  const { user, logout } = useAuth();
+const Layout = ({ children }) => {
+  const { user, logout, isLoggedIn } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Render portal when menuOpen
@@ -58,7 +67,7 @@ const Layout = () => {
         <div className="glass-overlay" onClick={() => setMenuOpen(false)} />
 
         {/* menu panel on top of overlay */}
-        <MobileMenuContent onClose={() => setMenuOpen(false)} user={user} logout={logout} />
+        <MobileMenuContent onClose={() => setMenuOpen(false)} user={user} logout={logout} isLoggedIn={isLoggedIn} />
       </div>,
       document.body
     );
@@ -76,21 +85,37 @@ const Layout = () => {
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/dashboard" className="hover:text-light-primary dark:hover:text-dark-primary">Dashboard</Link>
-            <Link to="/chat" className="hover:text-light-primary dark:hover:text-dark-primary">AI Chat</Link>
-            <Link to="/assessments" className="hover:text-light-primary dark:hover:text-dark-primary">Assessments</Link>
-            <Link to="/games" className="hover:text-light-primary dark:hover:text-dark-primary">Games</Link>
-            <Link to="/progress" className="hover:text-light-primary dark:hover:text-dark-primary">Progress</Link>
-            <Link to="/reports" className="hover:text-light-primary dark:hover:text-dark-primary">Reports</Link>
-            <Link to="/profile" className="hover:text-light-primary dark:hover:text-dark-primary">Profile</Link>
+            {isLoggedIn ? (
+              <>
+                <Link to="/dashboard" className="hover:text-light-primary dark:hover:text-dark-primary">Dashboard</Link>
+                <Link to="/chat" className="hover:text-light-primary dark:hover:text-dark-primary">AI Chat</Link>
+                <Link to="/assessments" className="hover:text-light-primary dark:hover:text-dark-primary">Assessments</Link>
+                <Link to="/games" className="hover:text-light-primary dark:hover:text-dark-primary">Games</Link>
+                <Link to="/progress" className="hover:text-light-primary dark:hover:text-dark-primary">Progress</Link>
+                <Link to="/reports" className="hover:text-light-primary dark:hover:text-dark-primary">Reports</Link>
+                <Link to="/profile" className="hover:text-light-primary dark:hover:text-dark-primary">Profile</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/blog" className="hover:text-light-primary dark:hover:text-dark-primary">Blog</Link>
+                <Link to="/about" className="hover:text-light-primary dark:hover:text-dark-primary">About</Link>
+                <Link to="/contact" className="hover:text-light-primary dark:hover:text-dark-primary">Contact</Link>
+              </>
+            )}
           </div>
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             <ThemeToggler />
-            <NotificationIcon />
-            <span className="hidden sm:block text-light-body dark:text-dark-body">{user?.name}</span>
-            <button onClick={logout} className="hidden sm:block px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">Logout</button>
+            {isLoggedIn && <NotificationIcon />}
+            {isLoggedIn ? (
+              <>
+                <span className="hidden sm:block text-light-body dark:text-dark-body">{user?.name}</span>
+                <button onClick={logout} className="hidden sm:block px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">Logout</button>
+              </>
+            ) : (
+              <Link to="/login" className="hidden sm:block px-4 py-2 rounded-lg bg-light-primary dark:bg-dark-primary text-white hover:opacity-90 transition-all">Login</Link>
+            )}
             <Burger open={menuOpen} setOpen={setMenuOpen} />
           </div>
         </div>
@@ -102,7 +127,10 @@ const Layout = () => {
       {/* Main Content (with top padding to account for fixed nav) */}
       <main className="flex-grow pt-16">
         <Outlet />
+        {children}
       </main>
+
+      <LoginPrompt />
 
       {/* Footer (unchanged) */}
       <footer className="bg-white/50 dark:bg-white/5 backdrop-blur-xl border-t border-white/30 dark:border-white/10 shadow-lg  p-8">
@@ -116,7 +144,7 @@ const Layout = () => {
           <div>
             <h4 className="text-lg font-semibold text-light-headings dark:text-dark-headings mb-4">Navigation</h4>
             <ul className="space-y-2">
-              <li><Link to="/dashboard">Dashboard</Link></li>
+              <li><Link to={isLoggedIn ? "/dashboard" : "/"}>Dashboard</Link></li>
               <li><Link to="/assessments">Assessments</Link></li>
               <li><Link to="/games">Games</Link></li>
               <li><Link to="/progress">Progress</Link></li>
