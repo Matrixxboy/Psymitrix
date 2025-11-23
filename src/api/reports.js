@@ -3,9 +3,9 @@ import api from './index';
 const AI_REPORTS_BASE = '/ai_report';
 
 export const reportsAPI = {
-  generateReport: async () => {
+  generateReport: async ({ report_type }) => {
     try {
-      const response = await api.post(`${AI_REPORTS_BASE}/ai_generate_report`, {}, {
+      const response = await api.post(`${AI_REPORTS_BASE}/ai_generate_report`, { report_type }, {
         responseType: 'blob', // Important for file downloads
       });
 
@@ -16,7 +16,7 @@ export const reportsAPI = {
 
       // Extract filename from content-disposition header
       const contentDisposition = response.headers['content-disposition'];
-      let filename = `personality_base_report.pdf`;
+      let filename = `${report_type}_report.pdf`;
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
         if (filenameMatch.length > 1) {

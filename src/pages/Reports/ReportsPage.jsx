@@ -17,6 +17,7 @@ const ReportsPage = () => {
   const [aiInsights, setAiInsights] = useState(null);
   const [recommendations, setRecommendations] = useState(null);
   const [timeframe, setTimeframe] = useState('month');
+  const [reportType, setReportType] = useState('personality_traits');
 
   useEffect(() => {
     loadAllData();
@@ -52,7 +53,7 @@ const ReportsPage = () => {
   const handleGenerateReport = async () => {
     try {
       setGenerating(true);
-      const data = await reportsAPI.generateReport();
+      const data = await reportsAPI.generateReport({ report_type: reportType });
       setReportFile(data);
     } catch (err) {
       console.error('Failed to generate report:', err);
@@ -88,6 +89,29 @@ const ReportsPage = () => {
       </div>
     );
   }
+
+  const reportOptions = [
+    {
+      id: 'personality_traits',
+      name: 'Personality Traits',
+      description: 'Insights into your core personality based on interactions.',
+    },
+    {
+      id: 'mental_health_insights',
+      name: 'Mental Health Insights',
+      description: 'Analysis of mood, anxiety, and depression scores.',
+    },
+    {
+      id: 'weekly_progress_summary',
+      name: 'Weekly Progress Summary',
+      description: 'A summary of your activity and progress for the week.',
+    },
+    {
+      id: 'full_wellness_profile',
+      name: 'Full Wellness Profile',
+      description: 'A comprehensive report including all available data.',
+    },
+  ];
 
   return (
     <div className="min-h-screen p-4 md:p-8 mt-[50px]">
@@ -146,6 +170,26 @@ const ReportsPage = () => {
             <p className="text-light-body dark:text-dark-body mb-6">
               Generate a detailed PDF report with your mental health analysis, mood trends, assessment results, and professional recommendations. Perfect for sharing with your healthcare provider.
             </p>
+
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-light-headings dark:text-dark-headings mb-3">Select Report Type:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {reportOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => setReportType(option.id)}
+                    className={`p-4 rounded-lg text-left transition-all duration-300 ${
+                      reportType === option.id
+                        ? 'bg-light-primary/20 dark:bg-dark-primary/20 border-light-primary dark:border-dark-primary'
+                        : 'bg-light-secondary/10 dark:bg-dark-secondary/10 border-transparent hover:bg-light-secondary/20'
+                    } border-2`}
+                  >
+                    <p className="font-semibold text-light-headings dark:text-dark-headings">{option.name}</p>
+                    <p className="text-sm text-light-body dark:text-dark-body">{option.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
             
             {reportFile && (
               <motion.div

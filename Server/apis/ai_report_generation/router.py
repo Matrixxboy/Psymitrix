@@ -2,6 +2,7 @@ import json
 from uuid import UUID
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from models.user_model import User
 from apis.auth.authentication import get_current_user
 from Database.db_connection import get_mongo_db
@@ -12,18 +13,30 @@ from .report_formate import generate_personality_pdf
 
 router = APIRouter(prefix="/ai_report", tags=["AI Report"])
 
+class ReportRequest(BaseModel):
+    report_type: str = "personality_traits"
+
 @router.post("/ai_generate_report")
 async def ai_report(
+    request: ReportRequest,
     current_user: User = Depends(get_current_user),
     db=Depends(get_mongo_db)
 ):
     try:
+        report_type = request.report_type
         username = f"{current_user.firstName} {current_user.lastName}"
-        filename = f"{username} - Personality Report.pdf"
-        report_data_str = await generate_report(current_user)
+        
+        filename = f"{username} - {report_type.replace('_', ' ').title()} Report.pdf"
+        
+        report_data_str = await generate_report(current_user, report_type)
         report_data = json.loads(report_data_str)
         
-        pdf_buffer = generate_personality_pdf(filename=filename,data=report_data,person_name=f"{current_user.firstName} {current_user.lastName}",generated_by=f"{current_user.firstName} {current_user.lastName}")
+        pdf_buffer = generate_personality_pdf(
+            filename=filename,
+            data=report_data,
+            person_name=f"{current_user.firstName} {current_user.lastName}",
+            generated_by=f"{current_user.firstName} {current_user.lastName}"
+        )
         
         headers = {
             'Content-Disposition': f'attachment; filename="{filename}"'
