@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field, EmailStr, HttpUrl, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, HttpUrl, PositiveInt, NonNegativeInt
 from typing import Optional, List
 from uuid import UUID, uuid4
 from datetime import datetime , date
@@ -263,9 +263,9 @@ class User(BaseModel):
     # user stats
     score: int = 0
     interactions: int = 0
-    streak: PositiveInt = 0
+    streak: NonNegativeInt = 0
     streak_updated_at: Optional[datetime] = None
-    longest_streak: PositiveInt = 0
+    longest_streak: NonNegativeInt = 0
     last_interaction: Optional[datetime] = None
     last_login: Optional[datetime] = None
     login_history: List[datetime] = []

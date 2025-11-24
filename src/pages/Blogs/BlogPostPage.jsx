@@ -78,7 +78,26 @@ const BlogPostPage = () => {
                 if (paragraph.startsWith('### ')) {
                   return <h3 key={index} className="text-2xl font-semibold text-light-headings dark:text-dark-headings mt-8 mb-4">{paragraph.substring(4)}</h3>;
                 }
-                return <p key={index}>{paragraph}</p>;
+                if (paragraph.startsWith('* ')) {
+                    return (
+                        <ul key={index} className="list-disc pl-5 space-y-2">
+                            {paragraph.split('\n').map((item, i) => (
+                                <li key={i}>{item.replace(/^\*\s*/, '').split(/(\*\*.*?\*\*)/g).map((part, j) => {
+                                    if (part.startsWith('**') && part.endsWith('**')) {
+                                        return <strong key={j}>{part.slice(2, -2)}</strong>;
+                                    }
+                                    return part;
+                                })}</li>
+                            ))}
+                        </ul>
+                    )
+                }
+                return <p key={index}>{paragraph.split(/(\*\*.*?\*\*)/g).map((part, i) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                        return <strong key={i}>{part.slice(2, -2)}</strong>;
+                    }
+                    return part;
+                })}</p>;
               })}
             </div>
           </GlassCard>
