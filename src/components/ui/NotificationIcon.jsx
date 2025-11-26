@@ -18,13 +18,21 @@ const NotificationIcon = () => {
     if (!user?.notifications_enabled) return;
 
     const fetchNotifications = async () => {
-      // Only show loader on initial fetch
       if (notifications.length === 0) {
         setLoading(true);
       }
       try {
         const response = await getNotifications();
-        const data = response?.data?.data?.notifications || [];
+        let data = response?.data?.data?.notifications || [];
+
+        // Check if profile is complete
+        const isProfileComplete = user?.firstName && user?.lastName && user?.age && user?.gender;
+
+        // If profile is complete, filter out the profile completion notification
+        if (isProfileComplete) {
+          data = data.filter(n => n.notification_name !== 'profile_completion');
+        }
+
         const unseenNotifications = data.filter((n) => !n.seen);
         setNotifications(unseenNotifications);
         setUnseenCount(unseenNotifications.length);
@@ -35,11 +43,11 @@ const NotificationIcon = () => {
       }
     };
 
-    fetchNotifications(); // Initial fetch
+    fetchNotifications();
 
-    const intervalId = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+    const intervalId = setInterval(fetchNotifications, 30000);
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    return () => clearInterval(intervalId);
   }, [user]);
 
   useEffect(() => {

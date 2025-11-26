@@ -12,7 +12,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { getAchievements } from '../../api/achievements';
 import { fetchUserProfile as getUser } from '../../api/auth'; // Assuming a getUser function exists in auth.js
 import { Line } from 'react-chartjs-2';
-import axios from 'axios';
+import api from '../../api';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -27,7 +27,6 @@ import {
 // Components
 import LineChart from '../../components/charts/LineChart';
 import RadarChart from '../../components/charts/RadarChart';
-import DonutChart from '../../components/charts/DonutChart';
 import Achievements from './Achievements';
 import DashboardSkeleton from '../Dashboard/sections/DashboardSkeleton';
 import ChartCard from '../Dashboard/ChartCard';
@@ -186,11 +185,10 @@ const ProgressPage = () => {
           moodEntries: filteredMoods.length,
         });
 
-        const headers = { Authorization: `Bearer ${localStorage.getItem('authToken')}` };
 
         // Fetch Wellness Balance
         try {
-          const wellnessResponse = await axios.get(`/api/v1/ai_analytics/wellness-balance`, { headers });
+          const wellnessResponse = await api.get(`/ai_analytics/wellness-balance`);
           if (wellnessResponse.data) {
             setWellnessBalance(wellnessResponse.data);
           }
@@ -200,7 +198,7 @@ const ProgressPage = () => {
 
         // Fetch Activity Breakdown
         try {
-          const activityResponse = await axios.get(`/api/v1/ai_analytics/activity-breakdown`, { headers });
+          const activityResponse = await api.get(`/ai_analytics/activity-breakdown`);
           if (activityResponse.data) {
             setActivityBreakdown(activityResponse.data);
           }

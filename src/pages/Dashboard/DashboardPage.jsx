@@ -2,12 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { FiBarChart2, FiActivity, FiCheckSquare, FiCalendar, FiZap, FiTrendingUp, FiBook } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '../../api';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  RadialLinearScale,
+  Filler,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
 import LineChart from '../../components/charts/LineChart';
 import RadarChart from '../../components/charts/RadarChart';
 import DonutChart from '../../components/charts/DonutChart';
 import HeatmapCalendar from '../../components/charts/HeatmapCalendar';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  RadialLinearScale,
+  Filler,
+  Tooltip,
+  Legend
+);
 
 import DashboardHeader from './sections/DashboardHeader';
 import PrimaryCTA from './sections/PrimaryCTA';
@@ -94,11 +120,9 @@ const DashboardPage = () => {
 
         setData(mapped);
 
-        const headers = { Authorization: `Bearer ${localStorage.getItem('authToken')}` };
-
         // Fetch Wellness Balance
         try {
-          const wellnessResponse = await axios.get(`/api/v1/ai_analytics/wellness-balance`, { headers });
+          const wellnessResponse = await api.get(`/ai_analytics/wellness-balance`);
           if (wellnessResponse.data) {
             setWellnessBalance(wellnessResponse.data);
           }
@@ -108,7 +132,7 @@ const DashboardPage = () => {
 
         // Fetch Activity Breakdown
         try {
-          const activityResponse = await axios.get(`/api/v1/ai_analytics/activity-breakdown`, { headers });
+          const activityResponse = await api.get(`/ai_analytics/activity-breakdown`);
           if (activityResponse.data) {
             setActivityBreakdown(activityResponse.data);
           }
@@ -118,7 +142,7 @@ const DashboardPage = () => {
 
         // Fetch AI insights
         try {
-          const insightsResponse = await axios.get(`/api/v1/ai_analytics/insights?timeframe=${timeframe}`, { headers });
+          const insightsResponse = await api.get(`/ai_analytics/insights?timeframe=${timeframe}`);
           if (insightsResponse.data?.data) {
             setAiInsights(insightsResponse.data.data);
           }
@@ -128,7 +152,7 @@ const DashboardPage = () => {
 
         // Fetch recommendations
         try {
-          const recsResponse = await axios.get(`/api/v1/recommendations/personalized`, { headers });
+          const recsResponse = await api.get(`/recommendations/personalized`);
           if (recsResponse.data?.data) {
             setRecommendations(recsResponse.data.data);
           }

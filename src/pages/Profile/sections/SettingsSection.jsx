@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FiBell, FiMoon, FiSun, FiTarget } from 'react-icons/fi';
 import Toggle from '../../../components/ui/Toggle';
 import { useTheme } from '../../../providers/ThemeProvider';
@@ -8,19 +8,25 @@ import { enableNotifications, disableNotifications } from '../../../api/notifica
 const SettingsSection = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, updateUser } = useAuth();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(user?.notifications_enabled || false);
 
   const handleNotificationsToggle = async () => {
-    console.log({ updateUser });
+    const newStatus = !notificationsEnabled;
+    setNotificationsEnabled(newStatus); // Optimistic UI update
+
     try {
-      const newStatus = !user.notifications_enabled;
       if (newStatus) {
         await enableNotifications();
       } else {
         await disableNotifications();
       }
+      // The user object in context will be updated eventually,
+      // but the UI already reflects the change.
       await updateUser({ ...user, notifications_enabled: newStatus });
     } catch (error) {
       console.error('Failed to update notification status', error);
+      // Revert UI change on error
+      setNotificationsEnabled(!newStatus);
     }
   };
 
@@ -47,7 +53,7 @@ const SettingsSection = () => {
             <p className="text-sm text-light-body dark:text-dark-body">Enable or disable push notifications.</p>
           </div>
         </div>
-        <Toggle enabled={user?.notifications_enabled || false} onToggle={handleNotificationsToggle} />
+        <Toggle enabled={notificationsEnabled} onToggle={handleNotificationsToggle} />
       </div>
 
       {/* Goal Customization */}
@@ -59,11 +65,8 @@ const SettingsSection = () => {
             <p className="text-sm text-light-body dark:text-dark-body">What do you want to focus on?</p>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-          <button className="p-2 rounded-lg bg-light-primary/20 text-light-primary font-semibold">Manage Anxiety</button>
-          <button className="p-2 rounded-lg bg-white/20">Improve Sleep</button>
-          <button className="p-2 rounded-lg bg-white/20">Build Confidence</button>
-          <button className="p-2 rounded-lg bg-white/20">Reduce Stress</button>
+        <div className="mt-4 text-sm text-center text-light-body dark:text-dark-body">
+          <p>Coming Soon!</p>
         </div>
       </div>
     </div>
