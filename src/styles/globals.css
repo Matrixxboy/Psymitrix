@@ -72,6 +72,10 @@
 
 /* components: glass utilities */
 @layer components {
+  .nav-link {
+    @apply text-light-body dark:text-dark-body hover:text-light-primary dark:hover:text-dark-primary transition-colors duration-200;
+  }
+
   /* Main reusable glass card */
   .glass {
     background-image: var(--glass-gradient);

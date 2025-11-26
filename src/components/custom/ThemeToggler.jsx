@@ -11,7 +11,7 @@ const ThemeToggler = () => {
       variant="outline"
       size="sm"
       onClick={toggleTheme}
-      className="h-10 w-10 rounded-full text-lg"
+      className="h-10 w-10 rounded-full text-lg "
       aria-label="Toggle theme"
       title="Toggle theme"
     >

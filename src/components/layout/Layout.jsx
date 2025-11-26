@@ -76,50 +76,66 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar (use the .glass utility) */}
-      <nav className="glass fixed top-0 left-0 right-0 z-50 border border-white/10 dark:border-white/10 shadow-lg p-4 m-5" style={{ overflow: 'visible' }}>
-        <div className="relative max-w-7xl mx-auto flex justify-between items-center">
-          <Link to="/" className="flex items-center text-2xl font-extrabold tracking-tight text-light-headings dark:text-dark-headings">
-            <img src="/MainImages/IconPNG.png" alt="PsyMitrix Logo" className="h-14 w-auto  mr-1" />
-            <span className="inline-block transform will-change-transform [text-shadow:0_2px_12px_rgba(108,99,255,0.35)]">PsyMitrix</span>
+      <nav className="glass fixed top-0 left-0 right-0 z-50 border-b border-white/10 dark:border-white/20 shadow-lg">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative flex items-center justify-between h-20">
+      {/* Logo and Brand Name */}
+      <div className="flex-shrink-0">
+        <Link to="/" className="flex items-center text-2xl font-extrabold tracking-tight text-light-headings dark:text-dark-headings">
+          <img src="/MainImages/IconPNG.png" alt="PsyMitrix Logo" className="h-12 w-auto mr-2" />
+          <span className="hidden sm:inline-block transform will-change-transform [text-shadow:0_2px_12px_rgba(108,99,255,0.35)]">
+            PsyMitrix
+          </span>
+        </Link>
+      </div>
+
+      {/* Desktop Links (hidden on small screens) */}
+      <div className="hidden lg:flex lg:items-center lg:space-x-6">
+        {isLoggedIn ? (
+          <>
+            <Link to="/dashboard" className="nav-link">Dashboard</Link>
+            <Link to="/chat" className="nav-link">AI Chat</Link>
+            <Link to="/assessments" className="nav-link">Assessments</Link>
+            <Link to="/games" className="nav-link">Games</Link>
+            <Link to="/progress" className="nav-link">Progress</Link>
+            <Link to="/reports" className="nav-link">Reports</Link>
+            <Link to="/profile" className="nav-link">Profile</Link>
+          </>
+        ) : (
+          <>
+            <Link to="/blog" className="nav-link">Blog</Link>
+            <Link to="/about" className="nav-link">About</Link>
+            <Link to="/contact" className="nav-link">Contact</Link>
+          </>
+        )}
+      </div>
+
+      {/* Right Side Icons & Auth */}
+      <div className="flex items-center space-x-2 sm:space-x-4">
+        <ThemeToggler />
+        {isLoggedIn && <NotificationIcon />}
+        
+        {isLoggedIn ? (
+          <div className="hidden sm:flex items-center space-x-4">
+            <span className="text-light-body dark:text-dark-body font-medium">{user?.name}</span>
+            <button onClick={logout} className="px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link to="/login" className="hidden sm:block px-4 py-2 rounded-lg bg-light-primary dark:bg-dark-primary text-white hover:opacity-90 transition-all">
+            Login
           </Link>
-
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            {isLoggedIn ? (
-              <>
-                <Link to="/dashboard" className="hover:text-light-primary dark:hover:text-dark-primary">Dashboard</Link>
-                <Link to="/chat" className="hover:text-light-primary dark:hover:text-dark-primary">AI Chat</Link>
-                <Link to="/assessments" className="hover:text-light-primary dark:hover:text-dark-primary">Assessments</Link>
-                <Link to="/games" className="hover:text-light-primary dark:hover:text-dark-primary">Games</Link>
-                <Link to="/progress" className="hover:text-light-primary dark:hover:text-dark-primary">Progress</Link>
-                <Link to="/reports" className="hover:text-light-primary dark:hover:text-dark-primary">Reports</Link>
-                <Link to="/profile" className="hover:text-light-primary dark:hover:text-dark-primary">Profile</Link>
-              </>
-            ) : (
-              <>
-                <Link to="/blog" className="hover:text-light-primary dark:hover:text-dark-primary">Blog</Link>
-                <Link to="/about" className="hover:text-light-primary dark:hover:text-dark-primary">About</Link>
-                <Link to="/contact" className="hover:text-light-primary dark:hover:text-dark-primary">Contact</Link>
-              </>
-            )}
-          </div>
-
-          {/* Right Side */}
-          <div className="flex items-center space-x-4">
-            <ThemeToggler />
-            {isLoggedIn && <NotificationIcon />}
-            {isLoggedIn ? (
-              <>
-                <span className="hidden sm:block text-light-body dark:text-dark-body">{user?.name}</span>
-                <button onClick={logout} className="hidden sm:block px-4 py-2 rounded-lg bg-light-accent dark:bg-dark-accent text-white hover:opacity-90 transition-all">Logout</button>
-              </>
-            ) : (
-              <Link to="/login" className="hidden sm:block px-4 py-2 rounded-lg bg-light-primary dark:bg-dark-primary text-white hover:opacity-90 transition-all">Login</Link>
-            )}
-            <Burger open={menuOpen} setOpen={setMenuOpen} />
-          </div>
+        )}
+        
+        {/* Burger Menu for small screens */}
+        <div className="lg:hidden">
+          <Burger open={menuOpen} setOpen={setMenuOpen} />
         </div>
-      </nav>
+      </div>
+    </div>
+  </div>
+</nav>
 
       {/* inject portal overlay/menu here */}
       {menuOpen && mobileMenuPortal()}

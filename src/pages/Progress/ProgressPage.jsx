@@ -32,6 +32,8 @@ import DashboardSkeleton from '../Dashboard/sections/DashboardSkeleton';
 import ChartCard from '../Dashboard/ChartCard';
 import GlassCard from '../../components/ui/GlassCard';
 
+import DonutChart from '../../components/charts/DonutChart';
+
 // Utils
 import {
   processMoodTrendsData,
